@@ -1,0 +1,39 @@
+/*
+SQLyog Ultimate v12.09 (64 bit)
+MySQL - 5.5.53 : Database - apifengkong
+*********************************************************************
+*/
+
+/*!40101 SET NAMES utf8 */;
+
+/*!40101 SET SQL_MODE=''*/;
+
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`apifengkong` /*!40100 DEFAULT CHARACTER SET utf8 */;
+
+USE `apifengkong`;
+
+/*Table structure for table `api_parameter_couple` */
+
+DROP TABLE IF EXISTS `api_parameter_couple`;
+
+CREATE TABLE `api_parameter_couple` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `search_parameter` varchar(255) DEFAULT NULL,
+  `uniform_parameter` varchar(255) DEFAULT NULL,
+  `default_value` varchar(255) DEFAULT NULL,
+  `param_desc` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8;
+
+/*Data for the table `api_parameter_couple` */
+
+insert  into `api_parameter_couple`(`id`,`search_parameter`,`uniform_parameter`,`default_value`,`param_desc`) values (5,'shouji','cellphone',NULL,'ali手机号'),(6,'name','name',NULL,'youfen姓名'),(8,'idcard','idCard',NULL,'youfen身份证'),(9,'cellphone','cellphone',NULL,'youfen手机号'),(13,'account',NULL,NULL,'youfen账户开立时分配，每个接入方的唯一标识'),(14,'name','companyName',NULL,'youfen准确的商户名称'),(15,'merchantNo','merchantNum',NULL,'youfen商户编号或商户编号识别码'),(16,'regNo','registeredNum',NULL,'youfen营业执照注册编号'),(17,'legalName','merchantName',NULL,'youfen商户负责人姓名 '),(18,'vin','vin',NULL,'youfen车架号'),(19,'engineNo','engineNum',NULL,'youfen发动机号'),(20,'licensePlateType','plateType',NULL,'youfen号牌类型'),(21,'licensePlateNo','plateNum',NULL,'youfen车牌号'),(22,'cycle','timePeriod',NULL,'youfen时间段(1,3,6,9,12,24)单位:月'),(23,'type','type',NULL,'youfen查询标签，多个标签以逗号分隔'),(24,'startTime','tradeStartTime',NULL,'youfen开始时间，当查询S013时使用'),(25,'endTime','tradeEndTime',NULL,'youfen截止时间，当查询S013时使用'),(26,'feature','feature',NULL,NULL),(27,'account','account','123',NULL),(28,'name','merchantName',NULL,NULL),(29,'account','merchantAccount',NULL,NULL),(30,'merchantNo','registeredNum',NULL,NULL),(31,'docId','docId',NULL,NULL),(32,'bankcard','bankCard',NULL,NULL),(33,'beginDate','tradeStartTime',NULL,NULL),(34,'endDate','tradeEndTime',NULL,NULL),(35,'city','city',NULL,NULL),(36,'mobile','cellphone',NULL,NULL),(37,'address','address',NULL,NULL),(38,'certNo','idCard',NULL,NULL),(39,'certType','certType','IDENTITY_CARD',NULL),(40,'q','q',NULL,NULL),(41,'sign','sign',NULL,NULL),(42,'cardno','idCard',NULL,NULL);
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;

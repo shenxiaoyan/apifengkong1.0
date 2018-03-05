@@ -1,0 +1,560 @@
+/*
+Navicat MySQL Data Transfer
+
+Source Server         : localhost_3306
+Source Server Version : 50553
+Source Host           : localhost:3306
+Source Database       : apifengkong
+
+Target Server Type    : MYSQL
+Target Server Version : 50553
+File Encoding         : 65001
+
+Date: 2017-10-11 15:44:02
+*/
+
+SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+-- Table structure for account_recharge_log
+-- ----------------------------
+DROP TABLE IF EXISTS `account_recharge_log`;
+CREATE TABLE `account_recharge_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `integrate` int(11) DEFAULT NULL,
+  `recharge_time` datetime DEFAULT NULL,
+  `customer_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKn9e5nt71wvybs8yv93rqbd2nk` (`customer_id`),
+  KEY `FK7j36mocswafhngv53p8lyyljk` (`user_id`),
+  CONSTRAINT `FK7j36mocswafhngv53p8lyyljk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
+  CONSTRAINT `FKn9e5nt71wvybs8yv93rqbd2nk` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of account_recharge_log
+-- ----------------------------
+INSERT INTO `account_recharge_log` VALUES ('1', '22222', '2017-09-28 10:44:45', '2', '2');
+INSERT INTO `account_recharge_log` VALUES ('2', '2333', '2017-09-27 09:34:56', '2', '3');
+INSERT INTO `account_recharge_log` VALUES ('3', '1111', '2017-08-29 09:35:43', '4', '2');
+INSERT INTO `account_recharge_log` VALUES ('4', '200', '2017-08-08 16:22:01', '2', '1');
+
+-- ----------------------------
+-- Table structure for api_parameter_couple
+-- ----------------------------
+DROP TABLE IF EXISTS `api_parameter_couple`;
+CREATE TABLE `api_parameter_couple` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `search_parameter` varchar(255) DEFAULT NULL,
+  `uniform_parameter` varchar(255) DEFAULT NULL,
+  `default_value` varchar(255) DEFAULT NULL,
+  `param_desc` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of api_parameter_couple
+-- ----------------------------
+INSERT INTO `api_parameter_couple` VALUES ('5', 'shouji', 'cellphone', null, 'ali手机号');
+INSERT INTO `api_parameter_couple` VALUES ('6', 'name', 'name', null, 'youfen姓名');
+INSERT INTO `api_parameter_couple` VALUES ('8', 'idcard', 'idCard', null, 'youfen身份证');
+INSERT INTO `api_parameter_couple` VALUES ('9', 'cellphone', 'cellphone', null, 'youfen手机号');
+INSERT INTO `api_parameter_couple` VALUES ('13', 'account', null, null, 'youfen账户开立时分配，每个接入方的唯一标识');
+INSERT INTO `api_parameter_couple` VALUES ('14', 'name', 'companyName', null, 'youfen准确的商户名称');
+INSERT INTO `api_parameter_couple` VALUES ('15', 'merchantNo', 'merchantNum', null, 'youfen商户编号或商户编号识别码');
+INSERT INTO `api_parameter_couple` VALUES ('16', 'regNo', 'registeredNum', null, 'youfen营业执照注册编号');
+INSERT INTO `api_parameter_couple` VALUES ('17', 'legalName', 'merchantName', null, 'youfen商户负责人姓名 ');
+INSERT INTO `api_parameter_couple` VALUES ('18', 'vin', 'vin', null, 'youfen车架号');
+INSERT INTO `api_parameter_couple` VALUES ('19', 'engineNo', 'engineNum', null, 'youfen发动机号');
+INSERT INTO `api_parameter_couple` VALUES ('20', 'licensePlateType', 'plateType', null, 'youfen号牌类型');
+INSERT INTO `api_parameter_couple` VALUES ('21', 'licensePlateNo', 'plateNum', null, 'youfen车牌号');
+INSERT INTO `api_parameter_couple` VALUES ('22', 'cycle', 'timePeriod', null, 'youfen时间段(1,3,6,9,12,24)单位:月');
+INSERT INTO `api_parameter_couple` VALUES ('23', 'type', 'type', null, 'youfen查询标签，多个标签以逗号分隔');
+INSERT INTO `api_parameter_couple` VALUES ('24', 'startTime', 'tradeStartTime', null, 'youfen开始时间，当查询S013时使用');
+INSERT INTO `api_parameter_couple` VALUES ('25', 'endTime', 'tradeEndTime', null, 'youfen截止时间，当查询S013时使用');
+INSERT INTO `api_parameter_couple` VALUES ('26', 'feature', 'feature', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('27', 'account', 'account', '123', null);
+INSERT INTO `api_parameter_couple` VALUES ('28', 'name', 'merchantName', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('29', 'account', 'merchantAccount', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('30', 'merchantNo', 'registeredNum', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('31', 'docId', 'docId', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('32', 'bankcard', 'bankCard', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('33', 'beginDate', 'tradeStartTime', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('34', 'endDate', 'tradeEndTime', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('35', 'city', 'city', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('36', 'mobile', 'cellphone', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('37', 'address', 'address', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('38', 'certNo', 'idCard', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('39', 'certType', 'certType', 'IDENTITY_CARD', null);
+INSERT INTO `api_parameter_couple` VALUES ('40', 'q', 'q', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('41', 'sign', 'sign', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('42', 'cardno', 'idCard', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('43', 'a', 'a', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('44', 'type', 'roleType', 'person', null);
+INSERT INTO `api_parameter_couple` VALUES ('45', 'phone', 'cellphone', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('46', 'entInfo', 'uniformCreditCode', null, null);
+INSERT INTO `api_parameter_couple` VALUES ('47', 'realname', 'name', null, null);
+
+-- ----------------------------
+-- Table structure for api_search_log
+-- ----------------------------
+DROP TABLE IF EXISTS `api_search_log`;
+CREATE TABLE `api_search_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cache` bit(1) NOT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `parameters` varchar(1000) DEFAULT NULL,
+  `price` int(11) DEFAULT NULL,
+  `result` longtext,
+  `api_id` int(11) DEFAULT NULL,
+  `customer_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `IDXg8d2b1q7b6o4fxk0k44e2sjwe` (`parameters`(255)),
+  KEY `FK6q683uc6w6egpiovb8mr590s9` (`api_id`),
+  KEY `FKkifo8r32vlm6toibavju0qqes` (`customer_id`),
+  KEY `FK845g7x8650w891o5isomc1vxa` (`user_id`),
+  CONSTRAINT `FK6q683uc6w6egpiovb8mr590s9` FOREIGN KEY (`api_id`) REFERENCES `supply_api` (`id`),
+  CONSTRAINT `FK845g7x8650w891o5isomc1vxa` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
+  CONSTRAINT `FKkifo8r32vlm6toibavju0qqes` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=123 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of api_search_log
+-- ----------------------------
+INSERT INTO `api_search_log` VALUES ('1', '', '2017-09-27 11:14:07', '2', '11', '手机号码归属地查询', '8001', '2', '2');
+INSERT INTO `api_search_log` VALUES ('2', '', '2017-09-26 13:33:48', '2', '10', null, '8001', '2', '1');
+INSERT INTO `api_search_log` VALUES ('3', '', '2017-09-26 13:34:42', '2', '20', null, '8002', '2', '2');
+INSERT INTO `api_search_log` VALUES ('4', '', '2017-09-20 12:54:53', 'UIUI', '9', null, '8002', '2', '2');
+INSERT INTO `api_search_log` VALUES ('5', '', '2017-08-18 12:56:28', '44', '4', null, '8001', '2', '2');
+INSERT INTO `api_search_log` VALUES ('6', '', '2017-08-28 16:01:35', 'idcard=36242119970925172X', '80', 'null', '8008', '1', '2');
+INSERT INTO `api_search_log` VALUES ('7', '\0', '2017-10-09 14:03:31', '', '114', 'null', '8002', '1', '3');
+INSERT INTO `api_search_log` VALUES ('8', '', '2017-10-09 14:16:54', '', '114', 'null', '8002', '1', '3');
+INSERT INTO `api_search_log` VALUES ('9', '\0', '2017-10-10 16:16:00', 'idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('10', '\0', '2017-10-10 16:21:31', 'cellphone=18860469557&feature=name cellphone idCard&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"1001\",\"resMsg\":\"没有接口访问权限\"}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('11', '\0', '2017-10-10 16:24:57', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('12', '', '2017-10-10 16:26:37', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('13', '', '2017-10-10 16:27:00', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('14', '', '2017-10-10 16:28:46', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('15', '', '2017-10-10 16:33:53', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('16', '', '2017-10-10 16:35:37', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('17', '\0', '2017-10-10 16:38:34', 'cellphone=18860469557&feature=name idCard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"1001\",\"resMsg\":\"没有接口访问权限\"}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('18', '', '2017-10-10 16:41:32', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('19', '', '2017-10-10 16:42:40', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('20', '', '2017-10-10 16:46:39', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"1001\",\"resMsg\":\"没有接口访问权限\"}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('21', '', '2017-10-10 16:47:32', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"1001\",\"resMsg\":\"没有接口访问权限\"}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('22', '', '2017-10-10 16:50:33', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"1001\",\"resMsg\":\"没有接口访问权限\"}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('23', '\0', '2017-10-10 16:53:33', 'cellphone=18860469557', '128', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"minIncluded\":\"是\",\"maxIncluded\":\"否\",\"min\":\"24\",\"max\":\"999\",\"unit\":\"月\"}}}', '8019', '2', '1');
+INSERT INTO `api_search_log` VALUES ('24', '', '2017-10-10 16:58:01', 'cellphone=18860469557', '128', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"minIncluded\":\"是\",\"maxIncluded\":\"否\",\"min\":\"24\",\"max\":\"999\",\"unit\":\"月\"}}}', '8019', '2', '1');
+INSERT INTO `api_search_log` VALUES ('25', '', '2017-10-10 17:03:56', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('26', '', '2017-10-10 17:04:15', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"1001\",\"resMsg\":\"没有接口访问权限\"}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('27', '\0', '2017-10-10 17:08:13', 'cellphone=18860469551', '128', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"minIncluded\":\"是\",\"maxIncluded\":\"否\",\"min\":\"0\",\"max\":\"3\",\"unit\":\"月\"}}}', '8019', '2', '1');
+INSERT INTO `api_search_log` VALUES ('28', '', '2017-10-10 17:11:40', 'cellphone=18860469551', '128', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"minIncluded\":\"是\",\"maxIncluded\":\"否\",\"min\":\"0\",\"max\":\"3\",\"unit\":\"月\"}}}', '8019', '2', '1');
+INSERT INTO `api_search_log` VALUES ('29', '', '2017-10-10 17:12:22', 'cellphone=18860469557', '128', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"minIncluded\":\"是\",\"maxIncluded\":\"否\",\"min\":\"24\",\"max\":\"999\",\"unit\":\"月\"}}}', '8019', '2', '1');
+INSERT INTO `api_search_log` VALUES ('30', '', '2017-10-10 17:13:14', 'cellphone=18860469557', '128', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"minIncluded\":\"是\",\"maxIncluded\":\"否\",\"min\":\"24\",\"max\":\"999\",\"unit\":\"月\"}}}', '8019', '2', '1');
+INSERT INTO `api_search_log` VALUES ('31', '', '2017-10-10 17:13:53', 'cellphone=18860469557', '128', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"minIncluded\":\"是\",\"maxIncluded\":\"否\",\"min\":\"24\",\"max\":\"999\",\"unit\":\"月\"}}}', '8019', '2', '1');
+INSERT INTO `api_search_log` VALUES ('32', '', '2017-10-10 17:16:40', 'cellphone=18860469557', '128', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"minIncluded\":\"是\",\"maxIncluded\":\"否\",\"min\":\"24\",\"max\":\"999\",\"unit\":\"月\"}}}', '8019', '2', '1');
+INSERT INTO `api_search_log` VALUES ('33', '', '2017-10-10 17:17:23', 'cellphone=18860469557', '128', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"minIncluded\":\"是\",\"maxIncluded\":\"否\",\"min\":\"24\",\"max\":\"999\",\"unit\":\"月\"}}}', '8019', '2', '1');
+INSERT INTO `api_search_log` VALUES ('34', '', '2017-10-10 17:49:20', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('35', '', '2017-10-10 17:49:57', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('36', '', '2017-10-10 17:53:41', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('37', '\0', '2017-10-10 17:53:48', 'cellphone=18860469557&mobile=18860469557', '10', '{\"error_code\":0,\"reason\":\"Success\",\"result\":{\"company\":\"中国移动\",\"card\":\"中国移动 GSM/3G\",\"province\":\"安徽\",\"city\":\"六安\",\"num\":\"1886046\",\"citycode\":\"0564\",\"areacode\":\"341500\",\"provincecode\":\"340000\",\"zip\":\"237000\",\"prefix\":\"188\"}}', '8001', '2', '1');
+INSERT INTO `api_search_log` VALUES ('38', '', '2017-10-10 17:54:02', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('39', '', '2017-10-10 17:54:43', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('40', '\0', '2017-10-10 17:54:53', 'idCard=341623199405284821&idcard=341623199405284821', '1140', '{\"resCode\":\"1005\",\"resMsg\":\"idcard参数为空或格式错误\"}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('41', '', '2017-10-10 17:55:03', 'idCard=341623199405284821&idcard=341623199405284821', '1140', '{\"resCode\":\"1005\",\"resMsg\":\"idcard参数为空或格式错误\"}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('42', '', '2017-10-10 17:56:11', 'idCard=341623199405284821&idcard=341623199405284821', '1140', '{\"resCode\":\"1005\",\"resMsg\":\"idcard参数为空或格式错误\"}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('43', '', '2017-10-10 17:56:40', 'idCard=341623199405284821&idcard=341623199405284821', '1140', '{\"resCode\":\"1005\",\"resMsg\":\"idcard参数为空或格式错误\"}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('44', '\0', '2017-10-11 09:32:16', 'cellphone=18860469557&mobile=18860469557', '10', '{\"error_code\":0,\"reason\":\"Success\",\"result\":{\"company\":\"中国移动\",\"card\":\"中国移动 GSM/3G\",\"province\":\"安徽\",\"city\":\"六安\",\"num\":\"1886046\",\"citycode\":\"0564\",\"areacode\":\"341500\",\"provincecode\":\"340000\",\"zip\":\"237000\",\"prefix\":\"188\"}}', '8001', '2', '1');
+INSERT INTO `api_search_log` VALUES ('45', '\0', '2017-10-11 09:32:36', 'cellphone=18860469557', '114', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"cellphoneStatus\":\"正常\",\"destoryDate\":\"\"}}}', '8002', '2', '1');
+INSERT INTO `api_search_log` VALUES ('46', '\0', '2017-10-11 09:39:22', 'cellphone=18860469557&feature=name cellphone idcard&idcard=341623199405284820&name=沈小艳', '80', '{\"resCode\":\"1001\",\"resMsg\":\"没有接口访问权限\"}', '8008', '2', '1');
+INSERT INTO `api_search_log` VALUES ('47', '\0', '2017-10-11 09:40:39', 'cellphone=18860469557&feature=name cellphone&name=沈小艳', '80', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2026\",\"statusMsg\":\"不支持的手机号段\"}}', '8008', '2', '1');
+INSERT INTO `api_search_log` VALUES ('48', '\0', '2017-10-11 09:44:35', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('49', '', '2017-10-11 09:45:26', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('50', '', '2017-10-11 09:48:02', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('51', '', '2017-10-11 09:50:44', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('52', '', '2017-10-11 09:51:53', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('53', '\0', '2017-10-11 09:52:01', 'cellphone=18860469550&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2006\",\"statusMsg\":\"不一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('54', '', '2017-10-11 09:52:49', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('55', '\0', '2017-10-11 09:52:57', 'cellphone=18860469556&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2006\",\"statusMsg\":\"不一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('56', '', '2017-10-11 09:52:57', 'cellphone=18860469556&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2006\",\"statusMsg\":\"不一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('57', '', '2017-10-11 10:01:20', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('58', '', '2017-10-11 10:02:06', 'cellphone=18860469550&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2006\",\"statusMsg\":\"不一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('59', '\0', '2017-10-11 10:03:27', 'cellphone=18860469551&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2006\",\"statusMsg\":\"不一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('60', '\0', '2017-10-11 10:05:04', 'cellphone=13777490343&feature=name idcard cellphone&idCard=36242119970925172X&idcard=36242119970925172X&name=聂丽君', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('61', '\0', '2017-10-11 10:05:16', 'cellphone=18860469557&feature=name idcard cellphone&idCard=36242119970925172X&idcard=36242119970925172X&name=聂丽君', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2006\",\"statusMsg\":\"不一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('62', '\0', '2017-10-11 10:11:14', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2006\",\"statusMsg\":\"不一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('63', '\0', '2017-10-11 10:11:25', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284821&idcard=341623199405284821&name=沈小', '186', '{\"resCode\":\"1005\",\"resMsg\":\"idcard参数为空或格式错误\"}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('64', '', '2017-10-11 10:12:05', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('65', '\0', '2017-10-11 10:13:50', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284821&idcard=341623199405284821&name=沈小艳', '186', '{\"resCode\":\"1005\",\"resMsg\":\"idcard参数为空或格式错误\"}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('66', '', '2017-10-11 10:14:48', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284821&idcard=341623199405284821&name=沈小艳', '186', '{\"resCode\":\"1005\",\"resMsg\":\"idcard参数为空或格式错误\"}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('67', '\0', '2017-10-11 10:16:00', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284822&idcard=341623199405284822&name=沈小艳', '186', '{\"resCode\":\"1005\",\"resMsg\":\"idcard参数为空或格式错误\"}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('68', '', '2017-10-11 10:28:09', 'cellphone=18860469557', '114', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"cellphoneStatus\":\"正常\",\"destoryDate\":\"\"}}}', '8002', '2', '1');
+INSERT INTO `api_search_log` VALUES ('69', '', '2017-10-11 10:36:09', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\"}}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('70', '', '2017-10-11 10:36:14', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284821&idcard=341623199405284821&name=沈小艳', '186', '{\"resCode\":\"1005\",\"resMsg\":\"idcard参数为空或格式错误\"}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('71', '\0', '2017-10-11 10:36:24', 'cellphone=18860469557&feature=name idcard cellphone&idCard=34162319940528482X&idcard=34162319940528482X&name=沈小艳', '186', '{\"resCode\":\"1005\",\"resMsg\":\"idcard参数为空或格式错误\"}', '8023', '2', '1');
+INSERT INTO `api_search_log` VALUES ('72', '', '2017-10-11 10:38:21', 'cellphone=18860469557', '114', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"cellphoneStatus\":\"正常\",\"destoryDate\":\"\"}}}', '8002', '2', '1');
+INSERT INTO `api_search_log` VALUES ('73', '\0', '2017-10-11 10:46:07', 'feature=name idcard&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '80', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\"}}', '8008', '2', '1');
+INSERT INTO `api_search_log` VALUES ('74', '\0', '2017-10-11 10:51:38', 'cellphone=18860469557&feature=name cellphone&name=沈小艳', '220', '{\"resCode\":\"1001\",\"resMsg\":\"没有接口访问权限\"}', '8009', '2', '1');
+INSERT INTO `api_search_log` VALUES ('75', '', '2017-10-11 10:53:11', 'cellphone=18860469557&feature=name cellphone&name=沈小艳', '220', '{\"resCode\":\"1001\",\"resMsg\":\"没有接口访问权限\"}', '8009', '2', '1');
+INSERT INTO `api_search_log` VALUES ('76', '', '2017-10-11 10:57:19', 'cellphone=18860469557&feature=name cellphone&name=沈小艳', '220', '{\"resCode\":\"1001\",\"resMsg\":\"没有接口访问权限\"}', '8009', '2', '1');
+INSERT INTO `api_search_log` VALUES ('77', '', '2017-10-11 10:59:00', 'cellphone=18860469557&feature=name cellphone&name=沈小艳', '220', '{\"resCode\":\"1001\",\"resMsg\":\"没有接口访问权限\"}', '8009', '2', '1');
+INSERT INTO `api_search_log` VALUES ('78', '\0', '2017-10-11 10:59:39', 'feature=name idcard&idCard=341623199405284821&idcard=341623199405284821&name=沈小艳', '80', '{\"resCode\":\"1005\",\"resMsg\":\"idcard参数为空或格式错误\"}', '8008', '2', '1');
+INSERT INTO `api_search_log` VALUES ('79', '', '2017-10-11 10:59:44', 'feature=name idcard&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '80', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\"}}', '8008', '2', '1');
+INSERT INTO `api_search_log` VALUES ('80', '', '2017-10-11 11:01:45', 'cellphone=18860469557&feature=name cellphone&name=沈小艳', '220', '{\"resCode\":\"1001\",\"resMsg\":\"没有接口访问权限\"}', '8009', '2', '1');
+INSERT INTO `api_search_log` VALUES ('81', '\0', '2017-10-11 11:10:01', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('82', '', '2017-10-11 11:11:31', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('83', '', '2017-10-11 11:19:59', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('84', '', '2017-10-11 11:21:55', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '1');
+INSERT INTO `api_search_log` VALUES ('85', '', '2017-10-11 11:48:27', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '2');
+INSERT INTO `api_search_log` VALUES ('86', '\0', '2017-10-11 12:09:13', 'cellphone=18860469557&mobile=18860469557', '10', '{\"error_code\":0,\"reason\":\"Success\",\"result\":{\"company\":\"中国移动\",\"card\":\"中国移动 GSM/3G\",\"province\":\"安徽\",\"city\":\"六安\",\"num\":\"1886046\",\"citycode\":\"0564\",\"areacode\":\"341500\",\"provincecode\":\"340000\",\"zip\":\"237000\",\"prefix\":\"188\"}}', '8001', '2', '2');
+INSERT INTO `api_search_log` VALUES ('87', '\0', '2017-10-11 12:09:30', 'cellphone=13777490343&mobile=13777490343', '10', '{\"error_code\":0,\"reason\":\"Success\",\"result\":{\"company\":\"中国移动\",\"card\":\"中国移动 GSM\",\"province\":\"浙江\",\"city\":\"杭州\",\"num\":\"1377749\",\"citycode\":\"0571\",\"areacode\":\"330100\",\"provincecode\":\"330000\",\"zip\":\"310000\",\"prefix\":\"137\"}}', '8001', '2', '2');
+INSERT INTO `api_search_log` VALUES ('88', '\0', '2017-10-11 12:17:36', 'cellphone=18860469557', '114', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"cellphoneStatus\":\"正常\",\"destoryDate\":\"\"}}}', '8002', '2', '2');
+INSERT INTO `api_search_log` VALUES ('89', '', '2017-10-11 12:18:02', 'cellphone=18860469557', '114', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"cellphoneStatus\":\"正常\",\"destoryDate\":\"\"}}}', '8002', '2', '2');
+INSERT INTO `api_search_log` VALUES ('90', '\0', '2017-10-11 13:53:34', 'cellphone=18860469557', '128', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"minIncluded\":\"是\",\"maxIncluded\":\"否\",\"min\":\"24\",\"max\":\"999\",\"unit\":\"月\"}}}', '8019', '2', '2');
+INSERT INTO `api_search_log` VALUES ('91', '\0', '2017-10-11 13:54:45', 'cellphone=18860469551', '128', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"minIncluded\":\"是\",\"maxIncluded\":\"否\",\"min\":\"0\",\"max\":\"3\",\"unit\":\"月\"}}}', '8019', '2', '2');
+INSERT INTO `api_search_log` VALUES ('92', '\0', '2017-10-11 13:55:40', 'cellphone=11111111111', '128', '{\"resCode\":\"2026\",\"resMsg\":\"不支持的手机号段\"}', '8019', '2', '2');
+INSERT INTO `api_search_log` VALUES ('93', '\0', '2017-10-11 13:56:22', 'cellphone=18892654243', '128', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"minIncluded\":\"是\",\"maxIncluded\":\"否\",\"min\":\"6\",\"max\":\"12\",\"unit\":\"月\"}}}', '8019', '2', '2');
+INSERT INTO `api_search_log` VALUES ('94', '', '2017-10-11 13:56:41', 'cellphone=18860469557', '128', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"minIncluded\":\"是\",\"maxIncluded\":\"否\",\"min\":\"24\",\"max\":\"999\",\"unit\":\"月\"}}}', '8019', '2', '2');
+INSERT INTO `api_search_log` VALUES ('95', '', '2017-10-11 13:56:55', 'cellphone=11111111111', '128', '{\"resCode\":\"2026\",\"resMsg\":\"不支持的手机号段\"}', '8019', '2', '2');
+INSERT INTO `api_search_log` VALUES ('96', '', '2017-10-11 13:59:27', 'cellphone=11111111111', '128', '{\"resCode\":\"2026\",\"resMsg\":\"不支持的手机号段\"}', '8019', '2', '2');
+INSERT INTO `api_search_log` VALUES ('97', '', '2017-10-11 14:00:45', 'cellphone=11111111111', '128', '{\"resCode\":\"2026\",\"resMsg\":\"不支持的手机号段\"}', '8019', '2', '2');
+INSERT INTO `api_search_log` VALUES ('98', '', '2017-10-11 14:05:02', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '2');
+INSERT INTO `api_search_log` VALUES ('99', '\0', '2017-10-11 14:15:19', 'feature=name idcard&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '114', '{\"resCode\":\"1001\",\"resMsg\":\"没有接口访问权限\"}', '8021', '2', '2');
+INSERT INTO `api_search_log` VALUES ('100', '', '2017-10-11 14:15:24', 'feature=name idcard&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '114', '{\"resCode\":\"1001\",\"resMsg\":\"没有接口访问权限\"}', '8021', '2', '2');
+INSERT INTO `api_search_log` VALUES ('101', '\0', '2017-10-11 14:17:26', 'idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '114', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\",\"photo\":\"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\"}}', '8021', '2', '2');
+INSERT INTO `api_search_log` VALUES ('102', '', '2017-10-11 14:18:58', 'idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '114', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\",\"photo\":\"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\"}}', '8021', '2', '2');
+INSERT INTO `api_search_log` VALUES ('103', '', '2017-10-11 14:20:06', 'idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '114', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\",\"photo\":\"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\"}}', '8021', '2', '2');
+INSERT INTO `api_search_log` VALUES ('104', '\0', '2017-10-11 14:20:11', 'idCard=341623199405284821&idcard=341623199405284821&name=沈小艳', '114', '{\"resCode\":\"1005\",\"resMsg\":\"idcard参数为空或格式错误\"}', '8021', '2', '2');
+INSERT INTO `api_search_log` VALUES ('105', '\0', '2017-10-11 14:20:19', 'idCard=341623199405284820&idcard=341623199405284820&name=沈小', '114', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2006\",\"statusMsg\":\"不一致\",\"photo\":null}}', '8021', '2', '2');
+INSERT INTO `api_search_log` VALUES ('106', '\0', '2017-10-11 14:29:53', 'idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '460', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"name\":\"沈小艳\",\"college\":\"皖西学院\",\"degree\":\"本科\",\"startTime\":\"2013\",\"specialty\":\"电子信息工程\",\"graduateTime\":\"2017\",\"studyResult\":\"毕业\",\"degreeStyle\":\"普通\",\"collegeType\":\"3\",\"collegeCity\":\"\",\"character\":\"\",\"manageDept\":\"\",\"schoolType\":\"\",\"collegeCategory\":\"\",\"collegeLevel\":\"\",\"educationApproach\":\"\",\"is985\":\"\",\"is211\":\"\",\"createDate\":\"\",\"createYears\":\"\",\"academicianNum\":\"\",\"postDoctorNum\":\"\",\"doctorDegreeNum\":\"\",\"masterDegreeNum\":\"\",\"nationalSubjectNum\":\"\",\"studyStyle\":\"普通全日制\"}}}', '8024', '2', '2');
+INSERT INTO `api_search_log` VALUES ('107', '', '2017-10-11 14:31:38', 'idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '460', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"name\":\"沈小艳\",\"college\":\"皖西学院\",\"degree\":\"本科\",\"startTime\":\"2013\",\"specialty\":\"电子信息工程\",\"graduateTime\":\"2017\",\"studyResult\":\"毕业\",\"degreeStyle\":\"普通\",\"collegeType\":\"3\",\"collegeCity\":\"\",\"character\":\"\",\"manageDept\":\"\",\"schoolType\":\"\",\"collegeCategory\":\"\",\"collegeLevel\":\"\",\"educationApproach\":\"\",\"is985\":\"\",\"is211\":\"\",\"createDate\":\"\",\"createYears\":\"\",\"academicianNum\":\"\",\"postDoctorNum\":\"\",\"doctorDegreeNum\":\"\",\"masterDegreeNum\":\"\",\"nationalSubjectNum\":\"\",\"studyStyle\":\"普通全日制\"}}}', '8024', '2', '2');
+INSERT INTO `api_search_log` VALUES ('108', '', '2017-10-11 14:33:06', 'idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '460', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"name\":\"沈小艳\",\"college\":\"皖西学院\",\"degree\":\"本科\",\"startTime\":\"2013\",\"specialty\":\"电子信息工程\",\"graduateTime\":\"2017\",\"studyResult\":\"毕业\",\"degreeStyle\":\"普通\",\"collegeType\":\"3\",\"collegeCity\":\"\",\"character\":\"\",\"manageDept\":\"\",\"schoolType\":\"\",\"collegeCategory\":\"\",\"collegeLevel\":\"\",\"educationApproach\":\"\",\"is985\":\"\",\"is211\":\"\",\"createDate\":\"\",\"createYears\":\"\",\"academicianNum\":\"\",\"postDoctorNum\":\"\",\"doctorDegreeNum\":\"\",\"masterDegreeNum\":\"\",\"nationalSubjectNum\":\"\",\"studyStyle\":\"普通全日制\"}}}', '8024', '2', '2');
+INSERT INTO `api_search_log` VALUES ('109', '', '2017-10-11 14:33:10', 'idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '460', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"name\":\"沈小艳\",\"college\":\"皖西学院\",\"degree\":\"本科\",\"startTime\":\"2013\",\"specialty\":\"电子信息工程\",\"graduateTime\":\"2017\",\"studyResult\":\"毕业\",\"degreeStyle\":\"普通\",\"collegeType\":\"3\",\"collegeCity\":\"\",\"character\":\"\",\"manageDept\":\"\",\"schoolType\":\"\",\"collegeCategory\":\"\",\"collegeLevel\":\"\",\"educationApproach\":\"\",\"is985\":\"\",\"is211\":\"\",\"createDate\":\"\",\"createYears\":\"\",\"academicianNum\":\"\",\"postDoctorNum\":\"\",\"doctorDegreeNum\":\"\",\"masterDegreeNum\":\"\",\"nationalSubjectNum\":\"\",\"studyStyle\":\"普通全日制\"}}}', '8024', '2', '2');
+INSERT INTO `api_search_log` VALUES ('110', '', '2017-10-11 14:34:26', 'idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '460', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"name\":\"沈小艳\",\"college\":\"皖西学院\",\"degree\":\"本科\",\"startTime\":\"2013\",\"specialty\":\"电子信息工程\",\"graduateTime\":\"2017\",\"studyResult\":\"毕业\",\"degreeStyle\":\"普通\",\"collegeType\":\"3\",\"collegeCity\":\"\",\"character\":\"\",\"manageDept\":\"\",\"schoolType\":\"\",\"collegeCategory\":\"\",\"collegeLevel\":\"\",\"educationApproach\":\"\",\"is985\":\"\",\"is211\":\"\",\"createDate\":\"\",\"createYears\":\"\",\"academicianNum\":\"\",\"postDoctorNum\":\"\",\"doctorDegreeNum\":\"\",\"masterDegreeNum\":\"\",\"nationalSubjectNum\":\"\",\"studyStyle\":\"普通全日制\"}}}', '8024', '2', '2');
+INSERT INTO `api_search_log` VALUES ('111', '\0', '2017-10-11 14:35:09', 'idCard=36242119970925172X&idcard=36242119970925172X&name=聂丽君', '460', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8024', '2', '2');
+INSERT INTO `api_search_log` VALUES ('112', '', '2017-10-11 14:36:05', 'idCard=341623199405284820&idcard=341623199405284820', '1140', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8011', '2', '2');
+INSERT INTO `api_search_log` VALUES ('113', '', '2017-10-11 14:36:16', 'cellphone=18860469557&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2005\",\"statusMsg\":\"一致\"}}', '8023', '2', '2');
+INSERT INTO `api_search_log` VALUES ('114', '', '2017-10-11 14:36:22', 'cellphone=18860469556&feature=name idcard cellphone&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '186', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2006\",\"statusMsg\":\"不一致\"}}', '8023', '2', '2');
+INSERT INTO `api_search_log` VALUES ('115', '\0', '2017-10-11 14:43:49', 'bankcard=6212261314000935555&cellphone=18860469557&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '430', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"indexProperty\":{\"cardProperty\":\"借记卡\",\"firstTransDate\":\"20130926\",\"transTotalAmount\":\"60.00\",\"transTotalCount\":\"1\",\"cashTotalAmount\":\"未知\",\"cashTotalCount\":\"未知\",\"refundTotalAmount\":\"0.00\",\"refundTotalCount\":\"0\",\"rigidTransAmountPercent\":\"未知\",\"fromCity\":\"上海市\",\"noTransWeekPercent\":\"96%\",\"monthlyCardLargeAmount\":\"60.00\"},\"indexMonthConsumes\":{\"transAmount\":\"1708_未知;1707_未知;1706_未知;1705_未知;1704_未知;1703_60.00;1702_未知;1701_未知;1612_未知;1611_未知;1610_未知;1609_未知\",\"amountRank\":\"1708_100%;1707_100%;1706_100%;1705_100%;1704_100%;1703_95%;1702_100%;1701_100%;1612_100%;1611_100%;1610_100%;1609_100%\",\"transCount\":\"1708_未知;1707_未知;1706_未知;1705_未知;1704_未知;1703_1;1702_未知;1701_未知;1612_未知;1611_未知;1610_未知;1609_未知\",\"countRank\":\"1708_100%;1707_100%;1706_100%;1705_100%;1704_100%;1703_100%;1702_100%;1701_100%;1612_100%;1611_100%;1610_100%;1609_100%\",\"cashAmount\":\"未知\",\"cashCount\":\"未知\"},\"indexConsumeCategories\":{\"transAmountPercent\":\"11_100%;12_0%;13_0%;14_0%;15_0%;其他_0%\",\"transCountPercent\":\"11_100%;12_0%;13_0%;14_0%;15_0%;其他_0%\"},\"indexConsumeCities\":{\"placesTransAmountPercent\":\"5800_100%;其他_0%\",\"placesTransCountPercent\":\"5800_100%;其他_0%\"},\"indexTransBehavior\":{\"ifHasBusinessTrip\":\"0\",\"ifHasWeddingTrans\":\"未知\",\"ifHasFamily\":\"未知\",\"ifHasOverseasTrans\":\"0\",\"ifHasNightTrans\":\"未知\",\"ifHasLotteryTrans\":\"0\",\"ifHasUnemployed\":\"未知\"},\"indexTransCredits\":{\"publicPayAmount\":\"0.00\",\"publicPayCount\":\"0\",\"taxAmount\":\"未知\",\"taxCount\":\"未知\",\"nightTransAmount\":\"未知\",\"nightTransCount\":\"未知\",\"lotteryTransAmount\":\"未知\",\"lotteryTransCount\":\"未知\",\"onlineTransAmount\":\"60.00\",\"onlineTransCount\":\"2\"},\"cashOut\":null}}}', '8025', '2', '2');
+INSERT INTO `api_search_log` VALUES ('116', '', '2017-10-11 14:44:25', 'bankcard=6212261314000935555&cellphone=18860469557&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '430', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"indexProperty\":{\"cardProperty\":\"借记卡\",\"firstTransDate\":\"20130926\",\"transTotalAmount\":\"60.00\",\"transTotalCount\":\"1\",\"cashTotalAmount\":\"未知\",\"cashTotalCount\":\"未知\",\"refundTotalAmount\":\"0.00\",\"refundTotalCount\":\"0\",\"rigidTransAmountPercent\":\"未知\",\"fromCity\":\"上海市\",\"noTransWeekPercent\":\"96%\",\"monthlyCardLargeAmount\":\"60.00\"},\"indexMonthConsumes\":{\"transAmount\":\"1708_未知;1707_未知;1706_未知;1705_未知;1704_未知;1703_60.00;1702_未知;1701_未知;1612_未知;1611_未知;1610_未知;1609_未知\",\"amountRank\":\"1708_100%;1707_100%;1706_100%;1705_100%;1704_100%;1703_95%;1702_100%;1701_100%;1612_100%;1611_100%;1610_100%;1609_100%\",\"transCount\":\"1708_未知;1707_未知;1706_未知;1705_未知;1704_未知;1703_1;1702_未知;1701_未知;1612_未知;1611_未知;1610_未知;1609_未知\",\"countRank\":\"1708_100%;1707_100%;1706_100%;1705_100%;1704_100%;1703_100%;1702_100%;1701_100%;1612_100%;1611_100%;1610_100%;1609_100%\",\"cashAmount\":\"未知\",\"cashCount\":\"未知\"},\"indexConsumeCategories\":{\"transAmountPercent\":\"11_100%;12_0%;13_0%;14_0%;15_0%;其他_0%\",\"transCountPercent\":\"11_100%;12_0%;13_0%;14_0%;15_0%;其他_0%\"},\"indexConsumeCities\":{\"placesTransAmountPercent\":\"5800_100%;其他_0%\",\"placesTransCountPercent\":\"5800_100%;其他_0%\"},\"indexTransBehavior\":{\"ifHasBusinessTrip\":\"0\",\"ifHasWeddingTrans\":\"未知\",\"ifHasFamily\":\"未知\",\"ifHasOverseasTrans\":\"0\",\"ifHasNightTrans\":\"未知\",\"ifHasLotteryTrans\":\"0\",\"ifHasUnemployed\":\"未知\"},\"indexTransCredits\":{\"publicPayAmount\":\"0.00\",\"publicPayCount\":\"0\",\"taxAmount\":\"未知\",\"taxCount\":\"未知\",\"nightTransAmount\":\"未知\",\"nightTransCount\":\"未知\",\"lotteryTransAmount\":\"未知\",\"lotteryTransCount\":\"未知\",\"onlineTransAmount\":\"60.00\",\"onlineTransCount\":\"2\"},\"cashOut\":null}}}', '8025', '2', '2');
+INSERT INTO `api_search_log` VALUES ('117', '\0', '2017-10-11 14:49:39', 'bankcard=6212261314000935556&cellphone=18860469557&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '430', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2007\",\"statusMsg\":\"本数据库中未查得\"}}', '8025', '2', '2');
+INSERT INTO `api_search_log` VALUES ('118', '\0', '2017-10-11 14:55:00', 'bankcard=6222021102069069667&cellphone=18362675393&idCard=320981199010104798&idcard=320981199010104798&name=丁建华', '430', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"indexProperty\":{\"cardProperty\":\"借记卡\",\"firstTransDate\":\"20150906\",\"transTotalAmount\":\"0.00\",\"transTotalCount\":\"0\",\"cashTotalAmount\":\"400.00\",\"cashTotalCount\":\"2\",\"refundTotalAmount\":\"0.00\",\"refundTotalCount\":\"0\",\"rigidTransAmountPercent\":\"未知\",\"fromCity\":\"深圳市\",\"noTransWeekPercent\":\"88%\",\"monthlyCardLargeAmount\":\"0.00\"},\"indexMonthConsumes\":{\"transAmount\":\"1708_未知;1707_未知;1706_未知;1705_未知;1704_未知;1703_未知;1702_未知;1701_0.00;1612_未知;1611_未知;1610_0.00;1609_未知\",\"amountRank\":\"1708_100%;1707_100%;1706_100%;1705_100%;1704_100%;1703_100%;1702_100%;1701_100%;1612_100%;1611_100%;1610_100%;1609_100%\",\"transCount\":\"1708_未知;1707_未知;1706_未知;1705_未知;1704_未知;1703_未知;1702_未知;1701_0;1612_未知;1611_未知;1610_0;1609_未知\",\"countRank\":\"1708_100%;1707_100%;1706_100%;1705_100%;1704_100%;1703_100%;1702_100%;1701_100%;1612_100%;1611_100%;1610_100%;1609_100%\",\"cashAmount\":\"1708_未知;1707_未知;1706_未知;1705_未知;1704_未知;1703_未知;1702_未知;1701_200.00;1612_未知;1611_未知;1610_200.00;1609_未知\",\"cashCount\":\"1708_未知;1707_未知;1706_未知;1705_未知;1704_未知;1703_未知;1702_未知;1701_1;1612_未知;1611_未知;1610_1;1609_未知\"},\"indexConsumeCategories\":{\"transAmountPercent\":\"25_100%;11_0%;12_0%;13_0%;14_0%;其他_0%\",\"transCountPercent\":\"25_100%;11_0%;12_0%;13_0%;14_0%;其他_0%\"},\"indexConsumeCities\":{\"placesTransAmountPercent\":\"2900_50%;6020_50%;其他_0%\",\"placesTransCountPercent\":\"2900_50%;6020_50%;其他_0%\"},\"indexTransBehavior\":{\"ifHasBusinessTrip\":\"1\",\"ifHasWeddingTrans\":\"未知\",\"ifHasFamily\":\"未知\",\"ifHasOverseasTrans\":\"0\",\"ifHasNightTrans\":\"未知\",\"ifHasLotteryTrans\":\"0\",\"ifHasUnemployed\":\"未知\"},\"indexTransCredits\":{\"publicPayAmount\":\"0.00\",\"publicPayCount\":\"0\",\"taxAmount\":\"未知\",\"taxCount\":\"未知\",\"nightTransAmount\":\"未知\",\"nightTransCount\":\"未知\",\"lotteryTransAmount\":\"未知\",\"lotteryTransCount\":\"未知\",\"onlineTransAmount\":\"0.00\",\"onlineTransCount\":\"7\"},\"cashOut\":null}}}', '8025', '2', '2');
+INSERT INTO `api_search_log` VALUES ('119', '\0', '2017-10-11 14:57:44', 'idCard=320981199010104798&idcard=320981199010104798&name=丁建华', '460', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"name\":\"丁建华\",\"college\":\"沈阳航空航天大学\",\"degree\":\"本科\",\"startTime\":\"2009\",\"specialty\":\"应用物理学\",\"graduateTime\":\"2013\",\"studyResult\":\"毕业\",\"degreeStyle\":\"普通\",\"collegeType\":\"3\",\"collegeCity\":\"\",\"character\":\"\",\"manageDept\":\"\",\"schoolType\":\"\",\"collegeCategory\":\"\",\"collegeLevel\":\"\",\"educationApproach\":\"\",\"is985\":\"\",\"is211\":\"\",\"createDate\":\"\",\"createYears\":\"\",\"academicianNum\":\"\",\"postDoctorNum\":\"\",\"doctorDegreeNum\":\"\",\"masterDegreeNum\":\"\",\"nationalSubjectNum\":\"\",\"studyStyle\":\"普通全日制\"}}}', '8024', '2', '2');
+INSERT INTO `api_search_log` VALUES ('120', '\0', '2017-10-11 14:58:46', 'bankcard=6212261314000935555&cellphone=15869001094&idCard=341623199405284820&idcard=341623199405284820&name=李扬', '430', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"indexProperty\":{\"cardProperty\":\"借记卡\",\"firstTransDate\":\"20130926\",\"transTotalAmount\":\"60.00\",\"transTotalCount\":\"1\",\"cashTotalAmount\":\"未知\",\"cashTotalCount\":\"未知\",\"refundTotalAmount\":\"0.00\",\"refundTotalCount\":\"0\",\"rigidTransAmountPercent\":\"未知\",\"fromCity\":\"上海市\",\"noTransWeekPercent\":\"96%\",\"monthlyCardLargeAmount\":\"60.00\"},\"indexMonthConsumes\":{\"transAmount\":\"1708_未知;1707_未知;1706_未知;1705_未知;1704_未知;1703_60.00;1702_未知;1701_未知;1612_未知;1611_未知;1610_未知;1609_未知\",\"amountRank\":\"1708_100%;1707_100%;1706_100%;1705_100%;1704_100%;1703_95%;1702_100%;1701_100%;1612_100%;1611_100%;1610_100%;1609_100%\",\"transCount\":\"1708_未知;1707_未知;1706_未知;1705_未知;1704_未知;1703_1;1702_未知;1701_未知;1612_未知;1611_未知;1610_未知;1609_未知\",\"countRank\":\"1708_100%;1707_100%;1706_100%;1705_100%;1704_100%;1703_100%;1702_100%;1701_100%;1612_100%;1611_100%;1610_100%;1609_100%\",\"cashAmount\":\"未知\",\"cashCount\":\"未知\"},\"indexConsumeCategories\":{\"transAmountPercent\":\"11_100%;12_0%;13_0%;14_0%;15_0%;其他_0%\",\"transCountPercent\":\"11_100%;12_0%;13_0%;14_0%;15_0%;其他_0%\"},\"indexConsumeCities\":{\"placesTransAmountPercent\":\"5800_100%;其他_0%\",\"placesTransCountPercent\":\"5800_100%;其他_0%\"},\"indexTransBehavior\":{\"ifHasBusinessTrip\":\"0\",\"ifHasWeddingTrans\":\"未知\",\"ifHasFamily\":\"未知\",\"ifHasOverseasTrans\":\"0\",\"ifHasNightTrans\":\"未知\",\"ifHasLotteryTrans\":\"0\",\"ifHasUnemployed\":\"未知\"},\"indexTransCredits\":{\"publicPayAmount\":\"0.00\",\"publicPayCount\":\"0\",\"taxAmount\":\"未知\",\"taxCount\":\"未知\",\"nightTransAmount\":\"未知\",\"nightTransCount\":\"未知\",\"lotteryTransAmount\":\"未知\",\"lotteryTransCount\":\"未知\",\"onlineTransAmount\":\"60.00\",\"onlineTransCount\":\"2\"},\"cashOut\":null}}}', '8025', '2', '2');
+INSERT INTO `api_search_log` VALUES ('121', '', '2017-10-11 14:59:21', 'bankcard=6212261314000935555&cellphone=15869001094&idCard=341623199405284820&idcard=341623199405284820&name=李扬', '430', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"indexProperty\":{\"cardProperty\":\"借记卡\",\"firstTransDate\":\"20130926\",\"transTotalAmount\":\"60.00\",\"transTotalCount\":\"1\",\"cashTotalAmount\":\"未知\",\"cashTotalCount\":\"未知\",\"refundTotalAmount\":\"0.00\",\"refundTotalCount\":\"0\",\"rigidTransAmountPercent\":\"未知\",\"fromCity\":\"上海市\",\"noTransWeekPercent\":\"96%\",\"monthlyCardLargeAmount\":\"60.00\"},\"indexMonthConsumes\":{\"transAmount\":\"1708_未知;1707_未知;1706_未知;1705_未知;1704_未知;1703_60.00;1702_未知;1701_未知;1612_未知;1611_未知;1610_未知;1609_未知\",\"amountRank\":\"1708_100%;1707_100%;1706_100%;1705_100%;1704_100%;1703_95%;1702_100%;1701_100%;1612_100%;1611_100%;1610_100%;1609_100%\",\"transCount\":\"1708_未知;1707_未知;1706_未知;1705_未知;1704_未知;1703_1;1702_未知;1701_未知;1612_未知;1611_未知;1610_未知;1609_未知\",\"countRank\":\"1708_100%;1707_100%;1706_100%;1705_100%;1704_100%;1703_100%;1702_100%;1701_100%;1612_100%;1611_100%;1610_100%;1609_100%\",\"cashAmount\":\"未知\",\"cashCount\":\"未知\"},\"indexConsumeCategories\":{\"transAmountPercent\":\"11_100%;12_0%;13_0%;14_0%;15_0%;其他_0%\",\"transCountPercent\":\"11_100%;12_0%;13_0%;14_0%;15_0%;其他_0%\"},\"indexConsumeCities\":{\"placesTransAmountPercent\":\"5800_100%;其他_0%\",\"placesTransCountPercent\":\"5800_100%;其他_0%\"},\"indexTransBehavior\":{\"ifHasBusinessTrip\":\"0\",\"ifHasWeddingTrans\":\"未知\",\"ifHasFamily\":\"未知\",\"ifHasOverseasTrans\":\"0\",\"ifHasNightTrans\":\"未知\",\"ifHasLotteryTrans\":\"0\",\"ifHasUnemployed\":\"未知\"},\"indexTransCredits\":{\"publicPayAmount\":\"0.00\",\"publicPayCount\":\"0\",\"taxAmount\":\"未知\",\"taxCount\":\"未知\",\"nightTransAmount\":\"未知\",\"nightTransCount\":\"未知\",\"lotteryTransAmount\":\"未知\",\"lotteryTransCount\":\"未知\",\"onlineTransAmount\":\"60.00\",\"onlineTransCount\":\"2\"},\"cashOut\":null}}}', '8025', '2', '2');
+INSERT INTO `api_search_log` VALUES ('122', '', '2017-10-11 15:15:26', 'bankcard=6212261314000935555&cellphone=18860469557&idCard=341623199405284820&idcard=341623199405284820&name=沈小艳', '430', '{\"resCode\":\"0000\",\"resMsg\":\"提交成功\",\"data\":{\"statusCode\":\"2012\",\"statusMsg\":\"查询成功\",\"result\":{\"indexProperty\":{\"cardProperty\":\"借记卡\",\"firstTransDate\":\"20130926\",\"transTotalAmount\":\"60.00\",\"transTotalCount\":\"1\",\"cashTotalAmount\":\"未知\",\"cashTotalCount\":\"未知\",\"refundTotalAmount\":\"0.00\",\"refundTotalCount\":\"0\",\"rigidTransAmountPercent\":\"未知\",\"fromCity\":\"上海市\",\"noTransWeekPercent\":\"96%\",\"monthlyCardLargeAmount\":\"60.00\"},\"indexMonthConsumes\":{\"transAmount\":\"1708_未知;1707_未知;1706_未知;1705_未知;1704_未知;1703_60.00;1702_未知;1701_未知;1612_未知;1611_未知;1610_未知;1609_未知\",\"amountRank\":\"1708_100%;1707_100%;1706_100%;1705_100%;1704_100%;1703_95%;1702_100%;1701_100%;1612_100%;1611_100%;1610_100%;1609_100%\",\"transCount\":\"1708_未知;1707_未知;1706_未知;1705_未知;1704_未知;1703_1;1702_未知;1701_未知;1612_未知;1611_未知;1610_未知;1609_未知\",\"countRank\":\"1708_100%;1707_100%;1706_100%;1705_100%;1704_100%;1703_100%;1702_100%;1701_100%;1612_100%;1611_100%;1610_100%;1609_100%\",\"cashAmount\":\"未知\",\"cashCount\":\"未知\"},\"indexConsumeCategories\":{\"transAmountPercent\":\"11_100%;12_0%;13_0%;14_0%;15_0%;其他_0%\",\"transCountPercent\":\"11_100%;12_0%;13_0%;14_0%;15_0%;其他_0%\"},\"indexConsumeCities\":{\"placesTransAmountPercent\":\"5800_100%;其他_0%\",\"placesTransCountPercent\":\"5800_100%;其他_0%\"},\"indexTransBehavior\":{\"ifHasBusinessTrip\":\"0\",\"ifHasWeddingTrans\":\"未知\",\"ifHasFamily\":\"未知\",\"ifHasOverseasTrans\":\"0\",\"ifHasNightTrans\":\"未知\",\"ifHasLotteryTrans\":\"0\",\"ifHasUnemployed\":\"未知\"},\"indexTransCredits\":{\"publicPayAmount\":\"0.00\",\"publicPayCount\":\"0\",\"taxAmount\":\"未知\",\"taxCount\":\"未知\",\"nightTransAmount\":\"未知\",\"nightTransCount\":\"未知\",\"lotteryTransAmount\":\"未知\",\"lotteryTransCount\":\"未知\",\"onlineTransAmount\":\"60.00\",\"onlineTransCount\":\"2\"},\"cashOut\":null}}}', '8025', '2', '2');
+
+-- ----------------------------
+-- Table structure for customer
+-- ----------------------------
+DROP TABLE IF EXISTS `customer`;
+CREATE TABLE `customer` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `app_code` varchar(255) DEFAULT NULL,
+  `app_secret` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `remainder` int(11) DEFAULT NULL,
+  `cellphone` varchar(255) DEFAULT NULL,
+  `company_name` varchar(255) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `enabled` bit(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of customer
+-- ----------------------------
+INSERT INTO `customer` VALUES ('1', 'code1', '@@@@@@@@@', 'admin', '224994154', null, null, null, '\0');
+INSERT INTO `customer` VALUES ('2', 'code2', '$$$$$$$$$$', '聂', '52661', null, '哈哈', '2017-09-28 17:16:19', '');
+INSERT INTO `customer` VALUES ('3', 'code3', '111111', '沈', '666666', null, null, '2017-09-28 17:16:00', '');
+INSERT INTO `customer` VALUES ('4', '&&&&&', null, '哈哈', '9999999', '13777490343', '嘻嘻', '2017-09-28 09:33:51', '\0');
+
+-- ----------------------------
+-- Table structure for person_credit_overview
+-- ----------------------------
+DROP TABLE IF EXISTS `person_credit_overview`;
+CREATE TABLE `person_credit_overview` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `age` int(11) DEFAULT NULL,
+  `analyse_cellphone` longtext,
+  `analyse_criminal` longtext,
+  `analyse_dishonest_blacklist` longtext,
+  `analyse_id_card` longtext,
+  `analyse_multiple_head_lend` longtext,
+  `area` varchar(255) DEFAULT NULL,
+  `birth` varchar(255) DEFAULT NULL,
+  `blacklist` bit(1) NOT NULL,
+  `criminal` bit(1) NOT NULL,
+  `mobile_company` varchar(255) DEFAULT NULL,
+  `sex` varchar(255) DEFAULT NULL,
+  `person_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK1f325xab8f1mot3nsp4qehxss` (`person_id`),
+  CONSTRAINT `FK1f325xab8f1mot3nsp4qehxss` FOREIGN KEY (`person_id`) REFERENCES `person_credit_submit` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of person_credit_overview
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for person_credit_submit
+-- ----------------------------
+DROP TABLE IF EXISTS `person_credit_submit`;
+CREATE TABLE `person_credit_submit` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id_card` varchar(18) NOT NULL,
+  `bank_card` varchar(255) NOT NULL,
+  `car_card` varchar(255) DEFAULT NULL,
+  `car_type` varchar(255) DEFAULT NULL,
+  `common_address` varchar(255) NOT NULL,
+  `linkman1mobile` varchar(255) NOT NULL,
+  `linkman1name` varchar(4) NOT NULL,
+  `linkman1relationship` varchar(255) DEFAULT NULL,
+  `linkman2mobile` varchar(255) NOT NULL,
+  `linkman2name` varchar(4) NOT NULL,
+  `linkman2relationship` varchar(255) DEFAULT NULL,
+  `mobile` varchar(255) NOT NULL,
+  `name` varchar(4) NOT NULL,
+  `pay_day` int(11) NOT NULL,
+  `service_password` varchar(255) NOT NULL,
+  `create_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of person_credit_submit
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for role
+-- ----------------------------
+DROP TABLE IF EXISTS `role`;
+CREATE TABLE `role` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of role
+-- ----------------------------
+INSERT INTO `role` VALUES ('1', 'ROLE_ADMIN');
+INSERT INTO `role` VALUES ('2', 'ROLE_USER');
+INSERT INTO `role` VALUES ('3', 'ROLE_MANAGER');
+
+-- ----------------------------
+-- Table structure for supplier
+-- ----------------------------
+DROP TABLE IF EXISTS `supplier`;
+CREATE TABLE `supplier` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `app_code` varchar(255) DEFAULT NULL,
+  `app_secret` varchar(255) DEFAULT NULL,
+  `code` varchar(255) DEFAULT NULL,
+  `linkman` varchar(255) DEFAULT NULL,
+  `linkman_mobile` varchar(255) DEFAULT NULL,
+  `supply_name` varchar(255) DEFAULT NULL,
+  `weburl` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of supplier
+-- ----------------------------
+INSERT INTO `supplier` VALUES ('1', '41022859e7f84583b81d1fc355130af5', null, 'aliyun', null, null, '阿里云', 'www.aliyun.com');
+INSERT INTO `supplier` VALUES ('2', 'shangdao041', '$$$$$$$$$$', 'youfen', null, null, '优分', null);
+INSERT INTO `supplier` VALUES ('3', 'code3', '111111', null, null, null, null, null);
+
+-- ----------------------------
+-- Table structure for supply_api
+-- ----------------------------
+DROP TABLE IF EXISTS `supply_api`;
+CREATE TABLE `supply_api` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `description` varchar(255) DEFAULT NULL,
+  `effective_time` int(11) DEFAULT NULL,
+  `host` varchar(255) DEFAULT NULL,
+  `method` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `parameter_number` int(11) DEFAULT NULL,
+  `path` varchar(255) DEFAULT NULL,
+  `price` int(11) DEFAULT NULL,
+  `supplier_id` int(11) DEFAULT NULL,
+  `smart` bit(1) NOT NULL,
+  `sort` int(11) DEFAULT NULL,
+  `api_type` int(11) DEFAULT NULL,
+  `root` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKe1b6enatjdmgc0n0sgwq3b7rn` (`supplier_id`),
+  CONSTRAINT `FKe1b6enatjdmgc0n0sgwq3b7rn` FOREIGN KEY (`supplier_id`) REFERENCES `supplier` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8039 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of supply_api
+-- ----------------------------
+INSERT INTO `supply_api` VALUES ('8001', '手机号码归属地查询', '360000000', 'http://mobileas.market.alicloudapi.com', 'GET', 'ali手机号码归属地', '1', '/mobile', '10', '1', '', null, '1', 'personalReal.page({view_type:\'phone_attribution\'})');
+INSERT INTO `supply_api` VALUES ('8002', '手机号码状态查询', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen手机状态查询', '1', '/oreo/personal/mobile/netStatus', '114', '2', '', null, '1', 'personalReal.page({view_type:\'phone_status\'})');
+INSERT INTO `supply_api` VALUES ('8003', 'POS交易账动', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfenPOS交易账动', '7', '/oreo/merchant/midReport', '1740', '2', '\0', null, '7', 'enterpriseAssets.page({view_type:\'business_POS\'})');
+INSERT INTO `supply_api` VALUES ('8004', '车辆违章查询', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen车辆违章查询', '2', '/oreo/vehicle/violation/query', '60', '2', '', null, '3', 'personalAssets.page({view_type:\'car_peccancy\'})');
+INSERT INTO `supply_api` VALUES ('8005', '单商户银联流水画像', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen单商户银联流水画像', '1', '/oreo/merchant/midPortrait', '1000', '2', '\0', null, '7', 'enterpriseAssets.page({view_type:\'business_flowing\'})');
+INSERT INTO `supply_api` VALUES ('8006', '多头借贷全量核查', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen多头借贷全量核查', '1', '/oreo/personal/creditInfoAll', '280', '2', '', null, '2', 'personalCredit.page({view_type:\'personal_whole\'})');
+INSERT INTO `supply_api` VALUES ('8007', '多头借贷信息核查', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen多头借贷信息核查', '4', '/oreo/personal/creditInfo', '114', '2', '', null, '2', 'personalCredit.page({view_type:\'personal_info\'})');
+INSERT INTO `supply_api` VALUES ('8008', '二要素姓名身份证查询', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen二要素姓名身份证查询', '3', '/oreo/personal/validation2', '80', '2', '', null, '1', 'personalReal.page({view_type:\'intellegence1\'})');
+INSERT INTO `supply_api` VALUES ('8009', '二要素姓名手机号查询', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen二要素姓名手机号查询', '2', '/oreo/personal/validation2/nameAndCellphone', '220', '2', '', null, '1', 'personalReal.page({view_type:\'intellegence2\'})');
+INSERT INTO `supply_api` VALUES ('8010', '个人判决文书详情', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen个人判决文书详情', '1', '/oreo/courtJudgment/detail/query', '200', '2', '', null, '2', 'personalCredit.page({view_type:\'sentence_detail\'})');
+INSERT INTO `supply_api` VALUES ('8011', '个人对外投资查询', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen个人对外投资查询', '1', '/oreo/personal/investment', '1140', '2', '\0', null, '1', 'personalReal.page({view_type:\'individual_investment\'})');
+INSERT INTO `supply_api` VALUES ('8012', '个人法院判决简项', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen个人法院判决简项', '2', '/oreo/personal/courtJudgment/simple/query', '72', '2', '', null, '2', 'personalCredit.page({view_type:\'sentence_simple\'})');
+INSERT INTO `supply_api` VALUES ('8013', '个人法院失信简项', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen个人法院失信简项', '2', '/oreo/personal/courtDishonesty/simple/query', '86', '2', '', null, '2', 'personalCredit.page({view_type:\'promise_simple\'})');
+INSERT INTO `supply_api` VALUES ('8014', '个人银联账单真伪验证', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen个人银联账单真伪验证', '4', '/oreo/personal/bill/verification', '170', '2', '', null, '2', 'personalCredit.page({view_type:\'personal_unionPay\'})');
+INSERT INTO `supply_api` VALUES ('8015', '航旅信息统计查询', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen航旅信息统计查询', '2', '/oreo/personal/airTravel/query', '858', '2', '\0', null, '4', 'personalEconomics.page({view_type:\'air_info\'})');
+INSERT INTO `supply_api` VALUES ('8016', '企业法院失信简项', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen企业法院失信简项', '1', '/oreo/enterprise/courtDishonesty/simple/query', '86', '2', '', null, '6', 'enterpriseCredit.page({view_type:\'business_simple\'})');
+INSERT INTO `supply_api` VALUES ('8017', '企业法院判决简项', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen企业法院判决简项', '1', '/oreo/enterprise/courtJudgment/simple/query', '72', '2', '', null, '6', 'enterpriseCredit.page({view_type:\'business_sentence\'})');
+INSERT INTO `supply_api` VALUES ('8018', '商户账单真伪验证查询', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen商户账单真伪验证查询', '4', '/oreo/merchant/bill/verification', '170', '2', '', null, '6', 'enterpriseCredit.page({view_type:\'business_authenticity\'})');
+INSERT INTO `supply_api` VALUES ('8019', '手机号入网时长核查', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen手机号入网时长核查', '1', '/oreo/personal/mobile/netTimeLength', '128', '2', '', null, '1', 'personalReal.page({view_type:\'phone_online\'})');
+INSERT INTO `supply_api` VALUES ('8021', '肖像核查', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen肖像核查', '2', '/oreo/personal/portraitCheck', '114', '2', '', null, '1', 'personalReal.page({view_type:\'man_verification\'})');
+INSERT INTO `supply_api` VALUES ('8022', '刑事案底核查', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen刑事案底核查', '2', '/oreo/personal/crimeInfo', '260', '2', '', null, '2', 'personalCredit.page({view_type:\'personal_criminal\'})');
+INSERT INTO `supply_api` VALUES ('8023', '三要素姓名手机身份证查询', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen三要素姓名手机身份证查询', '4', '/oreo/personal/validation3', '186', '2', '', null, '1', 'personalReal.page({view_type:\'intellegence3\'})');
+INSERT INTO `supply_api` VALUES ('8024', '学历学籍信息查询', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen学历学籍信息查询', '2', '/oreo/personal/education/detail', '460', '2', '', null, '1', 'personalReal.page({view_type:\'academic_info\'})');
+INSERT INTO `supply_api` VALUES ('8025', '银联消费报告', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen银联消费报告', '4', '/oreo/personal/cardReport', '430', '2', '', null, '1', 'personalReal.page({view_type:\'card_presentation\'})');
+INSERT INTO `supply_api` VALUES ('8026', '借贷中介机构查询', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen借贷中介机构查询', '3', '/oreo/personal/loan/agencyInstitution/check', '100', '2', '', null, '2', 'personalCredit.page({view_type:\'lending_intermediary\'})');
+INSERT INTO `supply_api` VALUES ('8027', '综合风险验证', '360000000', 'https://api.acedata.com.cn:2443', 'GET', 'youfen综合风险验证', '3', '/oreo/personal/comprehensive/risk/check', '100', '2', '', null, '2', 'personalCredit.page({view_type:\'comprehensive_risk\'})');
+INSERT INTO `supply_api` VALUES ('8028', '失信黑名单', '360000000', 'https://blacklist.market.alicloudapi.com', 'GET', 'ali失信黑名单', '3', '/apixcredit/blacklist/dishonest', '98', '1', '', null, '2', 'personalCredit.page({view_type:\'black_list\'})');
+INSERT INTO `supply_api` VALUES ('8029', '银行卡四要素查询', '360000000', 'http://jisubank4.market.alicloudapi.com', 'GET', 'ali银行卡四要素查询', '4', '/bankcardverify4/verify', '250', '1', '', null, '1', 'personalReal.page({view_type:\'card_query2\'})');
+INSERT INTO `supply_api` VALUES ('8031', '银行卡三要素查询', '360000000', 'http://jisubank3.market.alicloudapi.com', 'GET', 'ali银行卡三要素查询', '3', '/bankcardverify3/verify', '250', '1', '', null, '1', 'personalReal.page({view_type:\'card_query1\'})');
+INSERT INTO `supply_api` VALUES ('8032', '企业工商信息查询', '360000000', 'http://jisuqygsxx.market.alicloudapi.com', 'GET', 'ali企业工商信息查询', null, '/enterprise/query', '300', '1', '', null, '5', 'enterpriseReal.page({view_type:\'registration_info\'})');
+INSERT INTO `supply_api` VALUES ('8034', '身份证分析', '360000000', 'http://jisuidcard.market.alicloudapi.com', 'GET', 'ali身份证分析', '2', '/idcard/query', null, '1', '', null, null, null);
+INSERT INTO `supply_api` VALUES ('8035', '欺诈信息验证', '360000000', 'https://dm-101.data.aliyun.com', 'POST', 'ali欺诈信息验证', '6', '/rest/161225/zmxy/api/zhima.credit.antifraud.verify.json', null, '1', '', null, null, null);
+INSERT INTO `supply_api` VALUES ('8036', '人行征信报告授权', '360000000', 'http://credit.market.alicloudapi.com', 'GET', 'ali人行征信报告授权', null, '/apixanalysis/pbccrc/grant/credit/pbc/page', null, '1', '\0', null, null, null);
+INSERT INTO `supply_api` VALUES ('8037', '法院涉诉综合查询', '360000000', 'http://xinshujud.market.alicloudapi.com', 'POST', 'ali法院数据综合查询_检索', '2', '/ws/court/query', null, '1', '\0', null, null, null);
+INSERT INTO `supply_api` VALUES ('8038', '贷款平台号码通', '360000000', 'http://phoneblack.market.alicloudapi.com', 'POST', 'ali贷款平台号码通', '2', '/ws/phone/phoneBlack', null, '1', '', null, null, null);
+
+-- ----------------------------
+-- Table structure for supply_api_parameter_couples
+-- ----------------------------
+DROP TABLE IF EXISTS `supply_api_parameter_couples`;
+CREATE TABLE `supply_api_parameter_couples` (
+  `api_id` int(11) NOT NULL,
+  `parameter_couple_id` int(11) NOT NULL,
+  PRIMARY KEY (`api_id`,`parameter_couple_id`),
+  KEY `FKq001p5urp2klixhhb98at3cc8` (`parameter_couple_id`),
+  CONSTRAINT `FKq001p5urp2klixhhb98at3cc8` FOREIGN KEY (`parameter_couple_id`) REFERENCES `api_parameter_couple` (`id`),
+  CONSTRAINT `FKs5s7ww2hkufkbhtvyhhlcyt08` FOREIGN KEY (`api_id`) REFERENCES `supply_api` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of supply_api_parameter_couples
+-- ----------------------------
+INSERT INTO `supply_api_parameter_couples` VALUES ('8003', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8008', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8009', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8012', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8013', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8014', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8015', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8021', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8022', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8023', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8024', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8025', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8026', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8027', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8028', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8035', '6');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8003', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8008', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8011', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8012', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8013', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8015', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8021', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8022', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8023', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8024', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8025', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8026', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8027', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8029', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8031', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8034', '8');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8002', '9');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8003', '9');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8006', '9');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8007', '9');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8009', '9');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8019', '9');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8023', '9');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8025', '9');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8026', '9');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8027', '9');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8003', '15');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8018', '15');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8003', '16');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8003', '17');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8004', '18');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8004', '19');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8004', '20');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8004', '21');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8006', '22');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8007', '22');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8007', '24');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8007', '25');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8008', '26');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8023', '26');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8018', '28');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8003', '29');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8005', '30');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8010', '31');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8014', '32');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8025', '32');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8029', '32');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8031', '32');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8035', '32');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8014', '33');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8018', '33');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8014', '34');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8018', '34');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8034', '35');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8001', '36');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8029', '36');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8035', '36');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8035', '37');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8035', '38');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8035', '39');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8037', '40');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8037', '41');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8038', '41');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8028', '42');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8028', '44');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8038', '45');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8016', '46');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8017', '46');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8029', '47');
+INSERT INTO `supply_api_parameter_couples` VALUES ('8031', '47');
+
+-- ----------------------------
+-- Table structure for user
+-- ----------------------------
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `enabled` bit(1) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `username` varchar(255) DEFAULT NULL,
+  `role_id` int(11) DEFAULT NULL,
+  `customer_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKn82ha3ccdebhokx3a8fgdqeyy` (`role_id`),
+  KEY `FKdptx0i3ky01svofwjytq5iry0` (`customer_id`),
+  CONSTRAINT `FKdptx0i3ky01svofwjytq5iry0` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`),
+  CONSTRAINT `FKn82ha3ccdebhokx3a8fgdqeyy` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of user
+-- ----------------------------
+INSERT INTO `user` VALUES ('1', '', 'liyang', 'liyang', '2', '2');
+INSERT INTO `user` VALUES ('2', '', 'nlj', 'nlj', '3', '2');
+INSERT INTO `user` VALUES ('3', '', 'shen', 'shen', '1', '1');

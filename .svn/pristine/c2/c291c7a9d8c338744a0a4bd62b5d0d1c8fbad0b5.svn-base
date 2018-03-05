@@ -1,0 +1,105 @@
+<div class="hbox hbox-auto-xs bg-light">
+    <div class="col col-sm-8" style="padding: 0">
+        <div class="vbox">
+            <div class="row-row">
+                <div class="cell">
+                    <div class="cell-inner">
+                        <div class="wrapper-md">
+                            <div class="panel panel-info input-panel" style="margin-bottom: 20px">
+                                <div class="panel-heading wrapper" style="font-size: 16px">小金信用</div>
+                                <div class="panel-body">
+                                    <form name="myForm" class="form-horizontal">
+                                        <div class="form-group validate">
+                                            <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>姓名：</label>
+                                            <div class="col-sm-5 col-md-4">
+                                                <input type="text" disabled class="form-control">
+                                            </div>
+                                            <div class="col-sm-3 col-md-4 text-right">
+                                                <h4 style="color: red">应用正在开发中</h4>
+                                            </div>
+                                        </div>
+                                        <div class="form-group validate">
+                                            <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>手机号：</label>
+                                            <div class="col-sm-8 col-md-4">
+                                                <input type="text" disabled class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="form-group validate">
+                                            <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>身份证：</label>
+                                            <div class="col-sm-8 col-md-4">
+                                                <input type="text" disabled class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-4 col-md-offset-2 col-sm-8"
+                                                 style="padding-left: 20px">
+                                                <button type="button" class="btn btn-info" ng-click="submitInfo()">提交</button>
+                                                <button type="button" class="btn btn-info">重置</button>
+                                                <button type="button" class="btn btn-danger"><i
+                                                        class="fa fa-file-pdf-o"></i> 生成PDF
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <!--样例-->
+                            <div class="panel panel-info input-panel" ng-show="!resultSwitch">
+                                <div class="panel-heading">
+                                    <span style="color: #474747;">查询结果</span>
+                                    <span style="color: red;">样例</span>
+                                </div>
+                                <div>
+                                    <table class="table-border-style">
+                                        <tr>
+                                            <td width="50%">姓名、身份证</td>
+                                            <td width="50%">一致</td>
+                                        </tr>
+                                        <tr>
+                                            <td>姓名、手机号</td>
+                                            <td>一致</td>
+                                        </tr>
+                                        <tr>
+                                            <td>姓名、手机号、身份证</td>
+                                            <td>一致</td>
+                                        </tr>
+                                        <tr>
+                                            <td>姓名、手机号、银行卡、身份证</td>
+                                            <td>一致</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col col-sm-4" style="padding: 0">
+        <div class="vbox">
+            <div class="row-row">
+                <div class="cell">
+                    <div class="cell-inner">
+                        <div class="wrapper-md">
+                            <div class="panel b-a input-panel" style="margin-bottom: 0">
+                                <div class="wrapper bg-light">
+                                    <div class="font-thin panel-info h4">
+                                        小金信用说明
+                                    </div>
+                                </div>
+                                <div class="panel-footer text-center" style="padding-bottom: 720px">
+                                    <h3>信用说明</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

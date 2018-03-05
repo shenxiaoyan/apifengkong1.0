@@ -1,0 +1,173 @@
+<script>
+    /*
+     * 创建人：刘雅倩
+     * 创建时间：2017/08/11
+     * 财务报表：公司所看到的本月公司的充值与消费积分数
+     *
+     * */
+    "use strict";
+    app.controller("companyFinanceCtrl",
+        [
+            "$scope",
+            "$http",
+            function ($scope, $http) {
+
+//                定义一个函数接收参数
+                $scope.getCompanyList = function(){
+//                    把报表里的所需要的参数分别定义
+                    $scope.chargeScore = null;
+                    $scope.custormScore = null;
+
+                    //获取消费参数
+                    $http({
+                        method: 'POST',
+                        url: '/consumLog'
+                    }).then(function successCallback(response) {
+                        console.log(response)
+                        //定义变量接充值和消费的列表
+                        $scope.custormList = response.data;
+
+//
+//                        //循环出消费列表的account，把所有数据相加，得到本月的总值
+                        angular.forEach(response.data,function(val,index){
+                            $scope.custormScore += val.price;
+                        });
+
+                        //获取充值参数
+                        $http({
+                            method: 'POST',
+                            url: '/rechargeLog'
+                        }).then(function successCallback(resResult) {
+                            console.log(resResult)
+                            //定义变量接充值和消费的列表
+                            $scope.rechargeList = resResult.data;
+                            angular.forEach(resResult.data,function(v,i){
+                                $scope.chargeScore += v.integrate;
+                            });
+
+                            //                        //调用图表的方法，参数要对应
+                            $scope.setCharts($scope.chargeScore,$scope.custormScore);
+                        });
+                    });
+
+                };
+
+
+                $scope.setCharts = function(charge,custorm){
+                    var brandChart = echarts.init(document.getElementById('brand_dashboard_chart'));
+
+                    var option = {
+                        title : {
+                            text: '公司消费与充值变化图',
+                            x:'center'
+                        },
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            left: 'left',
+                            data: ['充值积分数','消费积分数']
+                        },
+                        series : [
+                            {
+                                name: '访问来源',
+                                type: 'pie',
+                                radius : '55%',
+                                center: ['50%', '60%'],
+                                data:[
+                                    {
+                                        value:charge,
+                                        name:'充值积分数'
+                                    },
+                                    {
+                                        value:custorm,
+                                        name:'消费积分数'
+                                    }
+                                ],
+                                itemStyle: {
+                                    emphasis: {
+                                        shadowBlur: 10,
+                                        shadowOffsetX: 0,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                }
+                            }
+                        ]
+                    };
+
+
+
+                    brandChart.setOption(option);
+
+                    //窗口大小改变时重新绘制图表
+                    $(window).resize(function () {
+                        brandChart.resize();
+                    });
+                };
+
+                $scope.getCompanyList();
+
+            }
+        ]
+    );
+</script>
+
+<div class="hbox hbox-auto-xs lter" ng-controller="companyFinanceCtrl">
+    <!-- column -->
+    <div class="col">
+        <div class="vbox">
+            <div class="bg-light lter b-b clearfix" style="padding: 14.5px 20px;">
+                <div class="btn-group">
+                    <button type="button" class="m-r btn btn-sm btn-addon btn-info">
+                        <i class="fa fa-plus" ng-class="iconClass[btn]"></i><span translate="">打印</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row-row">
+                <div class="cell">
+                    <div class="cell-inner wrapper-md">
+                        <div style="padding-top: 0;">
+                            <div class="panel wrapper">
+                                <div id="brand_dashboard_chart" style="height:500px;"></div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default col-sm-5">
+                        <div class="table-responsive">
+                            <table class="table table-striped b-t b-light text-center">
+                                <tr class="fontWeight">
+                                    <td>消费积分</td>
+                                    <td>消费时间</td>
+                                </tr>
+                                <tr ng-repeat="list in custormList">
+                                    <td><span class=" waybill_item_number">{{ list.price }}</span></td>
+                                    <td><span class="text-ellipsis">{{ list.createTime | date : 'yyyy-MM-dd HH:mm:ss' }}</span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                        <div class="panel panel-default col-sm-5 col-sm-offset-1">
+                            <div class="table-responsive">
+                                <table class="table table-striped b-t b-light text-center">
+                                    <tr class="fontWeight">
+                                        <td>充值积分</td>
+                                        <td>充值时间</td>
+                                    </tr>
+                                    <tr class="text-center" ng-repeat="list in rechargeList">
+                                        <td><span class=" waybill_item_number">{{ list.integrate }}</span></td>
+                                        <td><span class="text-ellipsis">{{ list.rechargeTime | date : 'yyyy-MM-dd HH:mm:ss'}}</span></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

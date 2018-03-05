@@ -1,0 +1,89 @@
+package apifengkong.controller;
+
+import java.util.Date;
+import java.util.HashMap;
+
+import javax.validation.Valid;
+
+import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import apifengkong.entity.Customer;
+import apifengkong.entity.CustomerRepository;
+import apifengkong.entity.PersonCreditSubmit;
+import apifengkong.entity.PersonCreditSubmitRepository;
+import apifengkong.entity.SupplyAPI;
+import apifengkong.service.ParameterService;
+import apifengkong.service.PersonCreditSearchService;
+import apifengkong.util.Common;
+import apifengkong.util.FailResponse;
+
+@Controller
+public class PersonCreditSearchController {
+	
+	private static Logger logger = Logger.getLogger(PersonCreditSearchController.class);
+	
+	@Autowired
+	PersonCreditSearchService personCreditSearchService;
+	
+	@Autowired
+	PersonCreditSubmitRepository personCreditSubmitRepository;
+	
+	@Autowired
+	ParameterService parameterService;
+	
+	@Autowired
+	CustomerRepository customerRepository;
+	
+	
+
+	@RequestMapping(value = "/personCreditSearch", method = RequestMethod.GET)
+	public String info1(PersonCreditSubmit personCreditSubmit) {
+		return "personCreditSubmit";
+	}
+
+	@RequestMapping(value = "/personCreditSearch", method = RequestMethod.POST)
+	public String info2(
+			@Valid 
+			PersonCreditSubmit personCreditSubmit, BindingResult result) {
+		if (result.getAllErrors().isEmpty()) {
+			Customer customer = customerRepository.findOne(Common.getPrincipal().getCustomer().getId());
+			if (customer.getRemainder().intValue() <= 0) {
+				throw new FailResponse(8652, "余额不足");
+			}
+			logger.info("customer:" + customer.getName());
+			personCreditSubmit.setCreateAt(new Date());
+			PersonCreditSubmit savePerson = personCreditSubmitRepository.save(personCreditSubmit);
+						
+			personCreditSearchService.personCreditSearch(savePerson,customer);
+			return "success";
+		} else {
+			return "personCreditSubmit";
+		}
+	}
+
+	@RequestMapping(value = "/test", method = RequestMethod.GET)
+	public String info3() {
+		
+			Customer customer = customerRepository.findOne(Common.getPrincipal().getCustomer().getId());
+			if (customer.getRemainder().intValue() <= 0) {
+				throw new FailResponse(8652, "余额不足");
+			}
+			logger.info("customer:" + customer.getName());
+			
+			PersonCreditSubmit personCreditSubmit = new PersonCreditSubmit();
+			personCreditSubmit.setMobile("15824457885");
+			personCreditSubmit.setName("朱伯军");
+			personCreditSubmit.setIdCard("330726196604270518");
+			personCreditSubmit.setCreateAt(new Date());
+			PersonCreditSubmit save = personCreditSubmitRepository.save(personCreditSubmit);
+			personCreditSearchService.personCreditSearch(save,customer);
+			return "success";
+		 
+	}
+
+}

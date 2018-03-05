@@ -1,0 +1,190 @@
+<script>
+    /*
+     * 创建人：刘雅倩
+     * 创建时间：2017/08/10
+     * 员工看到的自己的积分消费
+     *
+     * */
+    "use strict";
+    app.controller("employeeCtrl",
+        [
+            "$scope","$http",
+            function ($scope,$http) {
+
+                $scope.getCompanyList = function(type){
+
+                    $scope.dateConsum=[];
+                    $scope.numConsum=[];
+
+                    switch (type){
+                        case 1:
+                            //获取参数
+                            $http({
+                                method: 'POST',
+                                url: '/getSelfTheMonthConsum'
+                            }).then(function successCallback(response) {
+                                console.log(response)
+//                                $scope.dateConsum=1;
+                                if(response.data.length!==0){
+
+                                    // 定义员工名称和对应消费的积分列表
+                                    angular.forEach(response.data,function (res,index) {
+
+                                        $scope.dateConsum.push(index);
+
+                                        $scope.numConsum.push(res);
+                                    });
+
+                                    //调用图表的方法，参数要对应
+                                    $scope.setCharts($scope.dateConsum,$scope.numConsum,1);
+                                }
+                                else{
+                                    sweetAlert('','本月暂无消费记录');
+                                }
+                            });
+                            break;
+                        case 2:
+                            //获取参数
+                            $http({
+                                method: 'POST',
+                                url: '/getSelfTheLastMonthConsum'
+                            }).then(function successCallback(response) {
+                                console.log(response)
+//                                $scope.dateConsum=1;
+                                if(response.data.length!==0){
+
+                                    // 定义员工名称和对应消费的积分列表
+                                    angular.forEach(response.data,function (res,index) {
+
+                                        $scope.dateConsum.push(index);
+                                        console.log($scope.dateConsum)
+
+                                        $scope.numConsum.push(res);
+                                    });
+
+                                    //调用图表的方法，参数要对应
+                                    $scope.setCharts($scope.dateConsum,$scope.numConsum,2);
+                                }
+                                else{
+                                    sweetAlert('','上月暂无消费记录');
+                                }
+                            });
+                            break;
+                    }
+
+
+                };
+
+                $scope.setCharts = function(date,num,type){
+                    var brandChart = echarts.init(document.getElementById('brand_dashboard_chart'));
+                    switch (type){
+
+                        case 1:$scope.text='本月积分消费数量';break;
+                        case 2:$scope.text='上月积分消费数量';break;
+
+                    }
+                    var option = {
+                        title : {
+                            text: $scope.text
+                        },
+                        tooltip : {
+                            trigger: 'axis'
+                        },
+                        toolbox: {
+                            show: true,
+                            feature: {
+                                dataZoom: {
+                                    yAxisIndex: 'none'
+                                },
+                                dataView: {readOnly: false},
+                                magicType: {type: ['line', 'bar']},
+                                restore: {},
+                                saveAsImage: {}
+                            }
+                        },
+                        calculable : true,
+                        xAxis : [
+                            {
+                                name: '日期',
+                                type : 'category',
+                                boundaryGap : false,
+                                data : date
+                            }
+                        ],
+                        yAxis : [
+                            {
+                                name: '积分数',
+                                type : 'value'
+                            }
+                        ],
+                        series : [
+                            {
+                                name:'积分数',
+                                type:'line',
+                                color:['#4FC5EA'],
+                                data: num,
+                                markPoint : {
+                                    data : [
+                                        {type : 'max', name: '最大值'},
+                                        {type : 'min', name: '最小值'}
+                                    ]
+                                },
+                                markLine : {
+                                    data : [
+                                        {type : 'average', name: '平均值'}
+                                    ]
+                                }
+
+                            }
+                        ]
+                    };
+
+                    brandChart.setOption(option);
+
+                    //窗口大小改变时重新绘制图表
+                    $(window).resize(function () {
+                        brandChart.resize();
+                    });
+                };
+
+                $scope.getCompanyList(1);
+
+            }
+        ]
+    );
+</script>
+
+<div class="hbox hbox-auto-xs lter" ng-controller="employeeCtrl">
+    <!-- column -->
+    <div class="col">
+        <div class="vbox">
+            <div class="bg-light lter b-b clearfix" style="padding: 14.5px 20px;">
+                <div class="btn-group">
+                    <button type="button" class="m-r btn btn-sm btn-addon btn-info">
+                        <i class="fa fa-plus" ng-class="iconClass[btn]"></i><span translate="">打印</span>
+                    </button>
+                </div>
+                <div class="pull-right">
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-default" ng-click="getCompanyList(1)">本月</button>
+                        <button class="btn btn-sm btn-default" ng-click="getCompanyList(2)">上月</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row-row">
+                <div class="cell">
+                    <div class="cell-inner wrapper-md">
+                        <div style="padding-top: 0;">
+                            <div class="panel wrapper">
+                                <div id="brand_dashboard_chart" style="height:500px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

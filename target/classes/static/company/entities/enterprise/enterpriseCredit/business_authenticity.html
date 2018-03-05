@@ -1,0 +1,293 @@
+<script>
+    "use strict";
+    /*
+     *创建人：沈小艳
+     *创建时间：2017/08/03
+     *企业账单真伪验证
+     *
+     * */
+    app.controller('businessAuthenticityCheck', ['$scope','$http','utifyFunction','$rootScope',
+        function ($scope,$http,utifyFunction,$rootScope) {
+
+        $scope.resultMsg = [];
+
+        //select
+        $scope.enterprise=[
+            {
+                type:'按企业名称查',
+                value:'1'
+            },
+            {
+                type:'按企业编号查',
+                value:'2'
+            }
+        ];
+
+
+        //数据初始化
+        $scope.info = {
+            merchantName:'',//企业名
+            merchantNum: '',//企业编号
+            tradeStartTime :'',
+            tradeEndTime :'',
+            apiId:localStorage.getItem("apiNameId")
+        };
+
+        //结果与样例的切换初始化
+        $scope.resultSwitch = false;
+
+        //重置数据
+        $scope.resetInfo = function () {
+            $scope.info.merchantNum = '';
+            $scope.info.merchantName = '';
+            $scope.info.tradeStartTime ='';
+            $scope.info.tradeEndTime ='';
+            $scope.resultSwitch = false;
+        };
+
+            $('#cache_model').modal("hide");
+        //提交
+        $scope.submitInfo = function (myForm) {
+            //数据信息格式错误时阻止表单提交
+//            if (myForm.merchantNum) {
+//                myForm.merchantNum.$dirty = true
+//            }
+//            if (myForm.merchantName) {
+//                myForm.merchantName.$dirty = true
+//            }
+//            if (myForm.tradeStartTime ) {
+//                myForm.tradeStartTime .$dirty = true
+//            }
+//            if (myForm.tradeEndTime ) {
+//                myForm.tradeEndTime .$dirty = true
+//            }
+//
+//            if (!myForm.$valid) {
+//                $scope.resultSwitch = false;
+//                return
+//            }
+
+            $('#cache_model').modal("show");
+
+            $scope.resultSwitch = true;
+            $http({
+                method: 'POST',
+                url: '/normalSearch'+utifyFunction($scope.info)
+            }).then(function successCallback(response) {
+
+                console.log(response)
+                $('#cache_model').modal("hide");
+
+                if(response.data.code === 8652){
+                    $scope.resultSwitch = false;
+                    sweetAlert("",response.data.message, "error");
+                    return;
+                }
+                if(response.data["youfen商户账单真伪验证查询"].resCode === '0000'){
+                    if(response.data["youfen商户账单真伪验证查询"].data.statusCode === '2012'){
+                        $scope.dataMsg=true;//查询成功
+                        $scope.otherMsg=false;
+                        $scope.resultMsg = response.data["youfen商户账单真伪验证查询"].data.result;
+                    }
+                    else{
+                        $scope.dataMsg=false;//查询错误
+                        $scope.otherMsg=true;
+                        $scope.resultMsg = response.data["youfen商户账单真伪验证查询"].data.statusMsg;
+                    }
+                    $scope.resultSwitch = true;
+                }
+                else{
+                    $scope.dataMsg=false;//查询错误
+                    $scope.otherMsg=true;
+                    $scope.resultMsg = response.data["youfen商户账单真伪验证查询"].resMsg;
+                    $scope.resultSwitch = true;
+                }
+
+
+            });
+
+        };
+
+        //下载
+//        $scope.createPdf=function () {
+//            if($scope.resultSwitch ===true){
+//                var html = $("#business_flowing_pdf").html();
+//                var today = new Date();
+//                var year = today.getFullYear();
+//                var month = today.getMonth() + 1;
+//                var day = today.getDay();
+//                var hour = today.getHours();
+//                var minute = today.getMinutes();
+//
+//                //使用form来生成下载所需的数据
+//                var form = $("<form>");
+//                form.attr("style", "display:none");
+//                form.attr("target", "");
+//                form.attr("method", "post");
+//                form.attr("action", "/createpdf");
+//
+//                var input1 = $("<input>");
+//                input1.attr("type", "hidden");
+//                input1.attr("merchantName", "html");
+//                input1.attr("value", html);
+//                form.append(input1);
+//
+//                var input2 = $("<input>");
+//                input2.attr("type", "hidden");
+//                input2.attr("merchantName", "filemerchantName");
+//                input2.attr("value", "【小金风控8016】企业账单真伪验证 " + year + "." + month + "." + day + "_" + hour + "." + minute);
+//                form.append(input2);
+//
+//                //将表单放置在web中
+//                $("body").append(form);
+//                form.submit();
+//            }
+//            else{
+//                sweetAlert("", "请先查询再下载", "error");
+//            }
+//
+//
+//        }
+
+        //接口单价
+            $scope.apiName=localStorage.getItem("apiNameId");
+            $http({
+                url:"/supplyAPI/showApiScore?apiId="+$scope.apiName,
+                method:"GET"
+            }).then(function successCallback(response) {
+                console.log(response)
+                $scope.priceResult=response.data[0];
+            })
+
+    }]);
+</script>
+<div class="vbox" ng-controller="businessAuthenticityCheck">
+    <div class="wrapper b-b">
+        <div class="font-thin h4">企业信息查询</div>
+    </div>
+    <div class="row-row">
+        <div class="cell scrollable">
+            <div class="cell-inner">
+                <div class="wrapper-md">
+                    <div class="panel panel-info input-panel" style="margin-bottom: 0">
+                        <div class="panel-heading overflow" style="font-size: 16px">
+                            <span class="pull-left text-left">企业账单真伪验证</span>
+                            <span class="pull-right text-right supCol">{{priceResult}}积分/次</span>
+                        </div>
+                        <div class="panel-body">
+                            <form merchantName="myForm" class="form-horizontal">
+                                <input type="hidden" class="url" value="/transaction/baseInfo">
+                                <div class="form-group" ng-if="YourOption.value.value==1">
+                                    <label class="col-sm-2 control-label label1"><span class="supCol">*</span>企业名称:</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" ng-model="info.merchantName" name="merchantName" class="form-control" ng-required="true">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.merchantName.$dirty && myForm.merchantName.$invalid">
+                                        <span class="supCol" ng-show="myForm.merchantName.$error.required">所填内容不能为空</span>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-if="YourOption.value.value==2">
+                                    <label class="col-sm-2 control-label label1"><span class="supCol">*</span>企业编号:</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" ng-model="info.merchantNum" name="merchantNum" class="form-control" ng-required="true">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.merchantNum.$dirty && myForm.merchantNum.$invalid">
+                                        <span class="supCol" ng-show="myForm.merchantNum.$error.required">所填内容不能为空</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label"><span class="supCol">*</span>查询方式:</label>
+                                    <div class="col-sm-4">
+                                        <select ng-model="YourOption.value" class="form-control" ng-options="enterpriseType.type for enterpriseType in enterprise">
+                                            <!--<option value="merchantName">按企业名称查</option>-->
+                                            <!--<option value="regNo">按企业工商注册号查</option>-->
+                                        </select>
+                                        <input id="queryMidValue" type="hidden" class="type" value="regNo">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label"><span class="supCol">*</span>交易起始日期:</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" ng-model="info.tradeStartTime " merchantName="tradeStartTime " class="form-control" ng-required="true" placeholder="格式yyyy-mm-dd" pattern="((((19|20)\d{2})-(0?(1|[3-9])|1[012])-(0?[1-9]|[12]\d|30))|(((19|20)\d{2})-(0?[13578]|1[02])-31)|(((19|20)\d{2})-0?2-(0?[1-9]|1\d|2[0-8]))|((((19|20)([13579][26]|[2468][048]|0[48]))|(2000))-0?2-29))$">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.tradeStartTime .$dirty && myForm.tradeStartTime .$invalid">
+                                        <span class="supCol" ng-show="myForm.tradeStartTime .$error.required">日期不能为空</span>
+                                        <span class="supCol" ng-show="myForm.tradeStartTime .$error.pattern">日期格式不正确</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label"><span class="supCol">*</span>交易结束日期:</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" ng-model="info.tradeEndTime " merchantName="tradeEndTime " class="form-control" ng-required="true" placeholder="格式yyyy-mm-dd" pattern="((((19|20)\d{2})-(0?(1|[3-9])|1[012])-(0?[1-9]|[12]\d|30))|(((19|20)\d{2})-(0?[13578]|1[02])-31)|(((19|20)\d{2})-0?2-(0?[1-9]|1\d|2[0-8]))|((((19|20)([13579][26]|[2468][048]|0[48]))|(2000))-0?2-29))$">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.tradeEndTime .$dirty && myForm.tradeEndTime .$invalid">
+                                        <span class="supCol" ng-show="myForm.tradeEndTime .$error.required">日期不能为空</span>
+                                        <span class="supCol" ng-show="myForm.tradeEndTime .$error.pattern">日期格式不正确</span>
+                                    </div>
+                                    <div ng-if="info.tradeEndTime  < info.tradeStartTime " class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left">
+                                        <span class="supCol">交易结束日期要大于交易起始日期</span>
+                                    </div>
+                                    <div ng-if="resultFound!=''" class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="errorResult">
+                                        <span class="supCol">{{resultFound}}</span>
+                                    </div>
+
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-offset-2 col-md-offset-2 col-sm-8">
+                                        <button type="button"  class="btn btn-info" ng-click="submitInfo(myForm)">提交</button>
+                                        <button type="button"  class="btn btn-info" ng-click="resetInfo()">重置</button>
+                                        <button type="button" class="btn btn-danger" ng-click="createPdf()"><i class="fa fa-file-pdf-o"></i> 生成PDF</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrapper-md" ng-show="!resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                            <span style="color: red;">样例</span>
+                        </div>
+                        <div>
+                            <table class="table-border-style">
+                                <tr><th colspan="2" style="background-color: #f6f8f8">信息1</th></tr>
+                                <tr><td  width="50%">交易时间</td><td width="50%">2014-02-02 12:02:36</td></tr>
+                                <tr><td>交易金额（单位分）</td><td>10033</td></tr>
+                                <tr><td>银行卡</td><td>	c95afb0f0b0f8ea26064d4b223ed945acec 2de77ed1de2b2c</td></tr>
+                                <tr><th colspan="2" style="background-color: #f6f8f8">信息2</th></tr>
+                                <tr><td  width="50%">交易时间</td><td width="50%">2014-02-02 12:02:36</td></tr>
+                                <tr><td>交易金额（单位分）</td><td>10033</td></tr>
+                                <tr><td>银行卡</td><td>	c95afb0f0b0f8ea26064d4b223ed945acec 2de77ed1de2b2c</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="business_flowing_pdf" class="wrapper-md" ng-show="resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                        </div>
+                        <div>
+                            <table ng-if="otherMsg" class="table-border-style grid_table">
+                                <tr><td width="80%">{{resultMsg}}</td></tr>
+                            </table>
+                            <table ng-if="dataMsg" class="table-border-style grid_table" ng-repeat="(index,value) in resultMsg">
+                                <tr><th colspan="2" style="background-color: #f6f8f8">信息{{index+1}}</th></tr>
+                                <tr><td  width="40%">交易时间</td><td width="40%">{{value.transTime}}</td></tr>
+                                <tr><td>交易金额（单位分）</td><td>{{value.transAmount}}</td></tr>
+                                <tr><td>银行卡</td><td>{{value.card}}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal gifPosition" id="cache_model">
+        <img src="../../../../img/cache1.gif" alt="">
+    </div>
+</div>
+
+

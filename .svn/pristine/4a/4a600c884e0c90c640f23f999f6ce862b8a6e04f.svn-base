@@ -1,0 +1,38 @@
+package apifengkong.service;
+
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import apifengkong.entity.AccountRechargeLog;
+import apifengkong.entity.AccountRechargeLogRepository;
+import apifengkong.entity.Customer;
+import apifengkong.entity.CustomerRepository;
+import apifengkong.util.Common;
+@Service
+public class RechargeService {
+	@Autowired
+	CustomerRepository customerRepository;
+	@Autowired
+	AccountRechargeLogRepository accountRechargeLogRepository;
+    //账户充值操作
+	public void recharge(Integer integrate, Integer customerId) {
+		Customer customer = customerRepository.getOne(customerId);
+		Integer remainder = customer.getRemainder();
+		if(integrate!=null){
+		remainder+= integrate;
+		}
+		customer.setRemainder(remainder);
+		customerRepository.save(customer);
+		
+		AccountRechargeLog accountRechargeLog = new AccountRechargeLog();
+		accountRechargeLog.setId(customerId);
+		accountRechargeLog.setCustomer(customer);
+		accountRechargeLog.setIntegrate(integrate);
+		accountRechargeLog.setRechargeTime(new Date());
+		accountRechargeLog.setUser(Common.getPrincipal());
+		accountRechargeLogRepository.save(accountRechargeLog);
+
+	}
+}

@@ -1,0 +1,79 @@
+<script>
+    "use strict";
+    app.controller("notesCtrl", [
+            "$scope", "$http", "$rootScope", "$state","$stateParams",
+            function ($scope, $http, $rootScope, $state,$stateParams) {
+                if($stateParams.id){
+                    $scope.personLoanId = $stateParams.id
+                }else if($rootScope.currentPersonLoanId){
+                    $scope.personLoanId =  $rootScope.currentPersonLoanId;
+                }else{
+                    alert('未知错误');
+                }
+                
+            $scope.notes = [];
+            $scope.newnote = {
+                personLoanId:$scope.personLoanId,
+                content:'',
+                level:'none'
+            };
+            
+            $scope.getNotes = function(){
+                
+                //String name,String idCard,String mobile
+                $http({
+                        method:'get',
+                        url:'/search/personLoan/'+ $scope.personLoanId+'/notes?page=0&size=10000&sort=id,desc'
+                    })
+                    .then(function (resResult) {
+                        $scope.notes = resResult.data.content
+                });
+            };
+            $scope.getNotes();
+            
+            $scope.submitNote = function(){
+                $http({
+                        method:'post',
+                        url:'/search/personLoan/note',
+                        data: $scope.newnote
+                    })
+                    .then(function (resResult) {
+                        $scope.newnote.content='';
+                        $scope.getNotes();
+                });
+            }
+            
+            
+         }
+    ]);</script>
+    <div ng-controller="notesCtrl">
+    
+       <div>
+            <textarea  rows="2" ng-model='newnote.content' style=" width: 100%;"></textarea>
+            <div style="margin-top:4px;">
+                <button class="btn btn-info btn-xs pull-right" ng-click="submitNote()">提交</button>
+
+                <div class="btn-group">
+                    <label class="btn btn-xs btn-default" ng-model="newnote.level" btn-radio="'success'">好</label>
+                    <label class="btn btn-xs btn-default" ng-model="newnote.level" btn-radio="'warning'">中</label>
+                    <label class="btn btn-xs btn-default" ng-model="newnote.level" btn-radio="'danger'">差</label>
+                    <label class="btn btn-xs btn-default" ng-model="newnote.level" btn-radio="'none'">无</label>
+                </div>
+            </div>                
+        </div>
+       <br />
+       <div  ng-if="notes.length == 0">
+           暂无备忘录。
+       </div>
+       <div class="media" ng-repeat="(key, row) in notes" style="margin-bottom: 10px;border-bottom:1px dotted #e4e4e4;padding-bottom:10px;" ng-if="notes.length >0">
+           <div class="pull-right m-t-sm">
+             <label class="btn btn-xs btn-{{row.level}}" ng-if=" row.level == 'success'">好</label>
+             <label class="btn btn-xs btn-{{row.level}}" ng-if=" row.level == 'warning'">中</label>
+             <label class="btn btn-xs btn-{{row.level}}" ng-if=" row.level == 'danger'">差</label>
+           </div>
+           <div class="media-body">
+             <div><a href="">{{row.user.nickname}}</a> &nbsp;<small class="text-muted">{{row.createTime| date:'yyyy-MM-dd HH:mm:ss'}}</small></div>
+             {{row.content}}
+           </div>
+        </div>
+</div>

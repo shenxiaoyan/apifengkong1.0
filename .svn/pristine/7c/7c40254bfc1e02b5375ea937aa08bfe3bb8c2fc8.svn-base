@@ -1,0 +1,47 @@
+<script>
+    /*
+     * 创建人：刘雅倩
+     * 创建时间：2017/08/10
+     * 公司所查看的报表
+     * */
+    "use strict";
+    app.controller("companyReportCtrl",
+        [
+            "$scope",
+            function ($scope) {
+                $scope.euqipmentList = [
+                    {
+                        id: "",
+                        name: "员工消费报表",
+                        sref: "companyReport.page({view_type:'employee'})"
+                    },
+                    {
+                        id: "",
+                        name: "接口数量查询",
+                        sref: "companyReport.page({view_type:'interface'})"
+                    }
+                ]
+            }
+        ]
+    );
+</script>
+
+<div class="hbox hbox-auto-xs hbox-auto-sm" ng-controller="companyReportCtrl">
+    <div class="col w-md bg-light dk b-r bg-auto hidden-sm hidden-xs">
+        <div class="wrapper-md b-b bg-light">
+            <div class="font-thin h4">
+                公司报表
+            </div>
+        </div>
+        <div class="wrapper-md">
+            <ul class="nav nav-pills nav-stacked nav-sm">
+                <li ui-sref-active="active" ng-repeat="list in euqipmentList">
+                    <a ui-sref="{{ list.sref }}">{{list.name}}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col">
+        <div class="hbox hbox-auto-xs bg-light" ui-view></div>
+    </div>
+</div>

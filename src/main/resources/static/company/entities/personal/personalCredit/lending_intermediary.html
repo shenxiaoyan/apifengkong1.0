@@ -1,0 +1,232 @@
+<script>
+    "use strict";
+    /*
+     *创建人：沈小艳
+     *创建时间：2017/08/02
+     *验证助贷中介机构查询信息
+     * */
+    app.controller('lendingIntermediaryCheck', ['$scope','$http','utifyFunction','$rootScope',
+        function ($scope,$http,utifyFunction,$rootScope) {
+        //数据初始化
+        $scope.info = {
+            name: '',
+            cellphone: '',
+            idCard:'',
+            apiId:localStorage.getItem("apiNameId")
+        };
+
+        //结果与样例的切换初始化
+        $scope.resultSwitch = false;
+
+        //重置数据
+        $scope.resetInfo = function () {
+            $scope.info.name = '';
+            $scope.info.cellphone = '';
+            $scope.info.idCard = '';
+            $scope.resultSwitch = false;
+        };
+
+            $('#cache_model').modal("hide");
+        
+        //提交
+        $scope.submitInfo = function (myForm) {
+
+            //数据信息格式错误时阻止表单提交
+            if (myForm.name) {
+                myForm.name.$dirty = true
+            }
+            if (myForm.cellphone) {
+                myForm.cellphone.$dirty = true
+            }
+            if (myForm.idCard) {
+                myForm.idCard.$dirty = true
+            }
+            if (!myForm.$valid) {
+                $scope.resultSwitch = false;
+                return
+            }
+
+            $('#cache_model').modal("show");
+            
+            $http({
+                method: 'POST',
+                url: '/normalSearch'+utifyFunction($scope.info)
+            }).then(function successCallback(response) {
+                $('#cache_model').modal("hide");
+
+                if(response.data.code === 8652){
+                    $scope.resultSwitch = false;
+                    sweetAlert("",response.data.message, "error");
+                    return;
+                }
+
+                if(response.data["youfen借贷中介机构查询"].resCode === '0000'){
+                    if(response.data["youfen借贷中介机构查询"].data.statusCode === '2012'){
+                        $scope.dataMsg=true;//查询成功
+                        $scope.otherMsg=false;
+                        $scope.resultMsg = response.data["youfen借贷中介机构查询"].data.result;
+                    }
+                    else{
+                        $scope.dataMsg=false;//查询错误
+                        $scope.otherMsg=true;
+                        $scope.resultMsg = response.data["youfen借贷中介机构查询"].data.statusMsg;
+                    }
+                    $scope.resultSwitch = true;
+                }
+                else{
+                    $scope.dataMsg=false;//查询错误
+                    $scope.otherMsg=true;
+                    $scope.resultMsg = response.data["youfen借贷中介机构查询"].resMsg;
+                    $scope.resultSwitch = true;
+                }
+
+            });
+        }
+
+        //下载
+//        $scope.createPdf=function () {
+//            if($scope.resultSwitch ===true){
+//                var html = $("#business_flowing_pdf").html();
+//                var today = new Date();
+//                var year = today.getFullYear();
+//                var month = today.getMonth() + 1;
+//                var day = today.getDay();
+//                var hour = today.getHours();
+//                var minute = today.getMinutes();
+//
+//                //使用form来生成下载所需的数据
+//                var form = $("<form>");
+//                form.attr("style", "display:none");
+//                form.attr("target", "");
+//                form.attr("method", "post");
+//                form.attr("action", "/createpdf");
+//
+//                var input1 = $("<input>");
+//                input1.attr("type", "hidden");
+//                input1.attr("name", "html");
+//                input1.attr("value", html);
+//                form.append(input1);
+//
+//                var input2 = $("<input>");
+//                input2.attr("type", "hidden");
+//                input2.attr("name", "filename");
+//                input2.attr("value", "【小金风控8024】助贷中介机构查询 " + year + "." + month + "." + day + "_" + hour + "." + minute);
+//                form.append(input2);
+//
+//                //将表单放置在web中
+//                $("body").append(form);
+//                form.submit();
+//            }
+//            else{
+//                sweetAlert("", "请先查询再下载", "error");
+//            }
+//        }
+
+        //接口单价
+        $scope.apiName=localStorage.getItem("apiNameId");
+        $http({
+            url:"/supplyAPI/showApiScore?apiId="+$scope.apiName,
+            method:"GET"
+        }).then(function successCallback(response) {
+            console.log(response)
+            $scope.priceResult=response.data[0];
+        })
+
+    }]);
+</script>
+
+
+<div class="vbox" ng-controller="lendingIntermediaryCheck">
+    <div class="wrapper b-b">
+        <div class="font-thin h4">个人信息查询</div>
+    </div>
+    <div class="row-row">
+        <div class="cell scrollable">
+            <div class="cell-inner">
+                <div class="wrapper-md">
+                    <div class="panel panel-info input-panel" style="margin-bottom: 0">
+                        <div class="panel-heading overflow" style="font-size: 16px">
+                            <span class="pull-left text-left">助贷中介机构查询</span>
+                            <span class="pull-right text-right supCol">{{priceResult}}积分/次</span>
+                        </div>
+                        <div class="panel-body">
+                            <form name="myForm" action="" method="post" class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label"><span class="supCol">*</span>被查询者姓名:</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" ng-model="info.name" name="name" class="form-control" ng-required="true" pattern="[\u4E00-\u9FA5]{2,5}(?:·[\u4E00-\u9FA5]{2,5})*">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.name.$dirty&&myForm.name.$invalid">
+                                        <span class="supCol" ng-show="myForm.name.$error.required">姓名不能为空</span>
+                                        <span class="supCol" ng-show="myForm.name.$error.pattern">姓名格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label"><span class="supCol">*</span>手机号:</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" ng-model="info.cellphone" name="cellphone" class="form-control" ng-required="true" pattern="^1[3|4|5|7|8][0-9]{9}$">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.cellphone.$dirty && myForm.cellphone.$invalid">
+                                        <span class="supCol" ng-show="myForm.cellphone.$error.required">手机号不能为空</span>
+                                        <span class="supCol" ng-show="myForm.cellphone.$error.pattern">手机号格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label"><span class="supCol">*</span>身份证号:</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" ng-model="info.idCard" name="idCard" class="form-control" ng-required="true" pattern="(^\d{15}$)|(^\d{17}([0-9]|X)$)">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.idCard.$dirty && myForm.idCard.$invalid">
+                                        <span class="supCol" ng-show="myForm.idCard.$error.required">身份证号不能为空</span>
+                                        <span class="supCol" ng-show="myForm.idCard.$error.pattern">身份证号格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-offset-3 col-md-offset-3 col-sm-8">
+                                        <button type="button"  class="btn btn-info" ng-click="submitInfo(myForm)">提交</button>
+                                        <button type="button"  class="btn btn-info" ng-click="resetInfo()">重置</button>
+                                        <button type="button" class="btn btn-danger" ng-click="createPdf()"><i class="fa fa-file-pdf-o"></i> 生成PDF</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrapper-md" ng-show="!resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                            <span style="color: red;">样例</span>
+                        </div>
+                        <div>
+                            <table class="table-border-style">
+                                <tr><td>助贷中介机构</td><td>命中</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="business_flowing_pdf" class="wrapper-md" ng-show="resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                        </div>
+                        <div>
+                            <table ng-if="otherMsg" class="table-border-style grid_table">
+                                <tr><td width="80%">{{resultMsg}}</td></tr>
+                            </table>
+                            <table ng-if="dataMsg" class="table-border-style grid_table">
+                                <tr><td width="40%">助贷中介机构</td><td width="40%" ng-bind="resultMsg.msg"></td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="modal gifPosition" id="cache_model">
+        <img src="../../../../img/cache1.gif" alt="">
+    </div>
+</div>
+

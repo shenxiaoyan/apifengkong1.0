@@ -1,0 +1,851 @@
+package apifengkong.service;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+
+import apifengkong.util.JsonTools;
+import apifengkong.util.Common.Color;
+import apifengkong.util.Common.Response;
+import apifengkong.util.Common.VerifyCodeMessage;
+import apifengkong.util.Common;
+import apifengkong.util.Important;
+import apifengkong.util.Common.CodeMessageColor;
+
+@Service
+public class AnalysisService {
+	
+	private static Logger logger = Logger.getLogger(AnalysisService.class);
+	
+	@Autowired
+	FetchService fetchService;
+	
+	
+	public void handleZhimaScore(Important personLoan, Map zhimaScoreResult) {
+		Response res = new Response();
+		if (zhimaScoreResult != null) {
+			if (zhimaScoreResult.get("score")!=null) {
+				res.setStatus(0);
+				res.setMsg("正常返回");
+				if ("400+".equals(zhimaScoreResult.get("score"))) {
+					res.setColor(Color.danger);
+				} else if ("500+".equals(zhimaScoreResult.get("score"))) {
+					res.setColor(Color.warning);
+				}else if ("600+".equals(zhimaScoreResult.get("score"))) {
+					res.setColor(Color.primary);
+				}else if ("700+".equals(zhimaScoreResult.get("score"))) {
+					res.setColor(Color.success);
+				}
+				res.setResult(zhimaScoreResult.get("score"));
+				logger.info("正常内容" + res);
+
+			} else {
+				res.setColor(Color.info);
+				res.setMsg("没有芝麻分");
+				res.setStatus(300);
+				logger.info("错误内容" + res);
+			}
+
+		} else {
+			res.setColor(Color.info);
+			res.setStatus(400);
+			res.setMsg("查询超时");
+			logger.info("错误内容" + res);
+		}
+		personLoan.setAnalyseZhimaScore(JsonTools.toJson(res));
+	}
+	
+	public void handleWatchlist(Important personLoan, Map watchlistResult) {
+		Response res = new Response();
+		if (watchlistResult != null) {
+			if (!watchlistResult.get("level").equals("N/A")) {
+				res.setStatus(0);
+				res.setMsg("正常返回");
+				if ("3".equals(watchlistResult.get("level").toString())) {
+					res.setResult("用户有一个月以上的严重逾期");
+					res.setColor(Color.danger);
+				} else if ("2".equals(watchlistResult.get("level").toString())) {
+					res.setResult("用户有一周以上中等逾期");
+					res.setColor(Color.warning);
+				}else if ("1".equals(watchlistResult.get("level").toString())) {
+					res.setResult("用户有一周以内的轻微逾期");
+					res.setColor(Color.warning);
+				}else if ("0".equals(watchlistResult.get("level").toString())) {
+					res.setResult("无逾期");
+					res.setColor(Color.success);
+				}
+				logger.info("正常内容" + res);
+
+			} else {
+				res.setColor(Color.info);
+				res.setMsg("无法评估该用户逾期状况");
+				res.setStatus(300);
+				logger.info("错误内容" + res);
+			}
+
+		} else {
+			res.setColor(Color.info);
+			res.setStatus(400);
+			res.setMsg("查询超时");
+			logger.info("错误内容" + res);
+		}
+		personLoan.setAnalyseWatchlist(JsonTools.toJson(res));
+	}
+	
+	public void handleEducation(Important personLoan, Map educationResult) {
+		Response res = new Response();
+		if (educationResult != null) {
+			if (educationResult.get("resCode").toString().equals("0000")) {
+				res.setStatus(0);
+				res.setMsg(((HashMap) educationResult.get("data")).get("statusMsg").toString());
+				if (((HashMap) educationResult.get("data")).get("statusCode").toString().equals("2012")) {
+					res.setColor(Color.success);
+				} else {
+					res.setColor(Color.info);
+				}
+				res.setResult(educationResult.get("data"));
+				logger.info("正常内容" + res);
+
+			} else {
+				res.setColor(Color.info);
+				res.setMsg(educationResult.get("resMsg").toString());
+				res.setStatus(300);
+				logger.info("错误内容" + res);
+			}
+		} else {
+			res.setColor(Color.info);
+			res.setStatus(800);
+			res.setMsg("未查询学历");
+			logger.info("错误内容" + res);
+		}
+		personLoan.setAnalyseEducation(JsonTools.toJson(res));
+	}
+	
+	public void handleCourtJudgment(Important personLoan, Map courtJudgmentResult) {
+		Response res = new Response();
+		if (courtJudgmentResult != null) {
+			if (courtJudgmentResult.get("resCode").toString().equals("0000")) {
+				res.setStatus(0);
+				res.setMsg(((HashMap) courtJudgmentResult.get("data")).get("statusMsg").toString());
+				if (((HashMap) courtJudgmentResult.get("data")).get("statusCode").toString().equals("2012")) {
+					
+					HashMap result = (HashMap)((HashMap) courtJudgmentResult.get("data")).get("result");
+					String s = (String)(result.get("totalCount"));
+					if("0".equals(s)){
+						res.setColor(Color.success);
+					}else{
+						res.setColor(Color.danger);
+						fetchService.asyncCourtJudgmentDetail(personLoan,((HashMap) courtJudgmentResult.get("data")).get("result"));
+					}
+					
+				} else {
+					res.setColor(Color.success);
+				}
+				res.setResult(courtJudgmentResult.get("data"));
+				logger.info("正常内容" + res);
+
+			} else {
+				res.setColor(Color.info);
+				res.setMsg(courtJudgmentResult.get("resMsg").toString());
+				res.setStatus(300);
+				logger.info("错误内容" + res);
+			}
+
+		} else {
+			res.setColor(Color.info);
+			res.setStatus(400);
+			res.setMsg("查询超时");
+			logger.info("错误内容" + res);
+		}
+		personLoan.setAnalyseCourtJudgment(JsonTools.toJson(res));
+		
+	}
+
+
+	public void handleAntifraud(Important personLoan, Map antifraudResult) {
+		Response res = new Response();
+		if (antifraudResult != null) {
+				res.setStatus(0);
+				res.setMsg("ok");
+				res.setResult(antifraudResult.get("verifyCode"));
+				logger.info("正常内容" + res);
+				List<String> verifyCode = (ArrayList<String>)(antifraudResult.get("verifyCode"));
+				List<VerifyCodeMessage> verifyTrans = Common.verifyTrans(verifyCode);
+				res.setColor(Color.success);
+				for (VerifyCodeMessage verifyCodeMessage : verifyTrans) {
+					if (verifyCodeMessage.getColor().equals(Color.warning) && !res.getColor().equals(Color.danger)) {
+						res.setColor(Color.warning);
+					} else if (verifyCodeMessage.getColor().equals(Color.danger)) {
+						res.setColor(Color.danger);
+					}
+				}
+				res.setDescription(verifyTrans);
+			
+
+		} else {
+			res.setColor(Color.info);
+			res.setStatus(400);
+			res.setMsg("查询超时");
+			logger.info("错误内容" + res);
+		}
+		personLoan.setAnalyseAntifraud(JsonTools.toJson(res));
+	}
+
+	public void handleMultipleHeadLend(Important personLoan, Map multipleHeadLendResult) {
+		Response res = new Response();
+		if (multipleHeadLendResult != null) {
+			if (multipleHeadLendResult.get("resCode").toString().equals("0000")) {
+				res.setStatus(0);
+				res.setMsg(((HashMap) multipleHeadLendResult.get("data")).get("statusMsg").toString());
+				if (((HashMap) multipleHeadLendResult.get("data")).get("statusCode").toString().equals("2012")) {
+					if (((HashMap) ((HashMap) multipleHeadLendResult.get("data")).get("result")).get("code").toString()
+							.equals("200")) {
+						res.setColor(Color.success);
+						HashMap<String, Integer> description = new HashMap<String, Integer>();
+
+						HashMap s002 = (HashMap) ((HashMap) ((HashMap) ((HashMap) multipleHeadLendResult.get("data"))
+								.get("result")).get("data")).get("S002");
+						HashMap s004 = (HashMap) ((HashMap) ((HashMap) ((HashMap) multipleHeadLendResult.get("data"))
+								.get("result")).get("data")).get("S004");
+						HashMap s007 = (HashMap) ((HashMap) ((HashMap) ((HashMap) multipleHeadLendResult.get("data"))
+								.get("result")).get("data")).get("S007");
+						HashMap s009 = (HashMap) ((HashMap) ((HashMap) ((HashMap) multipleHeadLendResult.get("data"))
+								.get("result")).get("data")).get("S009");
+						HashMap s012 = (HashMap) ((HashMap) ((HashMap) ((HashMap) multipleHeadLendResult.get("data"))
+								.get("result")).get("data")).get("S012");
+						HashMap s013 = (HashMap) ((HashMap) ((HashMap) ((HashMap) multipleHeadLendResult.get("data"))
+								.get("result")).get("data")).get("S013");
+
+						int bankRegisterCount = 0;
+						int webRegisterCount = 0;
+						int webApplyMin = 0;
+						int webApplyMax = 0;
+						int webLendMin = 0;
+						int webLendMax = 0;
+						int webOverdueCount = 0;
+						int webOverdueMin = 0;
+						int webOverdueMax = 0;
+
+						HashSet<String> webApplySet = new HashSet<String>();
+						HashSet<String> webLendSet = new HashSet<String>();
+						HashSet<String> webOverdueSet = new HashSet<String>();
+
+						List l_s002 = (ArrayList) s002.get("data");
+						List l_s004 = (ArrayList) s004.get("data");
+						List l_s007 = (ArrayList) s007.get("data");
+						List l_s009 = (ArrayList) s009.get("data");
+						List l_s012 = (ArrayList) s012.get("data");
+						List l_s013 = (ArrayList) s013.get("data");
+
+						if (!l_s002.isEmpty()) {
+							for (Object object : l_s002) {
+								HashMap row = (HashMap) object;
+								if (row.get("platformType").toString().equals("2")) {
+									webRegisterCount++;
+								} else if (row.get("platformType").toString().equals("1")) {
+									bankRegisterCount++;
+								}
+							}
+						}
+						if (!l_s004.isEmpty()) {
+
+							for (Object object : l_s004) {
+								HashMap row = (HashMap) object;
+								if (row.get("platformType").toString().equals("2")) {
+									webApplySet.add(row.get("platformCode").toString());
+									webApplyMin += Common.youfenMoneyMin(row.get("applicationAmount").toString());
+									webApplyMax += Common.youfenMoneyMax(row.get("applicationAmount").toString());
+								}
+							}
+						}
+
+						if (!l_s007.isEmpty()) {
+							for (Object object : l_s007) {
+								HashMap row = (HashMap) object;
+								if (row.get("platformType").toString().equals("2")) {
+									webLendSet.add(row.get("platformCode").toString());
+									webLendMin += Common.youfenMoneyMin(row.get("loanLendersAmount").toString());
+									webLendMax += Common.youfenMoneyMax(row.get("loanLendersAmount").toString());
+								}
+							}
+						}
+						if (!l_s012.isEmpty()) {
+							for (Object object : l_s012) {
+								HashMap row = (HashMap) object;
+								webOverdueCount += Integer.valueOf(row.get("counts").toString());
+								webOverdueSet.add(row.get("platformCode").toString());
+								webOverdueMin += Common.youfenMoneyMin(row.get("money").toString());
+								webOverdueMax += Common.youfenMoneyMax(row.get("money").toString());
+
+							}
+						}
+						if (webApplySet.size() > 7 || webLendSet.size() > 3) {
+							res.setColor(Color.warning);
+						}
+						if (webOverdueCount > 0) {
+							res.setColor(Color.warning);
+						}
+						if (webLendMin > 50) {
+							res.setColor(Color.danger);
+						}
+
+						description.put("bankRegisterCount", bankRegisterCount);
+						description.put("webRegisterCount", webRegisterCount);
+
+						description.put("webApplyCount", webApplySet.size());
+						description.put("webApplyMin", webApplyMin);
+						description.put("webApplyMax", webApplyMax);
+
+						description.put("webLendCount", webLendSet.size());
+						description.put("webLendMin", webLendMin);
+						description.put("webLendMax", webLendMax);
+
+						description.put("webOverduePlat", webOverdueSet.size());
+						description.put("webOverdueCount", webOverdueCount);
+						description.put("webOverdueMin", webOverdueMin);
+						description.put("webOverdueMax", webOverdueMax);
+						res.setDescription(description);
+
+					} else {
+						res.setColor(Color.info);
+					}
+				}
+				res.setResult(multipleHeadLendResult.get("data"));
+				logger.info("正常内容" + res);
+
+			} else {
+				res.setColor(Color.info);
+				res.setMsg(multipleHeadLendResult.get("resMsg").toString());
+				res.setStatus(300);
+				logger.info("错误内容" + res);
+			}
+
+		} else {
+			res.setColor(Color.info);
+			res.setStatus(400);
+			res.setMsg("查询超时");
+			logger.info("错误内容" + res);
+		}
+		personLoan.setAnalyseMultipleHeadLend(JsonTools.toJson(res));
+	}
+
+	public void handleCriminal(Important personLoan, Map criminalResult) {
+		Response res = new Response();
+		if (criminalResult != null) {
+			if (criminalResult.get("resCode").toString().equals("0000")) {
+				res.setStatus(0);
+				res.setMsg(((HashMap) criminalResult.get("data")).get("statusMsg").toString());
+				if (((HashMap) criminalResult.get("data")).get("statusCode").toString().equals("2012")) {
+					res.setColor(Color.danger);
+				} else {
+					res.setColor(Color.success);
+				}
+				res.setResult(criminalResult.get("data"));
+				logger.info("正常内容" + res);
+
+			} else {
+				res.setColor(Color.info);
+				res.setMsg(criminalResult.get("resMsg").toString());
+				res.setStatus(300);
+				logger.info("错误内容" + res);
+			}
+
+		} else {
+			res.setColor(Color.info);
+			res.setStatus(400);
+			res.setMsg("查询超时");
+			logger.info("错误内容" + res);
+		}
+		personLoan.setAnalyseCriminal(JsonTools.toJson(res));
+	}
+
+	public void handleDishonestBlacklist(Important personLoan, Map dishonestBlacklist) {
+		Response res = new Response();
+		if (dishonestBlacklist != null) {
+			if (Integer.valueOf(dishonestBlacklist.get("code").toString()).equals(1)) {
+				res.setColor(Color.success);
+				res.setStatus(0);
+				res.setMsg(dishonestBlacklist.get("msg").toString());
+				res.setResult(dishonestBlacklist.get("data"));
+				logger.info("正常内容" + res);
+
+			} else if (Integer.valueOf(dishonestBlacklist.get("code").toString()).equals(0)) {
+				res.setColor(Color.danger);
+				res.setMsg(dishonestBlacklist.get("msg").toString());
+				res.setStatus(0);
+				res.setResult(dishonestBlacklist.get("data"));
+				logger.info("错误内容" + res);
+			}
+
+		} else {
+			res.setColor(Color.info);
+			res.setStatus(400);
+			res.setMsg("查询超时");
+			logger.info("错误内容" + res);
+		}
+		personLoan.setAnalyseDishonestBlacklist(JsonTools.toJson(res));
+
+	}
+
+	public void handleCellphone(Important personLoan, Map cellPhoneResult) {
+		Response res = new Response();
+		if (cellPhoneResult != null) {
+			if (Integer.valueOf(cellPhoneResult.get("error_code").toString()).equals(0)) {
+				res.setColor(Color.primary);
+				res.setStatus(0);
+				res.setMsg("ok");
+				res.setResult(cellPhoneResult.get("result"));
+				logger.info("正常内容" + res);
+				String mobileCompany = ((HashMap) cellPhoneResult.get("result")).get("city").toString()
+						+ ((HashMap) cellPhoneResult.get("result")).get("company").toString().substring(2);
+				personLoan.setMobileCompany(mobileCompany);
+
+			} else {
+				res.setColor(Color.danger);
+				res.setMsg(cellPhoneResult.get("reason").toString());
+				res.setStatus(Integer.valueOf(cellPhoneResult.get("error_code").toString()));
+				logger.info("错误内容" + res);
+			}
+
+		} else {
+			res.setColor(Color.info);
+			res.setStatus(400);
+			res.setMsg("查询超时");
+			logger.info("错误内容" + res);
+		}
+		personLoan.setAnalyseCellphone(JsonTools.toJson(res));
+
+	}
+
+	public void handleIdCard(Important personLoan, Map idCardResult) {
+		Response res = new Response();
+		if (idCardResult != null) {
+			if (Integer.valueOf(idCardResult.get("status").toString()).equals(0)) {
+				res.setColor(Color.primary);
+				res.setMsg(idCardResult.get("msg").toString());
+				res.setStatus(0);
+				res.setResult(idCardResult.get("result"));
+				logger.info("正常内容" + res);
+				personLoan.setArea(((HashMap) idCardResult.get("result")).get("area").toString());
+				personLoan.setSex(((HashMap) idCardResult.get("result")).get("sex").toString());
+				personLoan.setBirth(((HashMap) idCardResult.get("result")).get("birth").toString());
+				SimpleDateFormat dateformat = new SimpleDateFormat("yyyy年MM月dd日");
+				try {
+					Date parse = dateformat.parse(((HashMap) idCardResult.get("result")).get("birth").toString());
+					int year1 = new Date().getYear();
+					int year2 = parse.getYear();
+					int age = year1 - year2;
+					personLoan.setAge(age);
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			} else {
+				res.setColor(Color.danger);
+				res.setMsg(idCardResult.get("msg").toString());
+				res.setStatus(Integer.valueOf(idCardResult.get("status").toString()));
+				logger.info("错误内容" + res);
+			}
+
+		} else {
+			res.setColor(Color.info);
+			res.setStatus(400);
+			res.setMsg("查询超时");
+			logger.info("错误内容" + res);
+		}
+		personLoan.setAnalyseIdCard(JsonTools.toJson(res));
+
+	}
+	
+	public HashMap<String, Object> handleCellphoneDescription(JSONObject object) {
+
+		System.out.println("处理更新时间");
+		HashMap<String, Object> description = new HashMap<String, Object>();
+		JSONArray report = object.getJSONArray("report");
+		for (Object object1 : report) {
+			Color color = Color.primary;
+			if ("update_time".equals(((JSONObject) object1).getString("key"))) {
+				String updateTime = ((JSONObject) object1).getString("value");
+				description.put("updateTime", new CodeMessageColor("抓取时间", updateTime, color));
+			}
+		}
+		System.out.println("处理cell_phone");
+		JSONArray cellPhone = object.getJSONArray("cell_phone");
+		for (Object object2 : cellPhone) {
+			Color color = Color.primary;
+			if ("in_time".equals(((JSONObject) object2).getString("key"))) {
+				String inTime = ((JSONObject) object2).getString("value");
+				try{
+					Integer time = Integer.valueOf(inTime);
+					if (time < 12) {
+						color = Color.danger;
+					} else if (time < 24) {
+						color = Color.warning;
+					} else {
+						color = Color.success;
+					}
+					description.put("inTime", new CodeMessageColor("网龄", inTime+"个月", color));
+				}catch(NumberFormatException e){
+					color = Color.warning;
+					description.put("inTime", new CodeMessageColor("网龄", inTime, color));
+				}
+				
+			
+				
+			} else if ("reliability".equals(((JSONObject) object2).getString("key"))) {
+				String reliability = ((JSONObject) object2).getString("value");
+				if ("未实名".equals(reliability)) {
+					color = Color.danger;
+				} else {
+					color = Color.success;
+				}
+				description.put("reliability", new CodeMessageColor("实名认证", reliability, color));
+			} else if ("live_address".equals(((JSONObject) object2).getString("key"))) {
+				String liveAddress = ((JSONObject) object2).getString("value");
+				description.put("liveAddress", new CodeMessageColor("现居住地", liveAddress, Color.primary));
+			} else if ("package_name".equals(((JSONObject) object2).getString("key"))) {
+				String packageName = ((JSONObject) object2).getString("value");
+				description.put("packageName", new CodeMessageColor("套餐", packageName, Color.primary));
+			}
+		}
+
+		System.out.println("处理basic_check_items");
+
+		JSONArray basicCheckItems = object.getJSONArray("basic_check_items");
+		for (Object object3 : basicCheckItems) {
+			Color color = Color.primary;
+			if ("name_match".equals(((JSONObject) object3).getString("check_item"))) {
+				String nameMatch = ((JSONObject) object3).getString("result");
+				if ("匹配成功".equals(nameMatch)) {
+					color = Color.success;
+				} else {
+					color = Color.warning;
+				}
+				description.put("nameMatch", new CodeMessageColor("姓名匹配", nameMatch, color));
+			}
+		}
+
+		System.out.println("处理application_check");
+
+		JSONArray applicationCheck = object.getJSONArray("application_check");
+		String linkmanTemplate = "linkman%dCheck";
+		int linkmanNumber = 0;
+		for (Object object4 : applicationCheck) {
+			Color color = Color.success;
+			linkmanNumber++;
+			String linkman = String.format(linkmanTemplate, linkmanNumber);
+			JSONObject checkPoint = ((JSONObject) object4).getJSONObject("check_points");
+			if (!"该联系人号码非临时小号".equals(checkPoint.getString("check_xiaohao"))) {
+				color = Color.warning;
+			}
+			if ("无该联系人电话的通话记录".equals(checkPoint.getString("check_mobile"))) {
+				color = Color.danger;
+			}
+			checkPoint.put("color", color);
+			description.put(linkman, checkPoint);
+
+		}
+
+		System.out.println("处理behavior_check");
+
+		JSONArray behaviorCheck = object.getJSONArray("behavior_check");
+		for (Object object5 : behaviorCheck) {
+			String checkPoint = ((JSONObject) object5).getString("check_point");
+			if (checkPoint.equals("regular_circle")) {
+				((JSONObject) object5).put("color", Color.primary);
+				description.put("regularCircle", object5);
+			} else if (checkPoint.equals("phone_silent")) {
+				if (((JSONObject) object5).getInteger("score").equals(1)) {
+					((JSONObject) object5).put("color", Color.success);
+				} else {
+					((JSONObject) object5).put("color", Color.warning);
+				}
+				description.put("phonePowerOff", object5);
+			} else if (checkPoint.equals("contact_each_other")) {
+				if (((JSONObject) object5).getInteger("score").equals(1)) {
+					((JSONObject) object5).put("color", Color.success);
+				} else {
+					((JSONObject) object5).put("color", Color.warning);
+				}
+				description.put("contactEachOther", object5);
+			} else if (checkPoint.equals("contact_loan")) {
+				if (((JSONObject) object5).getInteger("score").equals(1)) {
+					((JSONObject) object5).put("color", Color.success);
+				} else {
+					((JSONObject) object5).put("color", Color.warning);
+				}
+				description.put("contactLoan", contactObject(object5));
+			} else if (checkPoint.equals("contact_bank")) {
+				if (((JSONObject) object5).getInteger("score").equals(1)) {
+					((JSONObject) object5).put("color", Color.success);
+				} else {
+					((JSONObject) object5).put("color", Color.warning);
+				}
+				description.put("contactBank",contactObject(object5));
+			} else if (checkPoint.equals("contact_credit_card")) {
+				if (((JSONObject) object5).getInteger("score").equals(1)) {
+					((JSONObject) object5).put("color", Color.success);
+				} else {
+					((JSONObject) object5).put("color", Color.warning);
+				}
+				description.put("contactCreditCard", contactObject(object5));
+			} else if (checkPoint.equals("contact_collection")) {
+				if (((JSONObject) object5).getInteger("score").equals(1)) {
+					((JSONObject) object5).put("color", Color.success);
+				} else {
+					((JSONObject) object5).put("color", Color.warning);
+				}
+				description.put("contactCollection", contactObject(object5));
+			} else if (checkPoint.equals("phone_call")) {
+				if (((JSONObject) object5).getInteger("score").equals(1)) {
+					((JSONObject) object5).put("color", Color.success);
+				} else {
+					((JSONObject) object5).put("color", Color.warning);
+				}
+				description.put("phoneCall", contactObject(object5));
+			}else if (checkPoint.equals("contact_macao")) {
+				if (((JSONObject) object5).getInteger("score").equals(1)) {
+					((JSONObject) object5).put("color", Color.success);
+				} else {
+					((JSONObject) object5).put("color", Color.warning);
+				}
+				description.put("contactMacao", contactObject(object5));
+			}else if (checkPoint.equals("contact_lawyer")) {
+				if (((JSONObject) object5).getInteger("score").equals(1)) {
+					((JSONObject) object5).put("color", Color.success);
+				} else {
+					((JSONObject) object5).put("color", Color.warning);
+				}
+				description.put("contactLawyer", contactObject(object5));
+			}else if (checkPoint.equals("contact_court")) {
+				if (((JSONObject) object5).getInteger("score").equals(1)) {
+					((JSONObject) object5).put("color", Color.success);
+				} else {
+					((JSONObject) object5).put("color", Color.warning);
+				}
+				description.put("contactCourt", contactObject(object5));
+			}
+		}
+
+		System.out.println("处理call_contact_detail");
+
+		JSONArray callContactDetail = object.getJSONArray("call_contact_detail");
+		ArrayList<PhoneDetail> arrayList = new ArrayList<PhoneDetail>();
+		for (Object object6 : callContactDetail) {
+			Color color = Color.primary;
+			String city = ((JSONObject) object6).getString("city");
+			String peerNum = ((JSONObject) object6).getString("peer_num");
+			String companyName = ((JSONObject) object6).getString("company_name");
+			Integer dialCount = ((JSONObject) object6).getInteger("dial_cnt_6m");
+			Integer dialedCount = ((JSONObject) object6).getInteger("dialed_cnt_6m");
+			Integer callTime = ((JSONObject) object6).getInteger("call_time_6m") / 60;
+			PhoneDetail phoneDetail = new PhoneDetail(peerNum, city, companyName, dialCount, dialedCount, callTime);
+			arrayList.add(phoneDetail);
+		}
+		description.put("phoneDetails", arrayList);
+
+		System.out.println("处理active_degree");
+
+		JSONArray activeDegree = object.getJSONArray("active_degree");
+		for (Object object7 : activeDegree) {
+			Color color = Color.primary;
+			String appPoint = ((JSONObject) object7).getString("app_point");
+			if (appPoint.equals("net_used")) {
+				String avgMonth = ((JSONObject) object7).getJSONObject("item").getString("avg_item_6m");
+				Integer valueOf = Integer.valueOf(avgMonth);
+				valueOf = valueOf / 1024;
+				description.put("netUsedPerMonth", new CodeMessageColor("流量套餐使用量（MB）/月", valueOf, color));
+			} else if (appPoint.equals("call_cnt")) {
+				String avgMonth = ((JSONObject) object7).getJSONObject("item").getString("avg_item_6m");
+				Double valueOf = Double.valueOf(avgMonth);
+				valueOf = valueOf / 30;
+				if (valueOf < 2) {
+					color = Color.warning;
+				}
+				description.put("callCountPerDay",
+						new CodeMessageColor("平均通话次数/天", String.format("%.1f", valueOf), color));
+			} else if (appPoint.equals("avg_call_time")) {
+				String avgMonth = ((JSONObject) object7).getJSONObject("item").getString("item_6m");
+				Integer valueOf = Integer.valueOf(avgMonth);
+				if (valueOf < 30) {
+					color = Color.warning;
+				}
+				description.put("callTimePerTime",
+						new CodeMessageColor("平均通话时长（秒）/次", String.format("%d", valueOf), color));
+			}
+
+		}
+
+		System.out.println("处理consumption_detail");
+
+		JSONArray consumptionDetail = object.getJSONArray("consumption_detail");
+		for (Object object8 : consumptionDetail) {
+			Color color = Color.primary;
+			String appPoint = ((JSONObject) object8).getString("app_point");
+			if (appPoint.equals("total_fee")) {
+				String money = ((JSONObject) object8).getJSONObject("item").getString("avg_item_6m");
+				Integer valueOf = Integer.valueOf(money);
+				valueOf = valueOf / 100;
+				description.put("moneyPerMonth", new CodeMessageColor("平均话费（元）/月", valueOf.toString(), color));
+			}
+		}
+
+		System.out.println("处理user_info_check");
+
+		JSONArray userInfoCheck = object.getJSONArray("user_info_check");
+		for (Object object9 : userInfoCheck) {
+			Color color = Color.primary;
+			JSONObject checkSearchInfo = ((JSONObject) object9).getJSONObject("check_search_info");
+			Integer searchedOrgCnt = checkSearchInfo.getInteger("searched_org_cnt");
+			description.put("searchedOrganizationCount", new CodeMessageColor("查询过该用户的相关企业数量", searchedOrgCnt, color));
+			JSONArray jsonArray = checkSearchInfo.getJSONArray("searched_org_type");
+			ArrayList<String> organizationTypes = new ArrayList<String>();
+			for (Object object2 : jsonArray) {
+				if(object2.toString().equals("CASH_LOAN")){
+					organizationTypes.add("现金贷");
+				}else if(object2.toString().equals("CUSTOMER_FINANCE")){
+					organizationTypes.add("消费金融");
+				}else if(object2.toString().equals("ZHENGXIN")){
+					organizationTypes.add("征信");
+				}else if(object2.toString().equals("DIVERSION")){
+					organizationTypes.add("娱乐");
+				}else if(object2.toString().equals("DATA_PLATFORM")){
+					organizationTypes.add("数据平台");
+				}
+				
+			}
+			description.put("searchedOrganizationType", new CodeMessageColor("查询过该用户的相关企业类型", organizationTypes, color));
+
+			JSONObject checkBlackInfo = ((JSONObject) object9).getJSONObject("check_black_info");
+			Integer contactsClass1BlacklistCnt = checkBlackInfo.getInteger("contacts_class1_blacklist_cnt");
+			if (contactsClass1BlacklistCnt > 0) {
+				color = Color.warning;
+			}
+			description.put("contactsClass1BlacklistCnt",
+					new CodeMessageColor("直接联系人中黑名单人数", contactsClass1BlacklistCnt, color));
+			Integer contactsClass2BlacklistCnt = checkBlackInfo.getInteger("contacts_class2_blacklist_cnt");
+			if (contactsClass2BlacklistCnt != null && contactsClass2BlacklistCnt >= 3) {
+				color = Color.warning;
+			} else {
+				color = Color.primary;
+				if (contactsClass2BlacklistCnt == null) {
+					contactsClass2BlacklistCnt = 0;
+				}
+			}
+			description.put("contactsClass2BlacklistCnt",
+					new CodeMessageColor("间接联系人中黑名单人数", contactsClass2BlacklistCnt, color));
+		}
+		return description;
+	}
+	
+
+	private Object contactObject(Object object) {
+		// TODO Auto-generated method stub
+		JSONObject jsonObject = (JSONObject) object;
+		String result = jsonObject.getString("result");
+		String evidence = jsonObject.getString("evidence");
+		if(result.indexOf("无")!=-1){
+			jsonObject.put("total", "");
+		}else{
+			String[] split = evidence.split("，");
+			ArrayList<String> rows = new ArrayList<String>();
+			for (int i = 0; i < split.length; i++) {
+				if(i == 0){
+					jsonObject.put("total", split[i]);
+				}else if (i == 1){
+					rows.add(split[i].substring(5));
+				}else{
+					rows.add(split[i]);
+				}
+			}
+			jsonObject.put("rows", rows);
+		}
+		
+		return jsonObject;
+	}
+
+
+	public static class PhoneDetail {
+		private String peerNum;
+		private String city;
+		private String companyName;
+		private Integer dialCount;
+		private Integer dialedCount;
+		private Integer callTime;
+
+		public String getPeerNum() {
+			return peerNum;
+		}
+
+		public void setPeerNum(String peerNum) {
+			this.peerNum = peerNum;
+		}
+
+		public String getCity() {
+			return city;
+		}
+
+		public void setCity(String city) {
+			this.city = city;
+		}
+
+		public String getCompanyName() {
+			return companyName;
+		}
+
+		public void setCompanyName(String companyName) {
+			this.companyName = companyName;
+		}
+
+		public Integer getDialCount() {
+			return dialCount;
+		}
+
+		public void setDialCount(Integer dialCount) {
+			this.dialCount = dialCount;
+		}
+
+		public Integer getDialedCount() {
+			return dialedCount;
+		}
+
+		public void setDialedCount(Integer dialedCount) {
+			this.dialedCount = dialedCount;
+		}
+
+		public Integer getCallTime() {
+			return callTime;
+		}
+
+		public void setCallTime(Integer callTime) {
+			this.callTime = callTime;
+		}
+
+		public PhoneDetail() {
+			super();
+		}
+
+		public PhoneDetail(String peerNum, String city, String companyName, Integer dialCount, Integer dialedCount,
+				Integer callTime) {
+			super();
+			this.peerNum = peerNum;
+			this.city = city;
+			this.companyName = companyName;
+			this.dialCount = dialCount;
+			this.dialedCount = dialedCount;
+			this.callTime = callTime;
+		}
+
+	}
+}

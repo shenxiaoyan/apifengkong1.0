@@ -1,0 +1,66 @@
+{
+	"resCode": "0000",
+	"resMsg": "提交成功",
+	"data": {
+		"statusCode": "2012",
+		"statusMsg": "查询成功",
+		"result": {
+			"code": "200",
+			"cellphone": "15869001094",
+			"province": "浙江",
+			"city": "杭州",
+			"data": {
+				"S002": {
+					"cycle": "2016-10-11--2017-10-11",
+					"data": [
+						{
+							"platformType": "2",
+							"platformCode": "emay_100068",
+							"registerTime": "2017/2/10 0:00:00"
+						},
+						{
+							"platformType": "2",
+							"platformCode": "emay_101812",
+							"registerTime": "2017/5/20 0:00:00"
+						},
+						{
+							"platformType": "2",
+							"platformCode": "emay_103130",
+							"registerTime": "2017/3/22 0:00:00"
+						},
+						{
+							"platformType": "1",
+							"platformCode": "emay_103333",
+							"registerTime": "2017/5/19 0:00:00"
+						},
+						{
+							"platformType": "2",
+							"platformCode": "emay_103411 ",
+							"registerTime": "2017/4/30 0:00:00"
+						}
+					]
+				},
+				"S004": {
+					"cycle": "2016-10-11--2017-10-11",
+					"data": []
+				},
+				"S007": {
+					"cycle": "2016-10-11--2017-10-11",
+					"data": []
+				},
+				"S009": {
+					"cycle": "2016-10-11--2017-10-11",
+					"data": []
+				},
+				"S012": {
+					"cycle": "2016-10-11--2017-10-11",
+					"data": []
+				},
+				"S013": {
+					"cycle": "2016-10-11--2017-10-11",
+					"data": []
+				}
+			}
+		}
+	}
+}

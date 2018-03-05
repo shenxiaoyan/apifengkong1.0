@@ -1,0 +1,409 @@
+package apifengkong.controller;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
+import javax.validation.Valid;
+
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alipay.api.DefaultAlipayClient;
+
+import apifengkong.controller.UserController.ChargeForm;
+import apifengkong.controller.UserController.Platform;
+import apifengkong.controller.UserController.UserRegister;
+import apifengkong.entity.Company;
+import apifengkong.entity.CompanyRemainderLog;
+import apifengkong.entity.CompanyRemainderLogRepository;
+import apifengkong.entity.CompanyRepository;
+import apifengkong.entity.PersonLoan;
+import apifengkong.entity.PersonLoanNote;
+import apifengkong.entity.PersonLoanNoteRepository;
+import apifengkong.entity.PersonLoanRepository;
+import apifengkong.entity.PersonWeb;
+import apifengkong.entity.PersonWebRepository;
+import apifengkong.entity.Role;
+import apifengkong.entity.RoleRepository;
+import apifengkong.entity.User;
+import apifengkong.entity.UserRemainderLog.ChargeStatus;
+import apifengkong.service.CompanyService;
+import apifengkong.service.ParameterService;
+import apifengkong.entity.UserRepository;
+import apifengkong.util.Common;
+import apifengkong.util.Common.UserDetailsImpl;
+import apifengkong.util.Common.personLoanHistoryCriteria;
+import apifengkong.util.Common.personWebHistoryCriteria;
+import apifengkong.util.FailResponse;
+
+@Controller
+@RequestMapping(value = "/company")
+public class CompanyController {
+
+	@Autowired
+	UserRepository userRepository;
+
+	@Autowired
+	RoleRepository roleRepository;
+
+	@Autowired
+	PersonLoanRepository personLoanRepository;
+	
+	@Autowired
+	PersonWebRepository personWebRepository;
+
+	@Autowired
+	PersonLoanNoteRepository personLoanNoteRepository;
+
+	@Autowired
+	CompanyRemainderLogRepository companyRemainderLogRepository;
+
+	@Autowired
+	ParameterService parameterService;
+
+	@Autowired
+	CompanyService companyService;
+
+	@Autowired
+	CompanyRepository companyRepository;
+
+	@RequestMapping(value = "/myInfo")
+	@ResponseBody
+	@PostAuthorize("hasRole('MANAGER')")
+	public Company info() {
+		return companyRepository.findOne(Common.getPrincipal().getCompany().getId());
+	}
+
+	@RequestMapping(value = "/registerSms")
+	@PostAuthorize("hasRole('MANAGER')")
+	@ResponseBody
+	public Object registerSms(HttpServletRequest httpServletRequest, String username) {
+		if (username == null) {
+			throw new FailResponse(6699, "没有手机号");
+		}
+		companyService.sendSms(httpServletRequest.getRemoteAddr(), username);
+		HashMap<String, Object> hashMap = new HashMap<String, Object>();
+		hashMap.put("status", "success");
+		hashMap.put("code", 0);
+		hashMap.put("message", null);
+		return hashMap;
+	}
+
+	@RequestMapping(value = "/register", method = RequestMethod.POST)
+	@ResponseBody
+	@Transactional
+	public Object register(@RequestBody @Valid CompanyRegister companyForm, BindingResult result) {
+		if (!result.getAllErrors().isEmpty()) {
+			System.out.println(result.getAllErrors().get(0));
+			String defaultMessage = result.getAllErrors().get(0).getDefaultMessage();
+			ObjectError objectError = result.getAllErrors().get(0);
+			BeanWrapperImpl beanWrapperImpl = new BeanWrapperImpl(objectError);
+			Object propertyValue = beanWrapperImpl.getPropertyValue("field");
+			String field = propertyValue.toString();
+			HashMap<String, Object> hashMap = new HashMap<String, Object>();
+			hashMap.put("status", "fail");
+			hashMap.put("code", field);
+			hashMap.put("message", defaultMessage);
+			return hashMap;
+		}
+
+		if (!companyForm.getPassword1().equals(companyForm.getPassword2())) {
+			throw new FailResponse(5419, "两个密码不一致");
+		}
+		if (!companyService.checkSms(companyForm.getUsername(), companyForm.getSms())) {
+			throw new FailResponse(5188, "验证码错误，请重新输入验证码");
+		}
+
+		Company company = new Company();
+		company.setCellphone(companyForm.getUsername());
+		company.setCreateTime(new Date());
+		company.setEnabled(true);
+		company.setCompanyName(companyForm.getCompanyName());
+		company.setAppCode(parameterService.getMD5(new Date().toString().getBytes(Charset.forName("utf-8"))));
+		Company save2 = companyRepository.save(company);
+
+		User user = new User();
+		user.setNickname(companyForm.getNickname());
+		user.setCreateTime(new Date());
+		user.setEnabled(true);
+		user.setCompany(save2);
+		user.setPassword(companyForm.getPassword1());
+		user.setRole(roleRepository.findByName("ROLE_MANAGER"));
+		user.setUsername(companyForm.getUsername());
+		try {
+			User save = userRepository.save(user);
+			return save;
+		} catch (Exception e) {
+			throw new FailResponse(3864, "手机号已经存在");
+		}
+
+	}
+
+	// ------------------------------------------------------------
+
+	@RequestMapping(value = "/user/info/{id}")
+	@ResponseBody
+	@PostAuthorize("hasRole('MANAGER') and principal.company.id.equals(returnObject.company.id)")
+	public User userInfo(@PathVariable Integer id) {
+		User findOne = userRepository.findOne(id);
+		return findOne;
+	}
+
+	@RequestMapping(value = "/user/list")
+	@ResponseBody
+	@PreAuthorize("hasRole('MANAGER')")
+	public Page<User> listEmployee(Pageable page) {
+		Company company = Common.getPrincipal().getCompany();
+		Page<User> findByCustomer = userRepository.findByCompany(company, page);
+		return findByCustomer;
+	}
+
+	@RequestMapping(value = "/user/insertOrUpdate", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('MANAGER')")
+	@ResponseBody
+	public User insertOrUpdateUser(@RequestBody User user) {
+		if (user.getId() != null) {
+			User findOne = userRepository.findOne(user.getId());
+			if (!findOne.getCompany().getId().equals(Common.getPrincipal().getCompany().getId())) {
+				throw new FailResponse(1545, "权限不允许");
+			}
+		} else {
+			if (user.getId() == null || user.getCreateTime() == null) {
+				throw new FailResponse(1388, "接口不允许新建");
+			}
+		}
+		try {
+			User save = userRepository.save(user);
+			return save;
+		} catch (Exception e) {
+			throw new FailResponse(5133, "手机号已存在");
+		}
+	}
+
+	// --------------------------------------------------------------------
+
+	@RequestMapping(value = "/deposit", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('MANAGER')")
+	public String deposit() {
+		return "payment";
+	}
+
+	@RequestMapping(value = "/deposit", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('MANAGER')")
+	@ResponseBody
+	public Object deposit(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+			@Valid @RequestBody ChargeForm form, BindingResult result) {
+
+		if (!result.getAllErrors().isEmpty()) {
+			System.out.println(result.getAllErrors().get(0));
+			String defaultMessage = result.getAllErrors().get(0).getDefaultMessage();
+			ObjectError objectError = result.getAllErrors().get(0);
+			BeanWrapperImpl beanWrapperImpl = new BeanWrapperImpl(objectError);
+			Object propertyValue = beanWrapperImpl.getPropertyValue("field");
+			String field = propertyValue.toString();
+			HashMap<String, Object> hashMap = new HashMap<String, Object>();
+			hashMap.put("status", "fail");
+			hashMap.put("code", field);
+			hashMap.put("message", defaultMessage);
+			return hashMap;
+		}
+
+		if (form.getPlatform().equals(Platform.ALIPAY)) {
+			String returnForm = companyService.taobaoDeposit(form.getAmount());
+			httpResponse.setContentType("text/html;charset=utf-8");
+			try {
+				httpResponse.getWriter().write(returnForm);
+				httpResponse.getWriter().flush();
+				httpResponse.getWriter().close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	// --------------------------------------------------------------------
+	// 获取个人信息列表
+	// 获取个人信息列表
+	@RequestMapping(value = "/personLoan/history", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
+	public Page<PersonLoan> personLoanList(@RequestParam(required=false) String name,@RequestParam(required=false)  String idCard,@RequestParam(required=false) String mobile, Pageable page) {
+		Company company = Common.getPrincipal().getCompany();
+		personLoanHistoryCriteria personLoanHistory = new Common.personLoanHistoryCriteria(name, idCard, mobile,
+				company, null);
+		Page<PersonLoan> findAll = personLoanRepository.findAll(personLoanHistory, page);
+
+		for (PersonLoan personLoan : findAll.getContent()) {
+			// 分析其通话记录
+			String analyseCellphoneLog = personLoan.getAnalyseCellphoneLog();
+			if (analyseCellphoneLog != null) {
+				// 将前端json类型数据转object
+				JSONObject object = JSON.parseObject(analyseCellphoneLog);
+				object.put("result", null);
+				personLoan.setAnalyseCellphoneLog(object.toJSONString());
+			}
+		}
+		return findAll;
+	}
+
+	// 根据用户id显示信息
+	@RequestMapping(value = "/personLoan/info/{id}", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
+	@PostAuthorize("principal.company.id.equals(returnObject.company.id)")
+	public PersonLoan personLoanInfo(@PathVariable Integer id) {
+		PersonLoan findOne = personLoanRepository.findOne(id);
+
+		String analyseCellphoneLog = findOne.getAnalyseCellphoneLog();
+		if (analyseCellphoneLog != null) {
+			JSONObject object = JSON.parseObject(analyseCellphoneLog);
+			object.put("result", null);
+			findOne.setAnalyseCellphoneLog(object.toJSONString());
+		}
+		Calendar c1 = Calendar.getInstance();// 取当前日期。
+		c1.add(Calendar.DATE, -30);
+		Long countByIdCardAndCreateAtGreaterThan = personLoanRepository
+				.countByIdCardAndCreateAtGreaterThan(findOne.getIdCard(), c1.getTime());
+		findOne.setSearch30days(countByIdCardAndCreateAtGreaterThan.intValue());
+		return findOne;
+	}
+
+	
+	
+	
+	// --------------------------------------------------------------------
+	// 获取个人信息列表
+	// 获取个人信息列表
+	@RequestMapping(value = "/personWeb/history", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
+	public Page<PersonWeb> personWebList(@RequestParam(required=false) String name,@RequestParam(required=false)  String idCard,@RequestParam(required=false) String mobile, Pageable page) {
+		Company company = Common.getPrincipal().getCompany();
+		personWebHistoryCriteria personWebHistory = new Common.personWebHistoryCriteria(name, idCard, mobile,
+				company, null);
+		Page<PersonWeb> findAll = personWebRepository.findAll(personWebHistory, page);
+		return findAll;
+	}
+
+	// 根据用户id显示信息
+	@RequestMapping(value = "/personWeb/info/{id}", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasRole('MANAGER') or hasRole('EMPLOYEE')")
+	@PostAuthorize("principal.company.id.equals(returnObject.company.id)")
+	public PersonWeb personWebInfo(@PathVariable Integer id) {
+		PersonWeb findOne = personWebRepository.findOne(id);
+		Calendar c1 = Calendar.getInstance();// 取当前日期。
+		c1.add(Calendar.DATE, -30);
+		Long countByIdCardAndCreateAtGreaterThan = personLoanRepository
+				.countByIdCardAndCreateAtGreaterThan(findOne.getIdCard(), c1.getTime());
+		findOne.setSearch30days(countByIdCardAndCreateAtGreaterThan.intValue());
+		return findOne;
+	}
+	
+
+	// ----------------------------------------
+
+	@RequestMapping(value = "/remainderLog/list", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasRole('MANAGER')")
+	public Page<CompanyRemainderLog> remainderLogList(Pageable page) {
+		Company company = Common.getPrincipal().getCompany();
+		Page<CompanyRemainderLog> findByCompany = companyRemainderLogRepository.findByCompanyAndStatusNotOrderByIdDesc(company, ChargeStatus.WAIT_BUYER_PAY,page);
+		return findByCompany;
+	}
+
+	public static class CompanyRegister {
+
+		@NotBlank(message="公司名字不能为空")
+		private String companyName;
+
+		@NotBlank(message="手机号不能为空")
+		@Length(min = 11, max = 11, message = "手机号码位数错误")
+		private String username;
+		@NotBlank(message="密码不能为空")
+		@Length(min = 6,message="密码最少6位")
+		private String password1;
+		@NotBlank(message="密码不能为空")
+		@Length(min = 6)
+		private String password2;
+		@NotBlank(message="手机短信不能为空")
+		private String sms;
+		
+		private String nickname;
+		
+		public String getNickname() {
+			return nickname;
+		}
+
+		public void setNickname(String nickname) {
+			this.nickname = nickname;
+		}
+
+		public String getCompanyName() {
+			return companyName;
+		}
+
+		public void setCompanyName(String companyName) {
+			this.companyName = companyName;
+		}
+
+		public String getUsername() {
+			return username;
+		}
+
+		public void setUsername(String username) {
+			this.username = username;
+		}
+
+		public String getPassword1() {
+			return password1;
+		}
+
+		public void setPassword1(String password1) {
+			this.password1 = password1;
+		}
+
+		public String getPassword2() {
+			return password2;
+		}
+
+		public void setPassword2(String password2) {
+			this.password2 = password2;
+		}
+
+		public String getSms() {
+			return sms;
+		}
+
+		public void setSms(String sms) {
+			this.sms = sms;
+		}
+
+	}
+}

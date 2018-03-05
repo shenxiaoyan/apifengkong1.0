@@ -1,0 +1,531 @@
+package apifengkong.util;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import apifengkong.entity.Company;
+import apifengkong.entity.PersonLoan;
+import apifengkong.entity.PersonWeb;
+import apifengkong.entity.Role;
+import apifengkong.entity.SupplyAPI;
+import apifengkong.entity.User;
+
+public class Common {
+
+	public static UserDetailsImpl getPrincipal() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()) {
+			return null;
+		}
+		if (authentication.getPrincipal() instanceof UserDetailsImpl) {
+			return (UserDetailsImpl) authentication.getPrincipal();
+		} else {
+			return null;
+		}
+	}
+
+	public static int youfenMoneyMin(String s) {
+		String[] split = s.split("～");
+		if (split[0].substring(0, split[0].indexOf("w")).equalsIgnoreCase("0")) {
+			return 1;
+		} else {
+			Double valueOf = Double.valueOf(split[0].substring(0, split[0].indexOf("w")));
+			valueOf = valueOf * 10;
+			int intValue = valueOf.intValue();
+			return intValue;
+		}
+	}
+
+	public static int youfenMoneyMax(String s) {
+		String[] split = s.split("～");
+		if (split[1].substring(0, split[1].indexOf("w")).equalsIgnoreCase("0")) {
+			return 1;
+		} else {
+			Double valueOf = Double.valueOf(split[1].substring(0, split[1].indexOf("w")));
+			valueOf = valueOf * 10;
+			int intValue = valueOf.intValue();
+			return intValue;
+		}
+	}
+
+	public static List<VerifyCodeMessage> verifyTrans(List<String> list) {
+		ArrayList<VerifyCodeMessage> arrayList = new ArrayList<VerifyCodeMessage>();
+		for (String str : list) {
+			if(verifyTable.containsKey(str)){
+				arrayList.add(verifyTable.get(str));
+			}
+		}
+		return arrayList;
+	}
+	
+	
+
+	static HashMap<String, VerifyCodeMessage> verifyTable;
+	static {
+		verifyTable = new HashMap<String, VerifyCodeMessage>();
+		verifyTable.put("V_CN_NA", new VerifyCodeMessage("V_CN_NA", "查询不到身份证信息", Color.warning));
+		verifyTable.put("V_CN_NM_UM", new VerifyCodeMessage("V_CN_NM_UM", "姓名与身份证不匹配", Color.danger));
+		verifyTable.put("V_CN_NM_MA", new VerifyCodeMessage("V_CN_NM_MA", "姓名与身份证匹配", Color.success));
+		
+		verifyTable.put("V_PH_NA", new VerifyCodeMessage("V_PH_NA", "查询不到电话号码信息", Color.warning));
+		verifyTable.put("V_PH_CN_UM", new VerifyCodeMessage("V_PH_CN_UM", "电话号码与身份证不匹配", Color.danger));
+		verifyTable.put("V_PH_CN_MA_UL30D", new VerifyCodeMessage("V_PH_CN_MA_UL30D", "电话号码与身份证匹配,1个月内有使用", Color.success));
+		verifyTable.put("V_PH_CN_MA_UL90D", new VerifyCodeMessage("V_PH_CN_MA_UL90D", "电话号码与身份证匹配,3个月内有使用", Color.success));
+		verifyTable.put("V_PH_CN_MA_UL180D", new VerifyCodeMessage("V_PH_CN_MA_UL180D", "电话号码与身份证匹配,半年内有使用", Color.success));
+		verifyTable.put("V_PH_CN_MA_UM180D", new VerifyCodeMessage("V_PH_CN_MA_UM180D", "电话号码与身份证匹配,半年内没有使用", Color.warning));
+		
+		verifyTable.put("V_PH_NM_UM", new VerifyCodeMessage("V_PH_NM_UM", "电话号码与姓名不匹配", Color.danger));
+		verifyTable.put("V_PH_NM_MA_UL30D", new VerifyCodeMessage("V_PH_NM_MA_UL30D", "电话号码与姓名匹配,1个月内有使用", Color.success));
+		verifyTable.put("V_PH_NM_MA_UL90D", new VerifyCodeMessage("V_PH_NM_MA_UL90D", "电话号码与姓名匹配,3个月内有使用", Color.success));
+		verifyTable.put("V_PH_NM_MA_UL180D", new VerifyCodeMessage("V_PH_NM_MA_UL180D", "电话号码与姓名匹配,半年内有使用", Color.success));
+		verifyTable.put("V_PH_NM_MA_UM180D", new VerifyCodeMessage("V_PH_NM_MA_UM180D", "电话号码与姓名匹配,半年内没有使用", Color.warning));
+		
+		verifyTable.put("V_BC_CN_UK", new VerifyCodeMessage("V_BC_CN_UK", "银行卡与身份证关系未知", Color.warning));
+		verifyTable.put("V_BC_CN_UM", new VerifyCodeMessage("V_BC_CN_UM", "银行卡与身份证不匹配", Color.danger));
+		verifyTable.put("V_BC_CN_MA_UL180D", new VerifyCodeMessage("V_BC_CN_MA_UL180D", "银行卡与身份证匹配,半年内有使用", Color.success));
+		verifyTable.put("V_BC_CN_MA_UL360D", new VerifyCodeMessage("V_BC_CN_MA_UL360D", "银行卡与身份证匹配,1年内有使用", Color.success));
+		verifyTable.put("V_BC_CN_MA_UM360D", new VerifyCodeMessage("V_BC_CN_MA_UM360D", "银行卡与身份证匹配,1年内没有使用", Color.warning));
+		
+		verifyTable.put("V_BC_PH_UK", new VerifyCodeMessage("V_BC_PH_UK", "银行卡与手机号关系未知", Color.warning));
+		verifyTable.put("V_BC_PH_UM", new VerifyCodeMessage("V_BC_PH_UM", "银行卡与手机号不匹配", Color.danger));
+		verifyTable.put("V_BC_PH_MA_UL180D", new VerifyCodeMessage("V_BC_PH_MA_UL180D", "银行卡与手机号匹配,半年内有使用", Color.success));
+		verifyTable.put("V_BC_PH_MA_UL360D", new VerifyCodeMessage("V_BC_PH_MA_UL360D", "银行卡与手机号匹配,1年内有使用", Color.success));
+		verifyTable.put("V_BC_PH_MA_UM360D", new VerifyCodeMessage("V_BC_PH_MA_UM360D", "银行卡与手机号匹配,1年内没有使用", Color.warning));
+		
+		verifyTable.put("V_AD_CN_UK", new VerifyCodeMessage("V_AD_CN_UK", "地址与身份证关系未知", Color.warning));
+		verifyTable.put("V_AD_CN_UM", new VerifyCodeMessage("V_AD_CN_UM", "地址与身份证不匹配", Color.danger));
+		verifyTable.put("V_AD_CN_MA_UL180D", new VerifyCodeMessage("V_AD_CN_MA_UL180D", "地址与身份证匹配,半年内有使用", Color.success));
+		verifyTable.put("V_AD_CN_MA_UL360D", new VerifyCodeMessage("V_AD_CN_MA_UL360D", "地址与身份证匹配,1年内有使用", Color.success));
+		verifyTable.put("V_AD_CN_MA_UM360D", new VerifyCodeMessage("V_AD_CN_MA_UM360D", "地址与身份证匹配,1年内没有使用", Color.warning));
+		
+		verifyTable.put("V_AD_PH_UK", new VerifyCodeMessage("V_AD_PH_UK", "地址与手机号关系未知", Color.warning));
+		verifyTable.put("V_AD_PH_UM", new VerifyCodeMessage("V_AD_PH_UM", "地址与手机号不匹配", Color.danger));
+		verifyTable.put("V_AD_PH_MA_UL180D", new VerifyCodeMessage("V_AD_PH_MA_UL180D", "地址与手机号匹配,半年内有使用", Color.success));
+		verifyTable.put("V_AD_PH_MA_UL360D", new VerifyCodeMessage("V_AD_PH_MA_UL360D", "地址与手机号匹配,1年内有使用", Color.success));
+		verifyTable.put("V_AD_PH_MA_UM360D", new VerifyCodeMessage("V_AD_PH_MA_UM360D", "地址与手机号匹配,1年内没有使用", Color.warning));
+		
+	}
+
+	public static class VerifyCodeMessage {
+		private String code;
+		private String message;
+		private Color color;
+
+		public String getCode() {
+			return code;
+		}
+
+		public void setCode(String code) {
+			this.code = code;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+		public Color getColor() {
+			return color;
+		}
+
+		public void setColor(Color color) {
+			this.color = color;
+		}
+
+		public VerifyCodeMessage(String code, String message, Color color) {
+			super();
+			this.code = code;
+			this.message = message;
+			this.color = color;
+		}
+
+	}
+	public static class personLoanHistoryCriteria implements Specification<PersonLoan>{
+		
+		private String name;
+		private String idCard;
+		private String mobile;
+		private Company company;
+		private User user;
+		
+		public personLoanHistoryCriteria(String name, String idCard, String mobile,Company company,User user){
+			super();
+			this.name = name;
+			this.idCard = idCard;
+			this.mobile = mobile;
+			this.company = company;
+			this.user = user;
+		}
+
+        @Override
+        public Predicate toPredicate(Root<PersonLoan> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+
+     //1.混合条件查询
+          Path<String> nameField = root.get("name");
+            Path<Date>  idCardField = root.get("idCard");
+            Path<String> mobileField = root.get("mobile");
+            Path<Company> companyField = root.get("company");
+            Path<User> userField = root.get("user");
+            
+            
+            ArrayList<Path> arrayList = new ArrayList<Path>();
+            
+            Predicate equal = null;
+            
+            if(company!=null){
+            	equal =  cb.equal(companyField, company);
+            }else if(user!=null){
+            	equal = cb.equal(userField, user);
+            }
+            if(name!=null && !name.equals("")){
+            	equal = cb.and(equal , cb.equal(nameField, name));
+            }
+            if(idCard!=null && !idCard.equals("")){
+            	equal = cb.and(equal , cb.equal(idCardField, idCard));
+            }
+            if(mobile!=null && !mobile.equals("")){
+            	equal = cb.and(equal , cb.equal(mobileField, mobile));
+            }
+            if(equal == null){
+            	throw new FailResponse(7522, "参数不能都为空");
+            }
+            
+            return equal;
+
+         /*   类似的sql语句为:
+            Hibernate: 
+                select
+                    count(task0_.id) as col_0_0_ 
+                from
+                    tb_task task0_ 
+                where
+                    (
+                        task0_.task_name like ?
+                    ) 
+                    and task0_.create_time<? 
+                    or task0_.task_detail=?
+            */
+
+    //2.多表查询
+        /*Join<Task,Project> join = root.join("project", JoinType.INNER);
+            Path<String> exp4 = join.get("projectName");
+            return cb.like(exp4, "%projectName%");
+
+            Hibernate: 
+            select
+                count(task0_.id) as col_0_0_ 
+            from
+                tb_task task0_ 
+            inner join
+                tb_project project1_ 
+                    on task0_.project_id=project1_.id 
+            where
+                project1_.project_name like ?*/ 
+        }
+    }
+public static class personWebHistoryCriteria implements Specification<PersonWeb>{
+		
+		private String name;
+		private String idCard;
+		private String mobile;
+		private Company company;
+		private User user;
+		
+		public personWebHistoryCriteria(String name, String idCard, String mobile,Company company,User user){
+			super();
+			this.name = name;
+			this.idCard = idCard;
+			this.mobile = mobile;
+			this.company = company;
+			this.user = user;
+		}
+
+        @Override
+        public Predicate toPredicate(Root<PersonWeb> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+
+     //1.混合条件查询
+          Path<String> nameField = root.get("name");
+            Path<Date>  idCardField = root.get("idCard");
+            Path<String> mobileField = root.get("mobile");
+            Path<Company> companyField = root.get("company");
+            Path<User> userField = root.get("user");
+            
+            
+            ArrayList<Path> arrayList = new ArrayList<Path>();
+            
+            Predicate equal = null;
+            
+            if(company!=null){
+            	equal =  cb.equal(companyField, company);
+            }else if(user!=null){
+            	equal = cb.equal(userField, user);
+            }
+            if(name!=null && !name.equals("")){
+            	equal = cb.and(equal , cb.equal(nameField, name));
+            }
+            if(idCard!=null && !idCard.equals("")){
+            	equal = cb.and(equal , cb.equal(idCardField, idCard));
+            }
+            if(mobile!=null && !mobile.equals("")){
+            	equal = cb.and(equal , cb.equal(mobileField, mobile));
+            }
+            if(equal == null){
+            	throw new FailResponse(7522, "参数不能都为空");
+            }
+            
+            return equal;
+
+         /*   类似的sql语句为:
+            Hibernate: 
+                select
+                    count(task0_.id) as col_0_0_ 
+                from
+                    tb_task task0_ 
+                where
+                    (
+                        task0_.task_name like ?
+                    ) 
+                    and task0_.create_time<? 
+                    or task0_.task_detail=?
+            */
+
+    //2.多表查询
+        /*Join<Task,Project> join = root.join("project", JoinType.INNER);
+            Path<String> exp4 = join.get("projectName");
+            return cb.like(exp4, "%projectName%");
+
+            Hibernate: 
+            select
+                count(task0_.id) as col_0_0_ 
+            from
+                tb_task task0_ 
+            inner join
+                tb_project project1_ 
+                    on task0_.project_id=project1_.id 
+            where
+                project1_.project_name like ?*/ 
+        }
+    }
+	public static class UserDetailsImpl implements UserDetails{
+
+		private User user;
+		
+		public UserDetailsImpl(User user){
+			this.user = user;
+		}
+		
+		public User getUser(){
+			return this.user;
+		}
+		
+		@Override
+	    public Collection<? extends GrantedAuthority> getAuthorities() {
+	        List<GrantedAuthority> auths = new ArrayList<>();
+	        Role role = this.user.getRole();
+	        auths.add(new SimpleGrantedAuthority(role.getName()));
+	        return auths;
+	    }
+		
+		public Integer getId(){
+			return this.user.getId();
+		}
+		
+		public Company getCompany() {
+			return this.user.getCompany();
+		}
+		
+		public Role getRole() {
+			return this.user.getRole();
+		}
+
+		@Override
+		public String getPassword() {
+			// TODO Auto-generated method stub
+			return this.user.password();
+		}
+
+		@Override
+		public String getUsername() {
+			// TODO Auto-generated method stub
+			return this.user.getUsername();
+		}
+
+		@Override
+		public boolean isAccountNonExpired() {
+			// TODO Auto-generated method stub
+			return true;
+		}
+
+		@Override
+		public boolean isAccountNonLocked() {
+			// TODO Auto-generated method stub
+			return true;
+		}
+
+		@Override
+		public boolean isCredentialsNonExpired() {
+			// TODO Auto-generated method stub
+			return true;
+		}
+
+		@Override
+		public boolean isEnabled() {
+			// TODO Auto-generated method stub
+			 return this.user.isEnabled();
+		}
+		
+	}
+
+
+	public static class Response {
+		Integer status;
+		String msg;
+		Color color;
+		Object result;
+		Object Description;
+
+		public Object getDescription() {
+			return Description;
+		}
+
+		public void setDescription(Object description) {
+			Description = description;
+		}
+
+		public Integer getStatus() {
+			return status;
+		}
+
+		public void setStatus(Integer status) {
+			this.status = status;
+		}
+
+		public String getMsg() {
+			return msg;
+		}
+
+		public void setMsg(String msg) {
+			this.msg = msg;
+		}
+
+		public Color getColor() {
+			return color;
+		}
+
+		public void setColor(Color color) {
+			this.color = color;
+		}
+
+		public Object getResult() {
+			return result;
+		}
+
+		public void setResult(Object result) {
+			this.result = result;
+		}
+
+		@Override
+		public String toString() {
+			return "Response [status=" + status + ", msg=" + msg + ", color=" + color + ", result=" + result + "]";
+		}
+
+	}
+
+	public enum Color {
+		info, primary, warning, success, danger
+	}
+	public static class CodeMessageColor {
+		private String message;
+		private Object value;
+		private Color color;
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+		public Object getValue() {
+			return value;
+		}
+
+		public void setValue(Object value) {
+			this.value = value;
+		}
+
+		public Color getColor() {
+			return color;
+		}
+
+		public void setColor(Color color) {
+			this.color = color;
+		}
+
+		public CodeMessageColor(String message, Object value, Color color) {
+			super();
+			this.message = message;
+			this.value = value;
+			this.color = color;
+		}
+
+	}
+
+	
+	public static class API {
+		private SupplyAPI supplyAPI;
+		private HashMap<String, String> parameters = new HashMap<String, String>();
+		private HashMap<String, String> headers = new HashMap<String, String>();
+
+		public SupplyAPI getSupplyAPI() {
+			return supplyAPI;
+		}
+
+		public void setSupplyAPI(SupplyAPI supplyAPI) {
+			this.supplyAPI = supplyAPI;
+		}
+
+		public HashMap<String, String> getParameters() {
+			return parameters;
+		}
+
+		public void setParameters(HashMap<String, String> parameters) {
+			this.parameters = parameters;
+		}
+
+		public HashMap<String, String> getHeaders() {
+			return headers;
+		}
+
+		public void setHeaders(HashMap<String, String> headers) {
+			this.headers = headers;
+		}
+
+	}
+
+	
+}

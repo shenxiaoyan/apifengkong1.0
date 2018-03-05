@@ -1,0 +1,211 @@
+<script>
+
+    "use strict";
+    app.controller("personalAllNewCtrl", [
+            "$scope", "$http", "$rootScope", '$state',
+            function ($scope, $http, $rootScope, $state) {
+
+            $rootScope.preData = {
+            name:'李扬',
+                    mobile:'15869001094',
+                    idCard:'21010219790916471X',
+                    bankCard:'123',
+                    servicePassword:'319804',
+                    commonAddress:'爵士风情',
+                    linkman1Relationship:'配偶',
+                    linkman1Name:'金中岚',
+                    linkman1Mobile:'13615816059',
+                    linkman2Relationship:'朋友',
+                    linkman2Name:'李扬',
+                    linkman2Mobile:'15869001094',
+            };
+            $scope.submitClick = function(){
+            var isError = 0;
+            angular.forEach($rootScope.preData, function(value, key) {
+            if (value == ''){
+            alert(key + '必填');
+            isError = 1;
+            };
+            });
+            if (isError === 0){
+            $scope.submitData();
+            }
+
+            };
+            $scope.submitData = function(){
+                $http({method:"post", url:'/personCredit/search', data:$rootScope.preData}).then(function(response){
+                    var resResult = response.data;
+                    if (resResult.status == 'fail'){
+                        if (resResult.code == 1319 ){
+                            $rootScope.preData.sms = prompt("请输入验证码", "");
+                            $scope.submitData();
+                        } else if(resResult.code == 7793) {
+                            $rootScope.preData.sms = prompt(resResult.message + ' code 7793', "");
+                            $scope.submitData();
+                        }else if(resResult.code == 7791) {
+                            $rootScope.preData.sms = prompt(resResult.message + ' code 7791', "");
+                            $scope.submitData();
+                        }else if(resResult.code == 7795) {
+                            $rootScope.preData.sms = prompt(resResult.message+ ' code 7795', "");
+                            $scope.submitData();
+                         }else if(resResult.code == 7676) {
+                            $rootScope.preData.sms = prompt(resResult.message+ ' 请重新提交。', "");
+                            $scope.submitData();
+                        }else{
+                            alert(resResult.message);
+                        }
+
+                    } else{
+                        $state.go('personalAllList');
+                        }
+                    }, function(){
+
+                    });
+            };
+            
+            $scope.resetServicePassword = function(){
+                $http({method:"post", url:'/personCredit/passwordReset', data:$rootScope.preData}).then(function(response){
+                    var resResult = response.data;
+                    if (resResult.status == 'success'){
+                        $rootScope.preData.sms = prompt("请输入验证码", "");
+                        $rootScope.preData.pwd = prompt("请输入新的服务密码", "");
+                        $scope.submitServicePassword();
+                        }
+                    }, function(){
+
+                });
+            }
+
+            $scope.submitServicePassword = function(){
+                $http({method:"post", url:'/personCredit/passwordSubmit', data:$rootScope.preData}).then(function(response){
+                 console.log(response);
+                }, function(){
+                });
+            }
+
+
+
+            }
+    ]);</script>
+
+<div class="hbox hbox-auto-xs hbox-auto-sm" ng-controller="personalAllNewCtrl">
+    <div class="wrapper-md b-b bg-light">
+        <div class="font-thin h4">
+
+            <h1 class="m-n font-thin h3 text-black">
+                <a ui-sref="personalAllList" class="btn btn-danger pull-right">返回列表</a>
+                新建个人综合查询</h1>
+        </div>
+    </div>
+    <div class="wrapper-md">
+        <form class="form-horizontal ng-pristine ng-valid ng-valid-date ng-valid-required ng-valid-date-disabled">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">姓名</label>
+                <div class="col-sm-4">
+                    <input class="form-control"  type="text" ng-model="preData.name" placeholder="姓名"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">手机</label>
+                <div class="col-sm-4">
+                    <input class="form-control"  type="text" ng-model="preData.mobile" placeholder="手机"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">身份证号码</label>
+                <div class="col-sm-4">
+                    <input class="form-control"  type="text" ng-model="preData.idCard" placeholder="身份证号码"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">常用银行卡号</label>
+                <div class="col-sm-4">
+                    <input class="form-control"  type="text" ng-model="preData.bankCard" placeholder="常用银行卡号"/>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">运营商服务密码</label>
+                <div class="col-sm-4">
+                    <input class="form-control"  type="text" ng-model="preData.servicePassword" placeholder="服务密码"/>
+                </div>
+                <div class="col-sm-4">
+                    <button ng-click="resetServicePassword()" class="btn btn-default btn-sm">重置密码</button>
+                   
+                    <button ng-click="submitServicePassword()" class="btn btn-default btn-sm">提交新密码</button>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">常用地址</label>
+                <div class="col-sm-4">
+                    <input class="form-control"  type="text" ng-model="preData.commonAddress" placeholder="常用地址"/>
+                </div>
+            </div>
+            
+             <div class="form-group">
+                <label class="col-sm-3 control-label">联系人关系</label>
+                <div class="col-sm-4">
+                    <select ng-model="preData.linkman1Relationship" class="form-control">
+                        <option value="父母">父母</option>
+                        <option value="配偶" selected="selected">配偶</option>
+                        <option value="子女">子女</option>
+                     </select>
+                </div>
+            </div>
+
+             <div class="form-group">
+                <label class="col-sm-3 control-label">姓名</label>
+                <div class="col-sm-4">
+                    <input class="form-control"  type="text" ng-model="preData.linkman1Name" placeholder="姓名"/>
+                </div>
+            </div>
+
+             <div class="form-group">
+                <label class="col-sm-3 control-label">手机</label>
+                <div class="col-sm-4">
+                    <input class="form-control"  type="text" ng-model="preData.linkman1Mobile" placeholder="手机"/>
+                </div>
+            </div>
+            
+   
+       <div class="form-group">
+                <label class="col-sm-3 control-label">联系人关系</label>
+                <div class="col-sm-4">
+                    <select ng-model="preData.linkman2Relationship"  class="form-control">
+                        <option value="朋友" selected="selected">朋友</option>
+                     </select>
+                </div>
+            </div>
+
+             <div class="form-group">
+                <label class="col-sm-3 control-label">姓名</label>
+                <div class="col-sm-4">
+                    <input class="form-control"  type="text" ng-model="preData.linkman2Name" placeholder="姓名"/>
+                </div>
+            </div>
+
+             <div class="form-group">
+                <label class="col-sm-3 control-label">手机</label>
+                <div class="col-sm-4">
+                    <input class="form-control"  type="text" ng-model="preData.linkman2Mobile" placeholder="手机"/>
+                </div>
+            </div>
+            
+                <div class="form-group">
+                <label class="col-sm-3 control-label"></label>
+                <div class="col-sm-4">
+                      <button class="btn btn-primary" ng-click="submitClick()">提交</button>
+                </div>
+            </div>
+            
+
+          
+        </form>
+    </div>
+</div>

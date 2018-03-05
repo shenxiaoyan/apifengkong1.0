@@ -1,0 +1,9 @@
+package apifengkong.entity;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface APISearchLogRepository extends JpaRepository<APISearchLog, Integer> {
+	APISearchLog findFirstByApiAndParametersOrderByCreateTimeDesc(SupplyAPI api,String parameters);
+}
+
+

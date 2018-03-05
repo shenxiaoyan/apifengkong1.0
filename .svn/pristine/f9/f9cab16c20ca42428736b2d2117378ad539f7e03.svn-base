@@ -1,0 +1,162 @@
+package apifengkong.entity;
+
+import java.util.Set;
+
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+@Entity(name="supply_api")
+public class SupplyAPI extends BaseEntity {
+
+	private String name;
+	private String description;
+	
+	@Transient
+	@JsonIgnore
+	private String parameters;
+	@Transient
+	@JsonIgnore
+	private boolean cache;
+	@ManyToOne
+	private Supplier supplier;
+	
+	private Integer parameterNumber;
+	
+	private Integer price;
+	
+	private Integer effectiveTime;
+	
+	private String host;
+	
+	private String path;
+	
+	@Enumerated(EnumType.STRING)
+	private Method method;
+	
+	private boolean smart;
+	
+	
+	public boolean isSmart() {
+		return smart;
+	}
+
+	public void setSmart(boolean smart) {
+		this.smart = smart;
+	}
+
+	public boolean isCache() {
+		return cache;
+	}
+
+	public void setCache(boolean cache) {
+		this.cache = cache;
+	}
+
+	public String getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(String parameters) {
+		this.parameters = parameters;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public Method getMethod() {
+		return method;
+	}
+
+	public void setMethod(Method method) {
+		this.method = method;
+	}
+
+	@ManyToMany
+	@JoinTable(name="supply_api_parameter_couples",joinColumns = { @JoinColumn(name = "api_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "parameterCouple_id") })
+	private Set<APIParameterCouple> parameterCouples; 
+	
+
+	public Integer getParameterNumber() {
+		return parameterNumber;
+	}
+
+	public void setParameterNumber(Integer parameterNumber) {
+		this.parameterNumber = parameterNumber;
+	}
+
+	public Integer getEffectiveTime() {
+		return effectiveTime;
+	}
+
+	public void setEffectiveTime(Integer effectiveTime) {
+		this.effectiveTime = effectiveTime;
+	}
+
+	public Integer getPrice() {
+		return price;
+	}
+
+	public void setPrice(Integer price) {
+		this.price = price;
+	}
+
+	public Set<APIParameterCouple> getParameterCouples() {
+		return parameterCouples;
+	}
+
+	public void setParameterCouples(Set<APIParameterCouple> parameterCouples) {
+		this.parameterCouples = parameterCouples;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public Supplier getSupplier() {
+		return supplier;
+	}
+
+	public void setSupplier(Supplier supplier) {
+		this.supplier = supplier;
+	}
+	
+	public static enum Method{
+		GET,POST
+	}
+	
+}

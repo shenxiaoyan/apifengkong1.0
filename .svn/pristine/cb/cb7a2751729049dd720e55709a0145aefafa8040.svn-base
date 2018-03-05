@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>登录</title>
+   <link href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="starter-template">
+
+            <h2 style="margin-bottom: 35px">个人信用综合查询</h2>
+            
+            <form class="form-signin" th:action="@{/personCreditSearch}"  method="post" th:object="${personForm}">
+                <div class="form-group">
+                    <label for="name">姓名</label>
+                    <input type="text" class="form-control" th:field="*{name}" placeholder="姓名"/>
+                    <div th:errors="${personForm.name}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="mobile">手机</label>
+                    <input type="text" class="form-control" th:field="*{mobile}" placeholder="手机"/>
+        	<div th:errors="${personForm.mobile}"></div>  
+                </div>
+                  <div class="form-group">
+                    <label for="IdCard">身份证号码</label>
+                    <input type="text" class="form-control"  th:field="*{IdCard}" placeholder="身份证号码"/>
+        	<div th:errors="${personForm.IdCard}"></div>  
+                </div>
+                
+                   <div class="form-group">
+                    <label for="bankCard">工资银行卡号</label>
+                    <input type="text" class="form-control"  th:field="*{bankCard}" placeholder="工资银行卡号"/>
+        	<div th:errors="${personForm.bankCard}"></div>  
+                </div>
+            <div class="form-group">
+                    <label for="payDay">发薪日</label>
+                    <select th:field="*{payDay}">
+					  <option value="" selected="selected">请选择</option>
+					  <option value="1">1号</option>
+					  <option value="2">2号</option>
+					  <option value="3">3号</option>
+					  <option value="4">4号</option>
+					  <option value="5">5号</option>
+					  <option value="6">6号</option>
+					  <option value="7">7号</option>
+					  <option value="8">8号</option>
+					  <option value="9">9号</option>
+					  <option value="10">10号</option>
+					  <option value="11">11号</option>
+					  <option value="12">12号</option>
+					  <option value="13">13号</option>
+					  <option value="14">14号</option>
+					  <option value="15">15号</option>
+					  <option value="16">16号</option>
+					  <option value="17">17号</option>
+					  <option value="18">18号</option>
+					  <option value="19">19号</option>
+					  <option value="20">20号</option>
+					  <option value="21">21号</option>
+					  <option value="22">22号</option>
+					  <option value="23">23号</option>
+					  <option value="24">24号</option>
+					  <option value="25">25号</option>
+					  <option value="26">26号</option>
+					  <option value="27">27号</option>
+					  <option value="28">28号</option>
+					  <option value="29">29号</option>
+					  <option value="30">30号</option>
+					  <option value="31">31号</option>
+					</select>
+        	<div th:errors="${personForm.payDay}"></div>  
+                </div>
+                
+                <div class="form-group">
+                    <label for="servicePassword">运营商服务密码</label>
+                    <input type="text" class="form-control" th:field="*{servicePassword}" placeholder="服务密码"/>
+        	<div th:errors="${personForm.servicePassword}"></div>  
+                </div>
+                
+             <div class="form-group">
+                    <label for="commonAddress">常用地址</label>
+                    <input type="text" class="form-control" th:field="*{commonAddress}" placeholder="常用地址"/>
+        	<div th:errors="${personForm.commonAddress}"></div>  
+                </div>
+                <hr>
+                 <div class="form-group">
+                    <label for="linkman1Relationship">联系人关系</label>
+                   <select th:field="*{linkman1Relationship}">
+					  <option value="父母" selected="selected">父母</option>
+					  <option value="配偶">配偶</option>
+					  <option value="子女">子女</option>
+					</select>
+                </div>
+                 <div class="form-group">
+                    <label for="linkman1Name">姓名</label>
+                    <input type="text" class="form-control" th:field="*{linkman1Name}" placeholder="姓名"/>
+        	<div th:errors="${personForm.linkman1Name}"></div>  
+                </div>
+                     <div class="form-group">
+                    <label for="linkman1Mobile">手机</label>
+                    <input type="text" class="form-control" th:field="*{linkman1Mobile}" placeholder="手机"/>
+        	<div th:errors="${personForm.linkman1Mobile}"></div>  
+                </div>
+                
+                
+                 <hr>
+                 <div class="form-group">
+                    <label for="linkman2Relationship">联系人关系</label>
+                   <select th:field="*{linkman2Relationship}">
+					  <option value="朋友" selected="selected">朋友</option>
+					</select>
+                </div>
+                 <div class="form-group">
+                    <label for="linkman2Name">姓名</label>
+                    <input type="text" class="form-control" th:field="*{linkman2Name}" placeholder="姓名"/>
+        	<div th:errors="${personForm.linkman2Name}"></div>  
+                </div>
+                     <div class="form-group">
+                    <label for="linkman2Mobile">手机</label>
+                    <input type="text" class="form-control" th:field="*{linkman2Mobile}" placeholder="手机"/>
+        	<div th:errors="${personForm.linkman2Mobile}"></div>  
+                </div>
+                
+                 <hr>
+                 
+                <input type="submit" id="submit" value="提交" class="btn btn-primary"/>
+            </form>
+
+
+
+        </div>
+    </div>
+
+
+
+
+
+</body>
+</html>

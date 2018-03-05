@@ -1,0 +1,20 @@
+package apifengkong.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import apifengkong.entity.APISearchLogRepository;
+@Service
+public class APISearchLogService {
+	@Autowired
+	APISearchLogRepository apiSearchLogRepository;
+	
+    //遍历天数
+
+	  //根据日期截取需要的天数
+	//判断当天数值一致则将数据取出并放入相应的位置
+  
+}
+

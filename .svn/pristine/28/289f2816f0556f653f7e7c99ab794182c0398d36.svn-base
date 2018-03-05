@@ -1,0 +1,8 @@
+package apifengkong.entity;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+public interface SupplyAPIRepository extends JpaRepository<SupplyAPI, Integer> {
+	
+}

@@ -1,0 +1,270 @@
+package apifengkong.controller;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Digits;
+
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
+import org.jboss.logging.Logger;
+import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
+import apifengkong.entity.Customer;
+import apifengkong.entity.CustomerRepository;
+import apifengkong.entity.PersonCreditSubmit;
+import apifengkong.entity.PersonCreditSubmitRepository;
+import apifengkong.entity.Supplier;
+import apifengkong.service.ParameterService;
+import apifengkong.service.PersonCreditSearchService;
+import apifengkong.util.Common;
+import apifengkong.util.FailResponse;
+
+@Controller
+@RequestMapping(value="/personCredit")
+public class PersonCreditController {
+	
+	private static Logger logger = Logger.getLogger(PersonCreditController.class);
+	
+	@Autowired
+	PersonCreditSearchService personCreditSearchService;
+	
+	@Autowired
+	PersonCreditSubmitRepository personCreditSubmitRepository;
+	
+	@Autowired
+	ParameterService parameterService;
+	
+	@Autowired
+	CustomerRepository customerRepository;
+	
+	
+	
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
+	@ResponseBody
+	public List<PersonCreditSubmit>  personCreditList() {
+		Customer customer = customerRepository.findOne(Common.getPrincipal().getCustomer().getId());
+		List<PersonCreditSubmit> findByCustomerOrderByIdDesc = personCreditSubmitRepository.findByCustomerOrderByIdDesc(customer);
+		for (PersonCreditSubmit personCreditSubmit : findByCustomerOrderByIdDesc) {
+			String analyseCellphoneLog = personCreditSubmit.getPersonCreditOverview().getAnalyseCellphoneLog();
+			if(analyseCellphoneLog!=null){
+				JSONObject object = JSON.parseObject(analyseCellphoneLog);
+				object.put("result", null);
+				personCreditSubmit.getPersonCreditOverview().setAnalyseCellphoneLog(object.toJSONString());
+			}
+		}
+		return findByCustomerOrderByIdDesc;
+	}
+	
+	@RequestMapping(value = "/info/{id}", method = RequestMethod.GET)
+	@ResponseBody
+	public PersonCreditSubmit personCreditInfo(@PathVariable Integer id) {
+		PersonCreditSubmit findOne = personCreditSubmitRepository.findOne(id);
+		String analyseCellphoneLog = findOne.getPersonCreditOverview().getAnalyseCellphoneLog();
+		if(analyseCellphoneLog!=null){
+			JSONObject object = JSON.parseObject(analyseCellphoneLog);
+			object.put("result", null);
+			findOne.getPersonCreditOverview().setAnalyseCellphoneLog(object.toJSONString());
+		}
+		return findOne;
+	}
+
+	@RequestMapping(value = "/search", method = RequestMethod.GET)
+	public String info1(PersonCreditSubmit personCreditSubmit) {
+		return "personCreditSubmit";
+	}
+
+	@RequestMapping(value = "/search", method = RequestMethod.POST)
+	@ResponseBody
+	public Object info2(
+			@Valid @RequestBody 
+			PersonCreditSubmit personCreditSubmit, BindingResult result) {
+		if (result.getAllErrors().isEmpty()) {
+			Customer customer = customerRepository.findOne(Common.getPrincipal().getCustomer().getId());
+			if (customer.getRemainder().intValue() <= 0) {
+				throw new FailResponse(8652, "余额不足");
+			}
+			logger.info("customer:" + customer.getName());
+			personCreditSubmit.setCreateAt(new Date());
+			personCreditSubmit.setUser(Common.getPrincipal());
+			personCreditSubmit.setCustomer(customer);
+			personCreditSearchService.personCreditSearch(personCreditSubmit,customer);
+			HashMap<String, Object> hashMap = new HashMap<String,Object>();
+			hashMap.put("status", "success");
+			hashMap.put("code", 0);
+			return hashMap;
+		} else {
+			System.out.println(result.getAllErrors().get(0));
+			String defaultMessage = result.getAllErrors().get(0).getDefaultMessage();
+			ObjectError objectError = result.getAllErrors().get(0);
+			BeanWrapperImpl beanWrapperImpl = new BeanWrapperImpl(objectError);
+			Object propertyValue = beanWrapperImpl.getPropertyValue("field");
+			String field = propertyValue.toString();
+			HashMap<String, Object> hashMap = new HashMap<String,Object>();
+			hashMap.put("status", "fail");
+			hashMap.put("code",field);
+			hashMap.put("message", defaultMessage);
+			return hashMap;
+		}
+	}
+	
+	@RequestMapping(value = "/passwordReset", method = RequestMethod.POST)
+	@ResponseBody
+	public Object info3(@Valid @RequestBody PersonPasswordReset personPasswordReset) {
+		
+			personCreditSearchService.personPasswordReset(personPasswordReset);
+			HashMap<String, Object> hashMap = new HashMap<String,Object>();
+			hashMap.put("status", "success");
+			hashMap.put("code", 0);
+			return hashMap;
+	}
+	
+	@RequestMapping(value = "/passwordSubmit", method = RequestMethod.POST)
+	@ResponseBody
+	public Object info5(@Valid @RequestBody PersonPasswordReset personPasswordReset) {
+			personCreditSearchService.personPasswordSubmit(personPasswordReset);
+			HashMap<String, Object> hashMap = new HashMap<String,Object>();
+			hashMap.put("status", "success");
+			hashMap.put("code", 0);
+			return hashMap;
+	}
+
+	@RequestMapping(value = "/testGetLog", method = RequestMethod.GET)
+	public String info4() {
+		
+			Customer customer = customerRepository.findOne(Common.getPrincipal().getCustomer().getId());
+			if (customer.getRemainder().intValue() <= 0) {
+				throw new FailResponse(8652, "余额不足");
+			}
+			logger.info("customer:" + customer.getName());
+			
+			PersonCreditSubmit personCreditSubmit = new PersonCreditSubmit();
+			personCreditSubmit.setMobile("13588677007");
+			personCreditSubmit.setCustomer(customer);
+			personCreditSubmit.setUser(Common.getPrincipal());
+			personCreditSubmit.setCommonAddress("杭州");
+			personCreditSubmit.setName("朱伯军");
+			personCreditSubmit.setBankCard("6230910199035642863");
+			personCreditSubmit.setIdCard("330726196604270518");
+			personCreditSubmit.setServicePassword("319804");
+			personCreditSubmit.setLinkman1Mobile("13758130149");
+			personCreditSubmit.setLinkman1Name("杨为乾");
+			personCreditSubmit.setLinkman1Relationship("朋友");
+			personCreditSubmit.setLinkman2Mobile("13912345678");
+			personCreditSubmit.setLinkman2Name("测试的人");
+			personCreditSubmit.setLinkman2Relationship("父母");
+			personCreditSubmit.setSms("438654");
+			personCreditSubmit.setCreateAt(new Date());
+			personCreditSearchService.personCreditSearch(personCreditSubmit,customer);
+		
+			return "success";
+		 
+	}
+	
+	@RequestMapping(value = "/testReset", method = RequestMethod.GET)
+	public String info5() {
+		
+			Customer customer = customerRepository.findOne(Common.getPrincipal().getCustomer().getId());
+		
+			
+			PersonPasswordReset personCreditSubmit = new PersonPasswordReset();
+			personCreditSubmit.setMobile("13777490343");
+			personCreditSubmit.setName("聂丽君");
+			personCreditSubmit.setIdCard("36242119970925172X");
+			personCreditSearchService.personPasswordReset(personCreditSubmit);
+		
+			return "success";
+		 
+	}
+	
+	@RequestMapping(value = "/testPwdSubmit", method = RequestMethod.GET)
+	public String info6() {
+		
+			Customer customer = customerRepository.findOne(Common.getPrincipal().getCustomer().getId());
+			
+			PersonPasswordReset personCreditSubmit = new PersonPasswordReset();
+			personCreditSubmit.setMobile("13777490343");
+			personCreditSubmit.setName("聂丽君");
+			personCreditSubmit.setIdCard("36242119970925172X");
+			personCreditSubmit.setSms("114607");
+			personCreditSubmit.setPwd("123456");
+			personCreditSearchService.personPasswordSubmit(personCreditSubmit);
+		
+			return "success";
+		 
+	}
+	
+	public static class PersonPasswordReset{
+		
+		@NotBlank
+		@Length(min = 2, max = 4)
+		String name="";
+		@NotBlank
+		@Digits(integer = 11, fraction = 0, message = "需要11位整数数字")
+		String mobile="";
+
+		@NotBlank
+		@Length(min = 18, max = 18, message="身份证号码需要18位")
+		String IdCard="";
+		
+		String sms;
+		String pwd;
+		
+
+		public String getSms() {
+			return sms;
+		}
+
+		public void setSms(String sms) {
+			this.sms = sms;
+		}
+
+		public String getPwd() {
+			return pwd;
+		}
+
+		public void setPwd(String pwd) {
+			this.pwd = pwd;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getMobile() {
+			return mobile;
+		}
+
+		public void setMobile(String mobile) {
+			this.mobile = mobile;
+		}
+
+		public String getIdCard() {
+			return IdCard;
+		}
+
+		public void setIdCard(String idCard) {
+			IdCard = idCard;
+		}
+		
+	}
+
+}

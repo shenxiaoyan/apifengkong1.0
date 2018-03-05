@@ -1,0 +1,275 @@
+<script>
+    /*
+     * 创建人：刘雅倩
+     * 创建时间：2017/08/10
+     * 公司看到的接口查询数量
+     *
+     * */
+    "use strict";
+    app.controller("interReportCtrl",
+        [
+            "$scope","$http",
+            function ($scope,$http) {
+
+                $scope.consumeArr=[];
+
+                $scope.getCompanyList = function(type){
+
+                    $scope.apiReg=[];
+                    $scope.apiName=[];
+                    $scope.consumeArr = [
+                        {
+                            link:"/apiTodayConsum",
+                            tips:"今天暂无接口数量记录",
+                            text:"今天各接口查询数量"
+                        },
+                        {
+                            link:"/apiYestodayConsum",
+                            tips:"昨天暂无接口数量记录",
+                            text:"昨天各接口查询数量"
+                        }
+                        ,{
+                            link:"/apiTheWeekConsum",
+                            tips:"本周暂无接口数量记录",
+                            text:"本周各接口查询数量"
+                        }
+                        ,{
+                            link:"/apiTheMonthConsum",
+                            tips:"本月暂无接口数量记录",
+                            text:"本月各接口查询数量"
+                        }
+                        ,{
+                            link:"/apiTheLastMonthConsum",
+                            tips:"上月暂无接口数量记录",
+                            text:"上月各接口查询数量"
+                        }
+                        ,{
+                            link:"/apicount",
+                            tips:"暂无总暂无接口数量记录",
+                            text:"各接口查询总数量"
+                        }];
+
+                        //获取参数
+                        $http({
+                            method: 'POST',
+                            url: $scope.consumeArr[type].link
+                        }).then(function successCallback(response) {
+                            console.log(response)
+                            if(response.data.length!==0){
+
+                                $scope.consumeNumber=response.data;
+                                // 定义员工名称和对应消费的积分列表
+                                angular.forEach(response.data,function (res,index) {
+
+                                    $scope.apiName.push(res[0]);
+
+
+                                    $scope.apiReg.push(res[1]);
+
+
+                                });
+
+                                //调用图表的方法，参数要对应
+                                $scope.setCharts($scope.apiName,$scope.apiReg,type);
+                            }
+                            else{
+                                sweetAlert('',$scope.consumeArr[type].tips);
+                            }
+                        });
+
+                };
+
+
+
+                $scope.setCharts = function(name,reg,type){
+                    var brandChart = echarts.init(document.getElementById('brand_dashboard_chart'));
+
+                    var dataAxis = name;
+                    var data = reg;
+
+                    console.log(dataAxis)
+
+                    var weatherIcons = {
+
+                    };
+
+                    var seriesLabel = {
+                        normal: {
+                            show: true,
+                            textBorderColor: '#333',
+                            textBorderWidth: 2
+                        }
+                    }
+
+                    var option = {
+                        title: {
+                            text: $scope.consumeArr[type].text
+                        },
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            }
+                        },
+                        legend: {
+                            data: ['接口数量', 'City Beta', 'City Gamma']
+                        },
+                        grid: {
+                            left: 150
+                        },
+                        toolbox: {
+                            show: true,
+                            feature: {
+                                saveAsImage: {}
+                            }
+                        },
+                        xAxis: {
+                            type: 'value',
+                            name: '接口数量',
+                            axisLabel: {
+                                formatter: '{value}'
+                            }
+                        },
+                        yAxis: {
+                            type: 'category',
+                            inverse: true,
+                            data: dataAxis,
+                            axisLabel: {
+//                                formatter: function (value) {
+//                                    return '{' + value + '| }\n{value|' + value + '}';
+//                                },
+                                margin: 20,
+                                rich: {
+                                    value: {
+                                        lineHeight: 30,
+                                        align: 'center'
+                                    },
+
+                                }
+                            }
+                        },
+                        series: [
+                            {
+                                name: '接口数量',
+                                type: 'bar',
+                                data: data,
+                                label: seriesLabel,
+                                markPoint: {
+                                    symbolSize: 1,
+                                    symbolOffset: [100, '50%'],
+                                    label: {
+                                        normal: {
+                                            formatter: '{a|{a}\n}{b|{b} }{c|{c}}',
+                                            backgroundColor: 'rgb(242,242,242)',
+                                            borderColor: '#aaa',
+                                            borderWidth: 1,
+                                            borderRadius: 4,
+                                            padding: [4, 10],
+                                            lineHeight: 26,
+                                            // shadowBlur: 5,
+                                            // shadowColor: '#000',
+                                            // shadowOffsetX: 0,
+                                            // shadowOffsetY: 1,
+                                            position: 'right',
+                                            distance: 20,
+                                            rich: {
+                                                a: {
+                                                    align: 'center',
+                                                    color: '#fff',
+                                                    fontSize: 18,
+                                                    textShadowBlur: 2,
+                                                    textShadowColor: '#000',
+                                                    textShadowOffsetX: 0,
+                                                    textShadowOffsetY: 1,
+                                                    textBorderColor: '#333',
+                                                    textBorderWidth: 2
+                                                },
+                                                b: {
+                                                    color: '#333'
+                                                },
+                                                c: {
+                                                    color: '#ff8811',
+                                                    textBorderColor: '#000',
+                                                    textBorderWidth: 1,
+                                                    fontSize: 22
+                                                }
+                                            }
+                                        }
+                                    },
+
+                                }
+                            },
+
+                        ]
+                    };
+
+                    brandChart.setOption(option);
+
+                    //窗口大小改变时重新绘制图表
+                    $(window).resize(function () {
+                        brandChart.resize();
+                    });
+                };
+
+                $scope.getCompanyList(5)
+
+            }
+        ]
+    );
+</script>
+
+<div class="hbox hbox-auto-xs lter" ng-controller="interReportCtrl">
+    <!-- column -->
+    <div class="col">
+        <div class="vbox">
+            <div class="bg-light lter b-b clearfix" style="padding: 14.5px 20px;">
+                <div class="btn-group">
+                    <button type="button" class="m-r btn btn-sm btn-addon btn-info">
+                        <i class="fa fa-plus" ng-class="iconClass[btn]"></i><span translate="">打印</span>
+                    </button>
+                </div>
+                <div class="pull-right">
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-default" ng-click="getCompanyList(0)">今天</button>
+                        <button class="btn btn-sm btn-default" ng-click="getCompanyList(1)">昨天</button>
+                        <button class="btn btn-sm btn-default" ng-click="getCompanyList(2)">本周</button>
+
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-default" ng-click="getCompanyList(3)">本月</button>
+                        <button class="btn btn-sm btn-default" ng-click="getCompanyList(4)">上月</button>
+                        <button class="btn btn-sm btn-default" ng-click="getCompanyList(5)">总数</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row-row">
+                <div class="cell">
+                    <div class="cell-inner wrapper-md">
+                        <div style="padding-top: 0;">
+                            <div class="panel wrapper">
+                                <div id="brand_dashboard_chart" style="height:500px;"></div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default col-sm-12 pbr1">
+                            <div class="table-responsive">
+                                <table class="table table-striped b-t b-light text-center">
+                                    <tr class="fontWeight" style="width: 50%">
+                                        <td>接口名称</td>
+                                        <td>查询次数</td>
+                                    </tr>
+                                    <tr ng-repeat="name in consumeNumber" style="width: 50%">
+                                        <td><span class="text-ellipsis">{{ name[0] }}</span></td>
+                                        <td><span class="text-ellipsis">{{ name[1] }}</span></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

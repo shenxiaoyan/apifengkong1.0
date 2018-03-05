@@ -1,0 +1,369 @@
+package apifengkong.entity;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Pattern;
+
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import apifengkong.util.Important;
+
+
+@Entity
+@Table(indexes = {@Index(name="mobile",columnList = "mobile"),@Index(name="id_card",columnList = "idCard")})
+public class PersonWeb extends BaseEntity implements Important{
+	
+
+	@Transient
+	Integer search30days;
+	
+	@ManyToOne
+	User user;
+	
+	@ManyToOne
+	Company company;
+	
+	@NotBlank(message="姓名不能为空")
+	@Length(min = 2, max = 5,message="2-5位中文姓名")
+	String name="";
+	@NotBlank(message="手机号码不能为空")
+	@Digits(integer = 11, fraction = 0, message = "需要11位整数数字")
+	String mobile="";
+
+	@NotBlank(message="身份证不能为空")
+	@Pattern(regexp = "[0-9]{17}([0-9]|X|x)",message="18位身份证格式不正确")
+	String idCard="";
+
+	@NotBlank(message="银行卡不能为空")
+	@Pattern(regexp = "[0-9]{16,19}", message = "需要16/19位银行卡号") 
+	String bankCard="";
+
+	@NotBlank(message="常用地址不能为空")
+	String commonAddress="";
+
+	
+	@Transient
+	boolean enableCache=true;
+	@Transient
+	boolean enableEducation=false;
+	
+	Integer noteCount=0;
+	
+	Date createAt;
+	
+	String area;
+	String sex;
+	String birth;
+	Integer age;
+	
+	String mobileCompany;
+	
+	@Lob
+	String analyseEducation;
+	
+	@Lob
+	String analyseIdCard;
+	
+	@Lob
+	String analyseCellphone;
+
+	@Lob
+	String analyseDishonestBlacklist;
+
+	@Lob
+	String analyseCriminal;
+	
+	@Lob
+	String analyseCourtJudgment;
+	
+	@Lob
+	String analyseMultipleHeadLend;
+
+	@Lob
+	String analyseAntifraud;
+	
+	String analyseZhimaScore;
+	
+	
+	String status;
+	
+	boolean cache;
+	
+	@Lob
+	String analyseWatchlist;
+	
+	public String getAnalyseWatchlist() {
+		return analyseWatchlist;
+	}
+
+	public void setAnalyseWatchlist(String analyseWatchlist) {
+		this.analyseWatchlist = analyseWatchlist;
+	}
+
+	public Integer getNoteCount() {
+		return noteCount;
+	}
+
+	public void setNoteCount(Integer noteCount) {
+		this.noteCount = noteCount;
+	}
+
+	public String getAnalyseEducation() {
+		return analyseEducation;
+	}
+
+	public void setAnalyseEducation(String analyseEducation) {
+		this.analyseEducation = analyseEducation;
+	}
+
+	public boolean isEnableEducation() {
+		return enableEducation;
+	}
+
+	public void setEnableEducation(boolean enableEducation) {
+		this.enableEducation = enableEducation;
+	}
+
+	public Integer getSearch30days() {
+		return search30days;
+	}
+
+	public void setSearch30days(Integer search30days) {
+		this.search30days = search30days;
+	}
+
+	public String getAnalyseCourtJudgment() {
+		return analyseCourtJudgment;
+	}
+
+	public void setAnalyseCourtJudgment(String analyseCourtJudgment) {
+		this.analyseCourtJudgment = analyseCourtJudgment;
+	}
+
+	public boolean isEnableCache() {
+		return enableCache;
+	}
+
+	public void setEnableCache(boolean enableCache) {
+		this.enableCache = enableCache;
+	}
+
+	public boolean isCache() {
+		return cache;
+	}
+
+	public void setCache(boolean cache) {
+		this.cache = cache;
+	}
+
+	public String getAnalyseZhimaScore() {
+		return analyseZhimaScore;
+	}
+
+	public void setAnalyseZhimaScore(String analyseZhimaScore) {
+		this.analyseZhimaScore = analyseZhimaScore;
+	}
+
+	
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+
+	public String getAnalyseAntifraud() {
+		return analyseAntifraud;
+	}
+
+	public void setAnalyseAntifraud(String analyseAntifraud) {
+		this.analyseAntifraud = analyseAntifraud;
+	}
+
+
+	public String getArea() {
+		return area;
+	}
+
+	public void setArea(String area) {
+		this.area = area;
+	}
+
+	public String getSex() {
+		return sex;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+
+	public String getBirth() {
+		return birth;
+	}
+
+	public void setBirth(String birth) {
+		this.birth = birth;
+	}
+
+	public Integer getAge() {
+		return age;
+	}
+
+	public void setAge(Integer age) {
+		this.age = age;
+	}
+
+	public String getMobileCompany() {
+		return mobileCompany;
+	}
+
+	public void setMobileCompany(String mobileCompany) {
+		this.mobileCompany = mobileCompany;
+	}
+
+	public String getAnalyseIdCard() {
+		return analyseIdCard;
+	}
+
+	public void setAnalyseIdCard(String analyseIdCard) {
+		this.analyseIdCard = analyseIdCard;
+	}
+
+	public String getAnalyseCellphone() {
+		return analyseCellphone;
+	}
+
+	public void setAnalyseCellphone(String analyseCellphone) {
+		this.analyseCellphone = analyseCellphone;
+	}
+
+
+	public String getAnalyseDishonestBlacklist() {
+		return analyseDishonestBlacklist;
+	}
+
+	public void setAnalyseDishonestBlacklist(String analyseDishonestBlacklist) {
+		this.analyseDishonestBlacklist = analyseDishonestBlacklist;
+	}
+
+
+	public String getAnalyseCriminal() {
+		return analyseCriminal;
+	}
+
+	public void setAnalyseCriminal(String analyseCriminal) {
+		this.analyseCriminal = analyseCriminal;
+	}
+
+	public String getAnalyseMultipleHeadLend() {
+		return analyseMultipleHeadLend;
+	}
+
+	public void setAnalyseMultipleHeadLend(String analyseMultipleHeadLend) {
+		this.analyseMultipleHeadLend = analyseMultipleHeadLend;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getName()
+	 */
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getMobile()
+	 */
+	@Override
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getIdCard()
+	 */
+	@Override
+	public String getIdCard() {
+		return idCard;
+	}
+
+	public void setIdCard(String idCard) {
+		this.idCard = idCard.toUpperCase();
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getBankCard()
+	 */
+	@Override
+	public String getBankCard() {
+		return bankCard;
+	}
+
+	public void setBankCard(String bankCard) {
+		this.bankCard = bankCard;
+	}
+
+	@Override
+	public String getCommonAddress() {
+		return commonAddress;
+	}
+
+	public void setCommonAddress(String commonAddress) {
+		this.commonAddress = commonAddress;
+	}
+
+
+	public Date getCreateAt() {
+		return createAt;
+	}
+
+	public void setCreateAt(Date createAt) {
+		this.createAt = createAt;
+	}
+		
+
+
+}

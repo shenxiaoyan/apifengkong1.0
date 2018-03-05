@@ -1,0 +1,85 @@
+<script>
+
+    "use strict";
+    app.controller("personalEconomicsCtrl", [
+        "$scope","$http","$rootScope",
+        function ( $scope,$http,$rootScope) {
+//            $scope.risksList = [
+//
+//                {
+//                    id: "",
+//                    name: "航旅信息核查",
+//                    sref: "personalEconomics.page({view_type:'air_info'})"
+//                },
+//                {
+//                    id: "",
+//                    name: "运营商数据分析",
+//                    sref: "personalEconomics.page({view_type:'data_operator'})"
+//                },
+//                {
+//                    id: "",
+//                    name: "京东数据分析",
+//                    sref: "personalEconomics.page({view_type:'data_JD'})"
+//                },
+//                {
+//                    id: "",
+//                    name: "淘宝数据分析",
+//                    sref: "personalEconomics.page({view_type:'data_TaoBao'})"
+//                },
+//                {
+//                    id: "",
+//                    name: "公积金数据分析",
+//                    sref: "personalEconomics.page({view_type:'data_fund'})"
+//                },
+//                {
+//                    id: "",
+//                    name: "社保数据分析",
+//                    sref: "personalEconomics.page({view_type:'data_social'})"
+//                }
+//
+//            ]
+
+            $scope.apiId=[];
+
+            $http({
+                method: 'POST',
+                url: '/supplyAPI/getShowList?typeId='+4
+            }).then(function successCallback(response) {
+                console.log(response)
+                $scope.EconomicsLists=response.data;
+                angular.forEach($scope.EconomicsLists,function (val,index) {
+                    $scope.apiId.push(val.id);
+
+                })
+
+            });
+
+            $scope.nameId=function (id) {
+
+                window.localStorage.setItem('apiNameId',id)
+
+            }
+
+        }
+    ]);
+</script>
+
+<div class="hbox hbox-auto-xs hbox-auto-sm" ng-controller="personalEconomicsCtrl">
+  <div class="col w-md bg-light dk b-r bg-auto hidden-sm hidden-xs">
+    <div class="wrapper-md b-b bg-light">
+      <div class="font-thin h4">
+        经济状态查询
+      </div>
+    </div>
+    <div class="wrapper-md">
+      <ul class="nav nav-pills nav-stacked nav-sm">
+        <li ui-sref-active="active" ng-repeat="(index,EconomicsList) in EconomicsLists">
+          <a ng-click="nameId(EconomicsList.id)" ui-sref="{{EconomicsList.root}}">{{EconomicsList.description}}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="hbox hbox-auto-xs bg-light" ui-view></div>
+  </div>
+</div>

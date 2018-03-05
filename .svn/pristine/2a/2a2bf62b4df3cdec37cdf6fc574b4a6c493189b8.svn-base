@@ -1,0 +1,327 @@
+-- phpMyAdmin SQL Dump
+-- version phpStudy 2014
+-- http://www.phpmyadmin.net
+--
+-- 主机: localhost
+-- 生成日期: 2017 年 09 月 24 日 13:54
+-- 服务器版本: 5.5.40
+-- PHP 版本: 5.3.29
+
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+
+--
+-- 数据库: `apifengkong`
+--
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `api_parameter_couple`
+--
+
+CREATE TABLE IF NOT EXISTS `api_parameter_couple` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `search_parameter` varchar(255) DEFAULT NULL,
+  `uniform_parameter` varchar(255) DEFAULT NULL,
+  `default_value` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
+
+--
+-- 转存表中的数据 `api_parameter_couple`
+--
+
+INSERT INTO `api_parameter_couple` (`id`, `search_parameter`, `uniform_parameter`, `default_value`) VALUES
+(1, 'shouji', 'mobile', NULL),
+(2, 'shouji', 'mobile2', NULL),
+(3, 'cellphone', 'mobile', NULL),
+(4, 'sp', 'up', 'defaultValue');
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `api_search_log`
+--
+
+CREATE TABLE IF NOT EXISTS `api_search_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cache` bit(1) NOT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `parameters` varchar(1000) DEFAULT NULL,
+  `price` int(11) DEFAULT NULL,
+  `result` longtext,
+  `api_id` int(11) DEFAULT NULL,
+  `customer_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `IDXg8d2b1q7b6o4fxk0k44e2sjwe` (`parameters`(255)),
+  KEY `FK6q683uc6w6egpiovb8mr590s9` (`api_id`),
+  KEY `FKkifo8r32vlm6toibavju0qqes` (`customer_id`),
+  KEY `FK845g7x8650w891o5isomc1vxa` (`user_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=71 ;
+
+--
+-- 转存表中的数据 `api_search_log`
+--
+
+INSERT INTO `api_search_log` (`id`, `cache`, `create_time`, `parameters`, `price`, `result`, `api_id`, `customer_id`, `user_id`) VALUES
+(1, b'0', '2017-09-22 11:17:16', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 1, NULL),
+(2, b'1', '2017-09-22 11:20:12', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(3, b'0', '2017-09-22 11:22:10', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(4, b'0', '2017-09-22 11:30:23', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(5, b'0', '2017-09-22 11:30:23', 'shouji=13777490343', 11, '{"status":"0","msg":"ok","result":{"shouji":"13777490343","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 2, 2, NULL),
+(6, b'0', '2017-09-22 11:40:21', 'shouji=13777490343', 11, '{"status":"0","msg":"ok","result":{"shouji":"13777490343","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 2, 2, NULL),
+(7, b'0', '2017-09-22 11:40:21', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(8, b'0', '2017-09-22 13:20:03', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(9, b'0', '2017-09-22 13:21:10', 'cellphone=15869001094', 11, '{"resCode":"0000","resMsg":"æäº¤æå","data":{"statusCode":"2012","statusMsg":"æ¥è¯¢æå","result":{"cellphoneStatus":"æ­£å¸¸","destoryDate":""}}}', 2, 2, NULL),
+(10, b'0', '2017-09-22 13:21:10', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(11, b'0', '2017-09-22 13:28:39', 'cellphone=15869001094', 11, 'null', 2, 2, NULL),
+(12, b'0', '2017-09-22 13:28:39', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(13, b'0', '2017-09-22 13:28:52', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(14, b'0', '2017-09-22 13:28:52', 'cellphone=15869001094', 11, '{"resCode":"0000","resMsg":"æäº¤æå","data":{"statusCode":"2012","statusMsg":"æ¥è¯¢æå","result":{"cellphoneStatus":"æ­£å¸¸","destoryDate":""}}}', 2, 2, NULL),
+(15, b'0', '2017-09-22 13:29:19', 'cellphone=15869001094', 11, '{"resCode":"0000","resMsg":"æäº¤æå","data":{"statusCode":"2012","statusMsg":"æ¥è¯¢æå","result":{"cellphoneStatus":"æ­£å¸¸","destoryDate":""}}}', 2, 2, NULL),
+(16, b'0', '2017-09-22 13:29:19', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(17, b'0', '2017-09-22 13:30:25', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(18, b'0', '2017-09-22 13:30:25', 'cellphone=15869001094', 11, '{"resCode":"0000","resMsg":"æäº¤æå","data":{"statusCode":"2012","statusMsg":"æ¥è¯¢æå","result":{"cellphoneStatus":"æ­£å¸¸","destoryDate":""}}}', 2, 2, NULL),
+(19, b'0', '2017-09-22 13:35:45', 'cellphone=15869001094', 11, '{"resCode":"0000","resMsg":"æäº¤æå","data":{"statusCode":"2012","statusMsg":"æ¥è¯¢æå","result":{"cellphoneStatus":"æ­£å¸¸","destoryDate":""}}}', 2, 2, NULL),
+(20, b'0', '2017-09-22 13:35:45', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(21, b'0', '2017-09-22 13:36:43', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(22, b'0', '2017-09-22 13:36:43', 'cellphone=15869001094', 11, '{"resCode":"0000","resMsg":"æäº¤æå","data":{"statusCode":"2012","statusMsg":"æ¥è¯¢æå","result":{"cellphoneStatus":"æ­£å¸¸","destoryDate":""}}}', 2, 2, NULL),
+(23, b'0', '2017-09-22 13:37:01', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(24, b'0', '2017-09-22 13:37:01', 'cellphone=15869001094', 11, '{"resCode":"0000","resMsg":"æäº¤æå","data":{"statusCode":"2012","statusMsg":"æ¥è¯¢æå","result":{"cellphoneStatus":"æ­£å¸¸","destoryDate":""}}}', 2, 2, NULL),
+(25, b'0', '2017-09-22 13:38:04', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(26, b'0', '2017-09-22 13:38:04', 'cellphone=15869001094', 11, 'null', 2, 2, NULL),
+(27, b'0', '2017-09-22 13:38:55', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(28, b'0', '2017-09-22 13:38:55', 'cellphone=15869001094', 11, 'null', 2, 2, NULL),
+(29, b'0', '2017-09-22 13:43:10', 'cellphone=15869001094', 11, 'null', 2, 2, NULL),
+(30, b'0', '2017-09-22 13:43:10', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(31, b'0', '2017-09-22 13:44:55', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(32, b'0', '2017-09-22 13:44:55', 'cellphone=15869001094', 11, 'null', 2, 2, NULL),
+(33, b'0', '2017-09-22 13:47:18', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(34, b'0', '2017-09-22 13:47:18', 'cellphone=15869001094', 11, 'null', 2, 2, NULL),
+(35, b'0', '2017-09-22 13:49:45', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(36, b'0', '2017-09-22 13:49:45', 'cellphone=15869001094', 11, 'null', 2, 2, NULL),
+(37, b'0', '2017-09-22 13:50:33', 'cellphone=15869001094', 11, 'null', 2, 2, NULL),
+(38, b'0', '2017-09-22 13:50:34', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(39, b'0', '2017-09-22 13:51:24', 'cellphone=15869001094', 11, 'null', 2, 2, NULL),
+(40, b'0', '2017-09-22 13:51:25', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(41, b'0', '2017-09-22 13:54:36', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(42, b'0', '2017-09-22 13:54:36', 'cellphone=15869001094', 11, 'null', 2, 2, NULL),
+(43, b'0', '2017-09-22 13:56:51', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(44, b'0', '2017-09-22 13:56:52', 'cellphone=15869001094', 11, '{"resCode":"0000","resMsg":"æäº¤æå","data":{"statusCode":"2012","statusMsg":"æ¥è¯¢æå","result":{"cellphoneStatus":"æ­£å¸¸","destoryDate":""}}}', 2, 2, NULL),
+(45, b'0', '2017-09-22 13:58:12', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(46, b'0', '2017-09-22 13:58:12', 'cellphone=15869001094', 11, '{"resCode":"0000","resMsg":"提交成功","data":{"statusCode":"2012","statusMsg":"查询成功","result":{"cellphoneStatus":"正常","destoryDate":""}}}', 2, 2, NULL),
+(47, b'0', '2017-09-22 14:54:26', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 1, NULL),
+(48, b'0', '2017-09-22 14:54:57', 'cellphone=15869001094', 11, '{"resCode":"0000","resMsg":"提交成功","data":{"statusCode":"2012","statusMsg":"查询成功","result":{"cellphoneStatus":"正常","destoryDate":""}}}', 2, 1, NULL),
+(49, b'0', '2017-09-22 14:55:32', 'shouji=15869001094', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 1, NULL),
+(50, b'0', '2017-09-22 14:56:45', 'shouji=15869001097', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001097","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 1, NULL),
+(51, b'0', '2017-09-22 14:56:51', 'shouji=18869001097', 11, '{"status":"0","msg":"ok","result":{"shouji":"18869001097","province":"云南","city":"丽江","company":"中国移动","cardtype":"GSM","areacode":"0888"}}', 1, 1, NULL),
+(52, b'0', '2017-09-22 14:57:00', 'shouji=19869001097', 11, '{"status":"202","msg":"手机号不正确","result":""}', 1, 1, NULL),
+(53, b'0', '2017-09-22 14:57:23', 'shouji=15869001097', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001097","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 1, NULL),
+(54, b'0', '2017-09-22 14:57:43', 'cellphone=15869001097', 11, '{"resCode":"0000","resMsg":"提交成功","data":{"statusCode":"2012","statusMsg":"查询成功","result":{"cellphoneStatus":"正常","destoryDate":""}}}', 2, 1, NULL),
+(55, b'0', '2017-09-22 14:59:05', 'cellphone=13777490343', 11, '{"resCode":"0000","resMsg":"提交成功","data":{"statusCode":"2012","statusMsg":"查询成功","result":{"cellphoneStatus":"正常","destoryDate":""}}}', 2, 1, NULL),
+(56, b'0', '2017-09-22 14:59:55', 'cellphone=13758130149', 11, '{"resCode":"0000","resMsg":"提交成功","data":{"statusCode":"2012","statusMsg":"查询成功","result":{"cellphoneStatus":"正常","destoryDate":""}}}', 2, 1, NULL),
+(57, b'0', '2017-09-22 15:01:02', 'cellphone=13058130149', 11, '{"resCode":"0000","resMsg":"提交成功","data":{"statusCode":"2012","statusMsg":"查询成功","result":{"cellphoneStatus":"未启用","destoryDate":""}}}', 2, 1, NULL),
+(58, b'0', '2017-09-22 15:01:10', 'cellphone=16658130149', 11, '{"resCode":"1005","resMsg":"cellphone参数为空或格式错误"}', 2, 1, NULL),
+(59, b'0', '2017-09-22 15:01:29', 'cellphone=19658130149', 11, '{"resCode":"1005","resMsg":"cellphone参数为空或格式错误"}', 2, 1, NULL),
+(60, b'0', '2017-09-22 15:01:47', 'cellphone=158777130149', 11, '{"resCode":"1005","resMsg":"cellphone参数为空或格式错误"}', 2, 1, NULL),
+(61, b'0', '2017-09-22 15:01:59', 'cellphone=15869001094', 11, '{"resCode":"0000","resMsg":"提交成功","data":{"statusCode":"2012","statusMsg":"查询成功","result":{"cellphoneStatus":"正常","destoryDate":""}}}', 2, 1, NULL),
+(62, b'0', '2017-09-22 15:02:11', 'cellphone=11869001094', 11, '{"resCode":"1005","resMsg":"cellphone参数为空或格式错误"}', 2, 1, NULL),
+(63, b'0', '2017-09-22 15:02:33', 'cellphone=15869001094', 11, '{"resCode":"0000","resMsg":"提交成功","data":{"statusCode":"2012","statusMsg":"查询成功","result":{"cellphoneStatus":"正常","destoryDate":""}}}', 2, 1, NULL),
+(64, b'0', '2017-09-22 15:29:39', 'cellphone=15869001094&wokao=ffffff', 11, '{"resCode":"0000","resMsg":"提交成功","data":{"statusCode":"2012","statusMsg":"查询成功","result":{"cellphoneStatus":"正常","destoryDate":""}}}', 2, 1, NULL),
+(65, b'1', '2017-09-22 15:31:59', 'cellphone=15869001094&wokao=ffffff', 11, '{"resCode":"0000","resMsg":"提交成功","data":{"statusCode":"2012","statusMsg":"查询成功","result":{"cellphoneStatus":"正常","destoryDate":""}}}', 2, 1, NULL),
+(66, b'1', '2017-09-23 22:26:59', 'cellphone=15869001094', 11, '{"resCode":"0000","resMsg":"提交成功","data":{"statusCode":"2012","statusMsg":"查询成功","result":{"cellphoneStatus":"正常","destoryDate":""}}}', 2, 2, NULL),
+(67, b'0', '2017-09-23 22:27:00', 'shouji=15869001094&sp=defaultValue', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(68, b'1', '2017-09-23 22:29:06', 'cellphone=15869001094', 11, '{"resCode":"0000","resMsg":"提交成功","data":{"statusCode":"2012","statusMsg":"查询成功","result":{"cellphoneStatus":"正常","destoryDate":""}}}', 2, 2, NULL),
+(69, b'1', '2017-09-23 22:29:06', 'shouji=15869001094&sp=defaultValue', 11, '{"status":"0","msg":"ok","result":{"shouji":"15869001094","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 2, NULL),
+(70, b'0', '2017-09-23 22:37:34', 'shouji=13758130149&sp=defaultValue', 11, '{"status":"0","msg":"ok","result":{"shouji":"13758130149","province":"浙江","city":"杭州","company":"中国移动","cardtype":"GSM","areacode":"0571"}}', 1, 1, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `customer`
+--
+
+CREATE TABLE IF NOT EXISTS `customer` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `app_code` varchar(255) DEFAULT NULL,
+  `app_secret` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `remainder` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+
+--
+-- 转存表中的数据 `customer`
+--
+
+INSERT INTO `customer` (`id`, `app_code`, `app_secret`, `name`, `remainder`) VALUES
+(1, 'code1', '@@@@@@@@@', 'liyang', 2769),
+(2, 'code2', '$$$$$$$$$$', '聂', 99461);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `role`
+--
+
+CREATE TABLE IF NOT EXISTS `role` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
+
+--
+-- 转存表中的数据 `role`
+--
+
+INSERT INTO `role` (`id`, `name`) VALUES
+(1, 'ROLE_ADMIN'),
+(2, 'ROLE_USER'),
+(3, 'ROLE_MANAGER');
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `supplier`
+--
+
+CREATE TABLE IF NOT EXISTS `supplier` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `app_code` varchar(255) DEFAULT NULL,
+  `app_secret` varchar(255) DEFAULT NULL,
+  `code` varchar(255) DEFAULT NULL,
+  `linkman` varchar(255) DEFAULT NULL,
+  `linkman_mobile` varchar(255) DEFAULT NULL,
+  `supply_name` varchar(255) DEFAULT NULL,
+  `weburl` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+
+--
+-- 转存表中的数据 `supplier`
+--
+
+INSERT INTO `supplier` (`id`, `app_code`, `app_secret`, `code`, `linkman`, `linkman_mobile`, `supply_name`, `weburl`) VALUES
+(1, '41022859e7f84583b81d1fc355130af5', NULL, 'aliyun', NULL, NULL, '阿里云', 'www.aliyun.com'),
+(2, 'shangdao041', NULL, 'youfen', NULL, NULL, '优分', 'http://www.acedata.com.cn/');
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `supply_api`
+--
+
+CREATE TABLE IF NOT EXISTS `supply_api` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `description` varchar(255) DEFAULT NULL,
+  `effective_time` int(11) DEFAULT NULL,
+  `host` varchar(255) DEFAULT NULL,
+  `method` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `parameter_number` int(11) DEFAULT NULL,
+  `path` varchar(255) DEFAULT NULL,
+  `price` int(11) DEFAULT NULL,
+  `supplier_id` int(11) DEFAULT NULL,
+  `smart` bit(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKe1b6enatjdmgc0n0sgwq3b7rn` (`supplier_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+
+--
+-- 转存表中的数据 `supply_api`
+--
+
+INSERT INTO `supply_api` (`id`, `description`, `effective_time`, `host`, `method`, `name`, `parameter_number`, `path`, `price`, `supplier_id`, `smart`) VALUES
+(1, '阿里云的手机号码归属地查询', 1111111, 'http://jshmgsdmfb.market.alicloudapi.com', 'GET', '手机号码归属地', 2, '/shouji/query', 11, 1, b'1'),
+(2, 'youfen的手机号码状态查询', 1111111, 'https://api.acedata.com.cn:2443', 'GET', '手机状态查询', 1, '/oreo/personal/mobile/netStatus', 11, 2, b'1');
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `supply_api_parameter_couples`
+--
+
+CREATE TABLE IF NOT EXISTS `supply_api_parameter_couples` (
+  `api_id` int(11) NOT NULL,
+  `parameter_couple_id` int(11) NOT NULL,
+  PRIMARY KEY (`api_id`,`parameter_couple_id`),
+  KEY `FKq001p5urp2klixhhb98at3cc8` (`parameter_couple_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- 转存表中的数据 `supply_api_parameter_couples`
+--
+
+INSERT INTO `supply_api_parameter_couples` (`api_id`, `parameter_couple_id`) VALUES
+(1, 1),
+(2, 3),
+(1, 4);
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `user`
+--
+
+CREATE TABLE IF NOT EXISTS `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `enabled` bit(1) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `username` varchar(255) DEFAULT NULL,
+  `role_id` int(11) DEFAULT NULL,
+  `customer_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKn82ha3ccdebhokx3a8fgdqeyy` (`role_id`),
+  KEY `FKdptx0i3ky01svofwjytq5iry0` (`customer_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+
+--
+-- 转存表中的数据 `user`
+--
+
+INSERT INTO `user` (`id`, `enabled`, `password`, `username`, `role_id`, `customer_id`) VALUES
+(1, b'1', 'liyang', 'liyang', 3, 1);
+
+--
+-- 限制导出的表
+--
+
+--
+-- 限制表 `api_search_log`
+--
+ALTER TABLE `api_search_log`
+  ADD CONSTRAINT `FK845g7x8650w891o5isomc1vxa` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
+  ADD CONSTRAINT `FK6q683uc6w6egpiovb8mr590s9` FOREIGN KEY (`api_id`) REFERENCES `supply_api` (`id`),
+  ADD CONSTRAINT `FKkifo8r32vlm6toibavju0qqes` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`);
+
+--
+-- 限制表 `supply_api`
+--
+ALTER TABLE `supply_api`
+  ADD CONSTRAINT `FKe1b6enatjdmgc0n0sgwq3b7rn` FOREIGN KEY (`supplier_id`) REFERENCES `supplier` (`id`);
+
+--
+-- 限制表 `supply_api_parameter_couples`
+--
+ALTER TABLE `supply_api_parameter_couples`
+  ADD CONSTRAINT `FKq001p5urp2klixhhb98at3cc8` FOREIGN KEY (`parameter_couple_id`) REFERENCES `api_parameter_couple` (`id`),
+  ADD CONSTRAINT `FKs5s7ww2hkufkbhtvyhhlcyt08` FOREIGN KEY (`api_id`) REFERENCES `supply_api` (`id`);
+
+--
+-- 限制表 `user`
+--
+ALTER TABLE `user`
+  ADD CONSTRAINT `FKdptx0i3ky01svofwjytq5iry0` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`),
+  ADD CONSTRAINT `FKn82ha3ccdebhokx3a8fgdqeyy` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`);
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

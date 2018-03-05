@@ -1,0 +1,993 @@
+<script>
+
+    "use strict";
+    app.controller("enterpriseIntelligenceCtrl", [
+        '$scope','$http',
+        function ($scope,$http) {
+
+            $scope.totalMoney = 0;
+            $scope.risksList = [
+
+                {
+                    id: "",
+                    name: "企业法院判决简项",
+                    price: "￥1.00",
+                    active: false,
+                    resultActive:false
+                },
+                {
+                    id: "",
+                    name: "企业法院失信简项",
+                    price: "￥1.00",
+                    active: false,
+                    resultActive:false
+                },
+                {
+                    id: "",
+                    name: "企业工商信息查询",
+                    price: "￥1.00",
+                    active: false,
+                    resultActive:false
+                },
+                {
+                    id: "",
+                    name: "商户账单真伪验证",
+                    price: "￥1.00",
+                    active: false,
+                    resultActive:false
+                },
+                {
+                    id: "",
+                    name: "POS易交账动",
+                    price: "￥1.00",
+                    active: false,
+                    resultActive:false
+                },
+                {
+                    id: "",
+                    name: "企业法院失信详情(dev)",
+                    price: "￥1.00",
+                    active: false,
+                    resultActive:false
+                },
+
+                {
+                    id: "",
+                    name: "企业裁判文书详情(dev)",
+                    price: "￥1.00",
+                    active: false,
+                    resultActive:false
+
+                },
+
+                {
+                    id: "",
+                    name: "企业借贷信息(dev)",
+                    price: "￥1.00",
+                    active: false,
+                    resultActive:false
+                },
+                {
+                    id: "",
+                    name: "企业不良信息(dev)",
+                    price: "￥1.00",
+                    active: false,
+                    resultActive:false
+                },
+                {
+                    id: "",
+                    name: "银联注册信息检索(dev)",
+                    price: "￥1.00",
+                    active: false,
+                    resultActive:false
+                }
+            ];
+            $scope.info = {
+                entInfo: "",//企业法院判决简项全名
+                company: "",//工商名称
+                creditno:'',//统一信用代码
+                regno:'',//注册号'
+
+                name:'',//商户账单真伪验证商户名
+                merchantNo: '',//商户账单真伪验证商户编号
+
+                legalName:'',//商户负责人姓名
+                regNo:'',//营业执照注册编号
+                cellphone:'',//商户负责人手机号码
+                idcard:''//商户负责人身份证号码
+
+
+            }
+
+
+            //企业工商信息查询方式
+            $scope.enterprise=[
+                {
+                    type:'按企业工商名称查',
+                    value:'1'
+                },
+                {
+                    type:'按企业工商注册号查',
+                    value:'2'
+                },
+                {
+                    type:'按统一社会信用代码查',
+                    value:'3'
+                }
+            ];
+            //商户账单真伪验证
+            $scope.enterprise2=[
+                {
+                    type:'按商户名称查',
+                    value:'1'
+                },
+                {
+                    type:'按商户编号查',
+                    value:'2'
+                }
+            ];
+
+
+            $scope.resultSwitch = false;
+
+
+            $scope.Allchoice = false;
+
+            $scope.allSelect = function () {
+                $scope.totalMoney = 0
+                if (!$scope.Allchoice) {
+                    angular.forEach($scope.risksList, function (risk) {
+                        risk.active = false
+                    })
+
+                    $scope.totalMoney = 0
+                } else {
+                    angular.forEach($scope.risksList, function (risk) {
+                        risk.active = true
+                        $scope.totalMoney += parseInt(risk.price.substr(1))
+                    })
+
+                }
+            }
+
+            $scope.selectOne = function (active) {
+                if (!active) {
+                    $scope.Allchoice = false
+
+                } else {
+                    var flag = false
+                    angular.forEach($scope.risksList, function (risk) {
+                        if (!risk.active) {
+                            flag = true
+                            $scope.Allchoice = false
+                        }
+                    })
+                    if (!flag) {
+                        $scope.Allchoice = true
+
+                    }
+
+                }
+                calTotalMoney()
+
+            }
+            function calTotalMoney() {
+                $scope.totalMoney = 0
+                angular.forEach($scope.risksList, function (risk) {
+                    if (risk.active) {
+                        $scope.totalMoney += parseInt(risk.price.substr(1))
+                    }
+                })
+            }
+
+
+            //  提交
+            $scope.submitInfo = function (){
+                if (myForm.entInfo) {
+                    myForm.entInfo.$dirty = true;
+
+                }
+                if (!myForm.$valid) {
+                    $scope.resultSwitch = false;
+                    return
+                }
+
+
+                angular.forEach($scope.risksList, function (risk,index) {
+                    if (risk.active) {
+                        risk.resultActive = true;
+                        $scope.resultSwitch = true;
+
+                        //企业法院判决简项0
+                        if (index === 0) {
+                            $http({
+                                method: 'POST',
+                                url: 'http://www.jinrongfengkong.com/encredit/courtJudgment',
+                                data:$scope.info
+                            }).then(function successCallback(response) {
+                                if(response){
+                                    if(response.data.data.statusCode === '2012'){
+                                        $scope.dataMsg0=true;//查询成功
+                                        $scope.otherMsg0=false;
+                                        $scope.resultMsg0 = response.data.data.result;
+                                    }
+                                    else {
+                                        $scope.dataMsg0=false;
+                                        $scope.otherMsg0=true;//查询无数据
+                                        $scope.resultMsg0 = response.data.data.statusMsg
+                                    }
+                                    $scope.resultSwitch = true;
+                                }
+                            });
+                        }
+                        //企业法院失信简项1
+                        if (index === 1) {
+                            $http({
+                                method: 'POST',
+                                url: 'http://www.jinrongfengkong.com/encredit/courtDishonesty',
+                                data:$scope.info
+                            }).then(function successCallback(response) {
+                                if(response){
+                                    if(response.data.data.statusCode === '2012'){
+                                        $scope.dataMsg1=true;//查询成功
+                                        $scope.otherMsg1=false;
+                                        $scope.resultMsg1 = response.data.data.result.record;
+                                    }
+                                    else {
+                                        $scope.dataMsg1=false;
+                                        $scope.otherMsg1=true;//查询无数据
+                                        $scope.resultMsg1 = response.data.data.statusMsg
+                                    }
+                                    $scope.resultSwitch = true;
+                                }
+                            });
+                        }
+                        //企业工商信息查询2
+                        if (index === 2) {
+                            $http({
+                                method: 'POST',
+                                url: 'http://www.jinrongfengkong.com/enterprisetrue/query',
+                                data:$scope.info
+                            }).then(function successCallback(response) {
+                                if(response){
+                                    if(response.data.status === '0'){
+                                        $scope.dataMsg2=true;//查询成功
+                                        $scope.otherMsg2=false;
+                                        $scope.resultMsg2 = response.result;
+                                    }
+                                    else {
+                                        $scope.dataMsg2=false;
+                                        $scope.otherMsg2=true;//查询无数据
+                                        $scope.resultMsg2 = response.data.msg
+                                    }
+                                    $scope.resultSwitch = true;
+                                }
+
+
+                            });
+                        }
+                        //商户账单真伪验证3
+                        if (index === 3) {
+                            $scope.resultSwitch = true;
+                            $http({
+                                method: 'POST',
+                                url: 'http://www.jinrongfengkong.com/encredit/bill',
+                                data:$scope.info
+                            }).then(function successCallback(response) {
+                                if(response){
+                                    if(response.data.data.statusCode === '2012'){
+                                        $scope.dataMsg3=true;//查询成功
+                                        $scope.otherMsg3=false;
+                                        $scope.resultMsg3 = response.data.data.result.record;
+                                    }
+                                    else {
+                                        $scope.dataMsg3=false;
+                                        $scope.otherMsg3=true;//查询无数据
+                                        $scope.resultMsg3 = response.data.data.statusMsg
+                                    }
+                                    $scope.resultSwitch = true;
+                                }
+
+                            });
+                        }
+                        //POS易交账动4
+                        if (index === 4) {
+                            $http({
+                                method: 'POST',
+                                url: 'http://www.jinrongfengkong.com/enterpise/midReport',
+                                data:$scope.info
+                            }).then(function successCallback(response) {
+                                if(response){
+                                    if(response.data.data.statusCode === '2012'){
+                                        $scope.dataMsg4=true;//查询成功
+                                        $scope.otherMsg4=false;
+                                        $scope.resultMsg4 = response.data.data.result.record;
+                                    }
+                                    else {
+                                        $scope.dataMsg4=false;
+                                        $scope.otherMsg4=true;//查询无数据
+                                        $scope.resultMsg4 = response.data.data.statusMsg
+                                    }
+                                    $scope.resultSwitch = true;
+                                }
+                            });
+                        }
+                    }
+                })
+            }
+
+
+
+
+
+
+        }
+    ]);
+
+
+</script>
+<div class="hbox hbox-auto-xs bg-light" ng-controller="enterpriseIntelligenceCtrl">
+    <!-- column -->
+    <div class="col col-sm-9" style="padding: 0">
+        <div class="vbox">
+            <!--<div class="wrapper-md bg-light lter b-b clearfix">-->
+            <!--<div class="font-thin h4">个人智能查询</div>-->
+            <!--</div>-->
+            <div class="row-row">
+                <div class="cell">
+                    <div class="cell-inner">
+                        <div class="wrapper-md">
+                            <div class="panel panel-info input-panel" style="margin-bottom: 20px">
+                                <div class="panel-heading wrapper" style="font-size: 16px">个人身份核查</div>
+                                <div class="panel-body">
+                                    <form name="myForm" class="form-horizontal">
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label label1"><span style="color: #ff0000">*</span>企业名/注册号/统一社会信用代码:</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" ng-model="info.entInfo" name="entInfo"  class="form-control" ng-required="true">
+                                            </div>
+                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.entInfo.$dirty && myForm.entInfo.$invalid">
+                                                <span style="color: #ff0000" ng-show="myForm.entInfo.$error.required">企业名不能为空</span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group" ng-if="YourOption.value.value==1">
+                                            <label class="col-sm-2 control-label label1"><span style="color: #ff0000">*</span>企业名称:</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" ng-model="info.company" name="company" class="form-control" ng-required="true">
+                                            </div>
+                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.company.$dirty && myForm.company.$invalid">
+                                                <span style="color: #ff0000" ng-show="myForm.company.$error.required">所填内容不能为空</span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group" ng-if="YourOption.value.value==2">
+                                            <label class="col-sm-2 control-label label1"><span style="color: #ff0000">*</span>企业工商注册号:</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" ng-model="info.regno" name="regno" class="form-control" ng-required="true">
+                                            </div>
+                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.regno.$dirty && myForm.regno.$invalid">
+                                                <span style="color: #ff0000" ng-show="myForm.regno.$error.required">所填内容不能为空</span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group" ng-if="YourOption.value.value==3">
+                                            <label class="col-sm-2 control-label label1"><span style="color: #ff0000">*</span>统一社会信用代码:</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" ng-model="info.creditno" name="creditno" class="form-control" ng-required="true">
+                                            </div>
+                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.creditno.$dirty && myForm.creditno.$invalid">
+                                                <span style="color: #ff0000" ng-show="myForm.creditno.$error.required">所填内容不能为空</span>
+                                            </div>
+                                        </div>
+                                        <div ng-show="risksList[2].active" class="form-group">
+                                            <label class="col-sm-2 control-label"><span style="color: #ff0000">*</span>查询方式:</label>
+                                            <div class="col-sm-4">
+                                                <select ng-model="YourOption.value" class="form-control" ng-options="enterpriseType.type for enterpriseType in enterprise">
+                                                    <!--<option value="name">按企业名称查</option>-->
+                                                    <!--<option value="regNo">按企业工商注册号查</option>-->
+                                                </select>
+                                                <!--<input id="queryMidValue" type="hidden" class="type" value="regNo">-->
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group" ng-if="YourOption2.value.value==1 || risksList[4].active">
+                                            <label class="col-sm-2 control-label label1"><span style="color: #ff0000">*</span>商户名称:</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" ng-model="info.name" name="name" class="form-control" ng-required="true">
+                                            </div>
+                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.name.$dirty && myForm.name.$invalid">
+                                                <span style="color: #ff0000" ng-show="myForm.name.$error.required">所填内容不能为空</span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group" ng-if="YourOption2.value.value==2 || risksList[4].active">
+                                            <label class="col-sm-2 control-label label1"><span style="color: #ff0000">*</span>商户编号:</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" ng-model="info.merchantNo" name="merchantNo" class="form-control" ng-required="true">
+                                            </div>
+                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.merchantNo.$dirty && myForm.merchantNo.$invalid">
+                                                <span style="color: #ff0000" ng-show="myForm.merchantNo.$error.required">所填内容不能为空</span>
+                                            </div>
+                                        </div>
+                                        <div ng-show="risksList[3].active" class="form-group">
+                                            <label class="col-sm-2 control-label"><span style="color: #ff0000">*</span>查询方式:</label>
+                                            <div class="col-sm-4">
+                                                <select ng-model="YourOption2.value" class="form-control" ng-options="enterpriseType2.type for enterpriseType2 in enterprise2">
+                                                </select>
+                                                <input id="queryMidValue" type="hidden" class="type" value="regNo">
+                                            </div>
+                                        </div>
+                                        <div ng-show="risksList[3].active" class="form-group">
+                                            <label class="col-sm-2 control-label"><span style="color: #ff0000">*</span>交易起始日期:</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" ng-model="info.beginDate" name="beginDate" class="form-control" ng-required="true" placeholder="格式yyyy-mm-dd" pattern="((((19|20)\d{2})-(0?(1|[3-9])|1[012])-(0?[1-9]|[12]\d|30))|(((19|20)\d{2})-(0?[13578]|1[02])-31)|(((19|20)\d{2})-0?2-(0?[1-9]|1\d|2[0-8]))|((((19|20)([13579][26]|[2468][048]|0[48]))|(2000))-0?2-29))$">
+                                            </div>
+                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.beginDate.$dirty && myForm.beginDate.$invalid">
+                                                <span style="color: #ff0000" ng-show="myForm.beginDate.$error.required">日期不能为空</span>
+                                                <span style="color: #ff0000" ng-show="myForm.beginDate.$error.pattern">日期格式不正确</span>
+                                            </div>
+                                        </div>
+                                        <div ng-show="risksList[3].active" class="form-group">
+                                            <label class="col-sm-2 control-label"><span style="color: #ff0000">*</span>交易结束日期:</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" ng-model="info.endDate" name="endDate" class="form-control" ng-required="true" placeholder="格式yyyy-mm-dd" pattern="((((19|20)\d{2})-(0?(1|[3-9])|1[012])-(0?[1-9]|[12]\d|30))|(((19|20)\d{2})-(0?[13578]|1[02])-31)|(((19|20)\d{2})-0?2-(0?[1-9]|1\d|2[0-8]))|((((19|20)([13579][26]|[2468][048]|0[48]))|(2000))-0?2-29))$">
+                                            </div>
+                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.endDate.$dirty && myForm.endDate.$invalid">
+                                                <span style="color: #ff0000" ng-show="myForm.endDate.$error.required">日期不能为空</span>
+                                                <span style="color: #ff0000" ng-show="myForm.endDate.$error.pattern">日期格式不正确</span>
+                                            </div>
+                                            <div ng-if="info.endDate < info.beginDate" class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left">
+                                                <span style="color: #ff0000">交易结束日期要大于交易起始日期</span>
+                                            </div>
+                                            <div ng-if="resultFound!=''" class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="errorResult">
+                                                <span style="color: #ff0000">{{resultFound}}</span>
+                                            </div>
+
+                                        </div>
+
+                                        <div ng-show="risksList[4].active" class="form-group">
+                                            <label class="col-sm-2 control-label"><span style="color: #ff0000">*</span>负责人姓名：</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" ng-model="info.legalName" name="legalName"  class="form-control" ng-required="true" pattern="[\u4E00-\u9FA5]{2,5}(?:·[\u4E00-\u9FA5]{2,5})*">
+                                            </div>
+                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.legalName.$dirty&&myForm.legalName.$invalid">
+                                                <span style="color: #ff0000" ng-show="myForm.legalName.$error.required">姓名不能为空</span>
+                                                <span style="color: #ff0000" ng-show="myForm.legalName.$error.pattern">姓名格式错误</span>
+                                            </div>
+                                        </div>
+                                        <div ng-show="risksList[4].active" class="form-group">
+                                            <label class="col-sm-2 control-label"><span style="color: #ff0000">*</span>负责人手机号：</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" ng-model="info.cellphone" name="cellphone" class="form-control" ng-required="true" pattern="^1[3|4|5|7|8][0-9]{9}$">
+                                            </div>
+                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.cellphone.$dirty && myForm.cellphone.$invalid">
+                                                <span style="color: #ff0000" ng-show="myForm.cellphone.$error.required">手机不能为空</span>
+                                                <span style="color: #ff0000" ng-show="myForm.cellphone.$error.pattern">手机号格式错误</span>
+                                            </div>
+                                        </div>
+                                        <div ng-show="risksList[4].active" class="form-group">
+                                            <label class="col-sm-2 control-label"><span style="color: #ff0000">*</span>负责人身份证：</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" ng-model="info.idcard" name="idcard" class="form-control" ng-required="true" pattern="(^\d{15}$)|(^\d{17}([0-9]|X)$)">
+                                            </div>
+                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.idcard.$dirty && myForm.idcard.$invalid">
+                                                <span style="color: #ff0000" ng-show="myForm.idcard.$error.required">身份证号不能为空</span>
+                                                <span style="color: #ff0000" ng-show="myForm.idcard.$error.pattern">身份证号格式错误</span>
+                                            </div>
+                                        </div>
+                                        <div ng-show="risksList[4].active" class="form-group">
+                                            <label class="col-sm-2 control-label"><span style="color: #ff0000">*</span>注册编号：</label>
+                                            <div class="col-sm-4">
+                                                <input type="text" ng-model="info.regNo" name="regNo" class="form-control" ng-required="true">
+                                            </div>
+                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.regNo.$dirty && myForm.regNo.$invalid">
+                                                <span style="color: #ff0000" ng-show="myForm.regNo.$error.required">注册编号不能为空</span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-4 col-md-offset-2 col-sm-8"
+                                                 style="padding-left: 20px">
+                                                <button type="button" class="btn btn-info" ng-click="submitInfo()">提交</button>
+                                                <button type="button" class="btn btn-info">重置</button>
+                                                <button type="button" class="btn btn-danger"><i
+                                                        class="fa fa-file-pdf-o"></i> 生成PDF
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!--样例-->
+                            <div class="panel panel-info input-panel" ng-show="!resultSwitch">
+                                <div class="panel-heading">
+                                    <span style="color: #474747;">查询结果</span>
+                                    <span style="color: red;">样例</span>
+                                </div>
+                                <div>
+                                    <table class="table-border-style">
+                                        <tr class="tableBg"><th style="width: 20%;">查询项名称</th><th style="width: 15%;">时间范围</th><th style="width: 25%;">说明</th><th style="width: 20%;">查询结果</th></tr>
+                                        <tr><td class="S5266">商户经营城市</td><td>近12月</td><td>商户经营城市（按消费人群来 源确定）</td><td>BD98</td></tr>
+                                        <tr><td class="S5132">每月还贷能力估计</td><td>近12月</td><td>根据商户每月经营状况，评估 不同行业商户的还贷能力</td><td>BD98</td></tr>
+                                        <tr><td class="S5102">商户编号（MID）</td><td>近12月</td><td>商户编号（MID）信息</td><td>BD98</td></tr>
+                                        <tr><td class="S5104">对应类别：（例如批发类）</td><td>近12月</td><td>商户对应类别信息</td><td>21</td></tr>
+                                        <tr><td class="S5105">手续费率： %</td><td>近12月</td><td>商户手续费率信息</td><td>5411_0.38%</td></tr>
+                                        <tr><td class="S5108">收单机构</td><td>近24月</td><td>收单机构信息</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5246">终端台数（如POS机数量）</td><td>近12月</td><td>近1年，商户使用过的POS机</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5247">近1年，商户使用的POS机信 息枚举</td><td>近12月</td><td>商户名称_商户地址_商户类型_ 商户所在城市</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5196">2011年1月1日起，首次交易日 期</td><td>2011年1月1日起</td><td>全量4.5年流水中的，第一笔交 易的日期</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5197">2011年1月1日起，有交易月份 枚举</td><td>2011年1月1日起</td><td>2011年1月1至今日，有交易月 份枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5198">截至上月，连续有交易的月份 数量</td><td>2011年1月1日起</td><td>截至上月的连续消费月数。比 如现在7月份，4月、５月有交 易流水，但6月没有交易流 水，有效交易月份数为0</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5200">最近一日交易金额</td><td>2011年1月1日起</td><td>最近一日交易金额</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5201">最近一日交易笔数</td><td>2011年1月1日起</td><td>最近一日交易笔数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5202">最近一日交易人数</td><td>2011年1月1日起</td><td>最近一日交易人数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5199">最近一日交易日期</td><td>2011年1月1日起</td><td>最近一日交易日期</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5203">累计交易总金额</td><td>2011年1月1日起</td><td>全量4.5年流水中的累计交易金额</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5204">累计交易总笔数</td><td>2011年1月1日起</td><td>全量4.5年流水中的累计交易笔数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5205">累计交易总人数</td><td>2011年1月1日起</td><td>全量4.5年流水中的累计交易人数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5000">近12月，每月交易总金额枚举</td><td>近12月</td><td>近12月，每月交易总金额枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5109">近24月，每月交易总金额枚举</td><td>近24月</td><td>近24月，每月交易金额枚举</td><td>1611_未知</td></tr>
+
+                                        <tr><td class="S5001">近12月，每月交易总金额枚举（大于10元）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月交易金额枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5110">近24月，每月交易总金额枚举（大于10元）</td><td>近24月</td><td>去除单笔10元以下交易后，每 月交易金额枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5081">近12月，每月最大交易金额</td><td>近12月</td><td>每月最大交易金额</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5111">近24月，每月最大交易金额</td><td>近24月</td><td>每月最大交易金额</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5112">每月最小交易金额</td><td>近24月</td><td>每月最小交易金额</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5113">每月交易总笔数枚举</td><td>近24月</td><td>每月交易笔数枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5003">每月交易总笔数枚举（大于10 元）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月交易笔数枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5004">近12月，每月交易总天数枚举</td><td>近12月</td><td>去每月交易天数枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5114">近24月，每月交易总天数枚举</td><td>近24月</td><td>每月交易天数枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5115">每月交易总人数枚举</td><td>近24月</td><td>每月交易人数枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5011">每月交易总人数枚举（大于10 元）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月交易人数枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5116">每月客单价枚举</td><td>近24月</td><td>每月客单价枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5117">每月笔单价枚举</td><td>近24月</td><td>每月笔单价枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5006">每月笔单价枚举（大于10元）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月笔单价枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5165">每周交易总金额枚举</td><td>近24周</td><td>每周交易总金额枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5166">每周交易总笔数枚举</td><td>近24周</td><td>每周交易总笔数枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5167">每周交易总天数枚举</td><td>近24周</td><td>每周交易总天数枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5168">每周交易总人数枚举</td><td>近24周</td><td>每周交易总人数枚举</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5169">周均交易金额</td><td>近24周</td><td>周均交易金额</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5170">周均交易笔数</td><td>近24周</td><td>周均交易笔数</td><td>1611_未知</td></tr>
+
+                                        <tr><td class="S5171">周均交易天数</td><td>近24周</td><td>周均交易天数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5172">周交易金额中值</td><td>近24周</td><td>周交易金额中值</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5173">周交易金额最高值</td><td>近24周</td><td>周交易金额最高值</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5174">周交易金额最低值</td><td>近24周</td><td>周交易金额最低值</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5175">低于周均交易金额的周数</td><td>近24周</td><td>低于周均交易金额的周数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5176">低于周均交易金额的月份分布</td><td>近24周</td><td>低于周均交易金额的月份分布</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5177">周交易金额变异系数</td><td>近24周</td><td>周交易金额变异系数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5178">周交易笔数变异系数</td><td>近24周</td><td>周交易笔数变异系数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5206">每小时交易金额枚举</td><td>近12月</td><td>统计近12月每个小时的交易总金额</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5207">每小时交易笔数枚举</td><td>近12月</td><td>统计近12月每个小时的交易总笔数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5210">每月工作日工作时间交易总金额</td><td>近12月</td><td>周一~周五 09:30-11:30,14:00-16:30 交易金额</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5212">每月工作日非工作时间交易总金额</td><td>近12月</td><td>周一~周五09:30- 11:30,14:00-16:30之外的交易金额</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5211">每月工作日工作时间交易总笔数</td><td>近12月</td><td>周一~周五 09:30-11:30,14:00-16:30 交易笔数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5213">每月工作日非工作时间交易总笔数</td><td>近12月</td><td>周一~周五09:30-11:30,14:00-16:30之外的交易笔数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5214">每月双休日交易总金额</td><td>近12月</td><td>周六、周日全时段消费金额</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5215">每月双休日交易总笔数</td><td>近12月</td><td>周六、周日全时段消费笔数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5076">近6月，各月四区间交易总人数</td><td>近6月</td><td>统计如下各区间的交易人数 0：（8am-14pm]、1： (14pm-17pm]、2：(17pm- 22pm]、3：(22pm-8am]</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5077">近6月，各月四区间最大单笔交易金额</td><td>近6月</td><td>统计如下各区间最大单笔金额 0：（8am-14pm]、1： (14pm-17pm]、2：(17pm- 22pm]、3：(22pm-8am]</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5078">近6月，各月四区间最小单笔交易金额</td><td>近6月</td><td>统计如下各区间最小单笔金额 0：（8am-14pm]、1： (14pm-17pm]、2：(17pm- 22pm]、3：(22pm-8am]</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5129">近6月月均交易金额</td><td>近6月</td><td>近6月的平均月交易金额</td><td>1611_未知</td></tr>
+
+                                        <tr><td class="S5046">近6月金额标准差</td><td>近6月</td><td>近6月金额标准差</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5047">近6月金额标准差在本市同行排名</td><td>近6月</td><td>近6月金额标准差在本市同行排名</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5048">近6月金额差异系数</td><td>近6月</td><td>近6月金额差异系数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5049">近6月金额差异系数在本市同行排名</td><td>近6月</td><td>近6月金额差异系数在本市同行排名</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5118">近12月交易金额环比增长枚举</td><td>近13月</td><td>近12月交易金额环比增长</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5070">标准差-交易额环比增长率</td><td>近6月</td><td>近6月交易金额环比增长率的标准差</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5071">标准差-交易额环比增长率 在 本市同行排名</td><td>近6月</td><td>近6月交易金额环比增长率的标准差在本市同行排名</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5072">差异系数－交易额环比增长率</td><td>近6月</td><td>近6月交易金额环比增长率的差异系数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5073">差异系数-交易额环比增长率在本市同行排名</td><td>近6月</td><td>近6月交易金额环比增长率的 差异系数在本市同行排名</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5010">每月交易金额环比增长枚举（10元以上）</td><td>近13月</td><td>去除单笔10元以下交易后，每月交易金额环比增长率</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5068">每月交易额环比增长率均值（10元以上）</td><td>近6月</td><td>去除单笔10元以下交易后，每月交易金额环比增长率均值</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5126">年度交易额峰值月份</td><td>近12月</td><td>每月交易金额高于近12月月均交易金额的月份明细</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5130">近6月月均交易笔数</td><td>近6月</td><td>近6月月均交易笔数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5052">近6月交易笔数标准差</td><td>近6月</td><td>近6月交易笔数标准差</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5053">近6月交易笔数标准差在本市同行排名</td><td>近6月</td><td>近6月交易笔数标准差在本市同行排名</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5054">近6月交易笔数差异系数</td><td>近6月</td><td>近6月交易笔数差异系数</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5055">近6月交易笔数差异系数在本市同行排名</td><td>近6月</td><td>近6月交易笔数差异系数在本市同行排名</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5119">近12月交易笔数环比增长枚举</td><td>近13月</td><td>近12月交易笔数环比增长</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5120">近12月客单价环比增长枚举</td><td>近13月</td><td>近12月客单价环比增长</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5121">近12月笔单价环比增长枚举</td><td>近13月</td><td>近12月笔单价环比增长</td><td>1611_未知</td></tr>
+
+                                        <tr><td class="S5122">每月交易金额同比增长枚举</td><td>近12月</td><td>每月交易金额与去年同期月份增长率</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5123">每月交易金额同比增长率均值</td><td>近12月</td><td>每月交易金额同比增长率均值</td><td>-100%</td></tr>
+                                        <tr><td class="S5142">每月交易金额同比增长率均值在本市同行排名</td><td>近12月</td><td>每月交易金额同比增长率均值 在本市同行排名，输出： 1、本市同行1/4值、1/2、3/4 值、行业均值 2、本商户在本市排名</td><td>-100%</td></tr>
+                                        <tr><td class="S5064">标准差-交易额同比增长率</td><td>近6月</td><td>标准差-交易额同比增长率</td><td>-100%</td></tr>
+                                        <tr><td class="S5065">标准差-交易额同比增长率在本市同行排名</td><td>近6月</td><td>标准差-交易额同比增长率在本市同行排名</td><td>-100%</td></tr>
+                                        <tr><td class="S5066">差异系数－交易额同比增长率</td><td>近6月</td><td>差异系数－交易额同比增长率</td><td>-100%</td></tr>
+                                        <tr><td class="S5067">差异系数-交易金额同比增长率在本市同行排名</td><td>近6月</td><td>差异系数-交易金额同比增长率在本市同行排名</td><td>-100%</td></tr>
+                                        <tr><td class="S5009">每月交易额同比增长枚举（10 元以上）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月交易金额同比增长值</td><td>-100%</td></tr>
+                                        <tr><td class="S5062">每月交易额同比增长均值（10 元以上）</td><td>近6月</td><td>去除单笔10元以下交易后，每 月交易金额同比增长值均值</td><td>-100%</td></tr>
+                                        <tr><td class="S5063">每月交易额同比增长率均值在本市同行排名（10元以上）</td><td>近6月</td><td>去除单笔10元以下交易后，每月交易金额同比增长值均值在 本市同行排名</td><td>-100%</td></tr>
+                                        <tr><td class="S5124">每月交易笔数同比增长枚举</td><td>近12月</td><td>近12月，每月交易笔数相对于 去年同期月份的增长率</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5125">每月客单价同比增长枚举</td><td>近12月</td><td>近12月，每月客单价相对于去 年同期月份的增长率</td><td>1611_未知</td></tr>
+                                        <tr><td class="S5127">近6月月均交易天数</td><td>近6月</td><td>近6月，平均每月交易天数</td><td>0</td></tr>
+                                        <tr><td class="S5057">月均交易天数在本市同行排名</td><td>近6月</td><td>月均交易天数在本市同行排 名</td><td>0</td></tr>
+                                        <tr><td class="S5131">近6月交易天数变异系数</td><td>近6月</td><td>近6月交易天数变异系数</td><td>0</td></tr>
+                                        <tr><td class="S5139">月交易天数变异系数在本市同行排名</td><td>近6月</td><td>月均交易天数变异系数在本市同行排名</td><td>0</td></tr>
+                                        <tr><td class="S5058">近6月天数标准差</td><td>近6月</td><td>近6月天数标准差</td><td>0</td></tr>
+                                        <tr><td class="S5059">近6月天数标准差本市同行排名</td><td>近6月</td><td>近6月天数标准差本市同行排名</td><td>0</td></tr>
+                                        <tr><td class="S5060">近6月天数差异系数</td><td>近6月</td><td>近6月天数差异系数</td><td>0</td></tr>
+                                        <tr><td class="S5061">近6月天数差异系数在本市同行排名</td><td>近6月</td><td>近6月天数差异系数在本市同行排名</td><td>0</td></tr>
+
+                                        <tr><td class="S5128">近6月月均交易人数</td><td>近6月</td><td>近6月，平均每月交易人数</td><td>0</td></tr>
+                                        <tr><td class="S5133">每月交易金额在本市同行排名</td><td>近24月</td><td>每月交易金额在本市同行排</td><td>0</td></tr>
+                                        <tr><td class="S5134">每月交易笔数在本市同行排名</td><td>近24月</td><td>每月交易笔数在本市同行排 名</td><td>0</td></tr>
+                                        <tr><td class="S5137">月均交易金额在本市同行排名</td><td>近6月</td><td>月均交易金额在本市同行排 名</td><td>0</td></tr>
+                                        <tr><td class="S5138">月均交易笔数在本市同行排名</td><td>近6月</td><td>月均交易笔数在本市同行排名</td><td>0</td></tr>
+                                        <tr><td class="S5135">客单价在本市同行排名</td><td>近24月</td><td>客单价在本市同行排名</td><td>0</td></tr>
+                                        <tr><td class="S5136">笔单价在本市同行排名</td><td>近24月</td><td>笔单价在本市同行排名</td><td>0</td></tr>
+                                        <tr><td class="S5143">同行每月交易额环比增长</td><td>近13月</td><td>同行每月交易额环比增长</td><td>0</td></tr>
+                                        <tr><td class="S5069">近6月交易额环比增长率在本市同行排名</td><td>近6月</td><td>近6月交易额环比增长率在本市同行排名</td><td>0</td></tr>
+                                        <tr><td class="S5144">同行每月客单价环比增长</td><td>近13月</td><td>同行每月客单价环比增长</td><td>0</td></tr>
+                                        <tr><td class="S5145">同行每月交易笔数环比增长</td><td>近13月</td><td>同行每月交易笔数环比增长</td><td>0</td></tr>
+                                        <tr><td class="S5146">同行每月交易金额同比增长</td><td>近13月</td><td>同行每月交易金额同比增长</td><td>0</td></tr>
+                                        <tr><td class="S5147">同行每月交易笔数同比增长</td><td>近13月</td><td>同行每月交易笔数同比增长</td><td>0</td></tr>
+                                        <tr><td class="S5148">同行每月客单价同比增长</td><td>近13月</td><td>同行每月客单价同比增长</td><td>0</td></tr>
+                                        <tr><td class="S5181">周均交易金额在本市同行排名</td><td>近24周</td><td>近24周周均交易金额在本市同行排名</td><td>0</td></tr>
+                                        <tr><td class="S5182">周均交易笔数在本市同行排名</td><td>近13月</td><td>近24周周均交易笔数在本市同行排名</td><td>0</td></tr>
+                                        <tr><td class="S5183">周均交易天数在本市同行排名</td><td>近13月</td><td>近24周周均交易天数在本市同行排名</td><td>0</td></tr>
+                                        <tr><td class="S5184">周交易笔数变异系数在本市同行排名</td><td>近13月</td><td>近24周周交易笔数变异系数在本市同行排名</td><td>0</td></tr>
+                                        <tr><td class="S5185">周交易金额变异系数在本市同行排名</td><td>近13月</td><td>近24周周交易金额变异系数在本市同行排名</td><td>0</td></tr>
+                                        <tr><td class="S5140">市场份额</td><td>近13月</td><td>根据商户交易额、行业交易额，商户数量计算商户的市场份额。</td><td>0</td></tr>
+
+                                        <tr><td class="S5141">市场增长率</td><td>近6月</td><td>根据商户、行业交易额，统计 商户市场增长率</td><td>0</td></tr>
+                                        <tr><td class="S5257">各忠诚度客户交易金额占比（普通、中等、忠实）</td><td>近12月</td><td>近12月，普通客户（消费1 笔）、中等客户（２-4笔）、 VIP客户（5笔及以上）的客户 交易金额占比分布</td><td>0</td></tr>
+                                        <tr><td class="S5258">各忠诚度客户交易笔数占比（普通、中等、忠实）</td><td>近12月</td><td>近12月，普通客户（消费1 笔）、中等客户（２-4笔）、 VIP客户（5笔及以上）的客户 交易笔数占比分布</td><td>0</td></tr>
+                                        <tr><td class="S5259">各忠诚度客户交易人数占比（普通、中等、忠实）</td><td>近12月</td><td>近12月，普通客户（消费1 笔）、中等客户（２-4笔）、 VIP客户（5笔及以上）的客户 交易人数占比分布</td><td>0</td></tr>
+                                        <tr><td class="S5260">普卡客户人数占比</td><td>近12月</td><td>统计商户下、不同卡等级的客 户分布</td><td>0</td></tr>
+                                        <tr><td class="S5261">银卡及金卡客户人数占比</td><td>近12月</td><td>根统计商户下、不同卡等级的客 户分布</td><td>0</td></tr>
+                                        <tr><td class="S5262">白金卡及以上等级客户人数占比</td><td>近12月</td><td>统计商户下、不同卡等级的客 户分布</td><td>0</td></tr>
+                                        <tr><td class="S5254">各地客户交易金额占比（同省同城、同省非同城、外省、其他）</td><td>近12月</td><td>统计商户下各地域客户的消费 金额分布</td><td>0</td></tr>
+                                        <tr><td class="S5255">地客户交易笔数占比（同省同城、同省非同城、外省、其他）</td><td>近12月</td><td>根据商户交易额、行业交易额，商户数量计算商户的市场份额。</td><td>0</td></tr>
+                                        <tr><td class="S5256">地客户交易人数占比（同省同城、同省非同城、外省、其他）</td><td>近12月</td><td>根据商户交易额、行业交易额，商户数量计算商户的市场份额。</td><td>0</td></tr>
+                                        <tr><td class="S5265">前5大异地城市客户分布</td><td>近12月</td><td>根据商户交易额、行业交易额，商户数量计算商户的市场份额。</td><td>0</td></tr>
+                                        <tr><td class="S5216">近12月，每月单笔(0,200]:交 易总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>0</td></tr>
+                                        <tr><td class="S5217">近12月，单笔(0,200]:交易总 笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>0</td></tr>
+                                        <tr><td class="S5218">近12月，单笔(0,200]:交易总 人数枚</td><td>近12月</td><td>各金额区间交易总人数</td><td>0</td></tr>
+                                        <tr><td class="S5219">近12月，单笔(200,600]:交易 总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>0</td></tr>
+                                        <tr><td class="S5220">近12月，单笔(200,600]:交易 总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>0</td></tr>
+                                        <tr><td class="S5221">近12月，单笔(200,600]:交易 总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>0</td></tr>
+                                        <tr><td class="S5222">近12月，单笔(600,1000]:交易 总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>0</td></tr>
+                                        <tr><td class="S5223">近12月，单笔(600,1000]:交易 总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>0</td></tr>
+                                        <tr><td class="S5224">近12月，单笔(600,1000]:交易 总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>0</td></tr>
+
+                                        <tr><td class="S5225">近12月，单笔(1000,5000]:交 易总金额枚举</td><td>近6月</td><td>各金额区间交易总金额</td><td>0</td></tr>
+                                        <tr><td class="S5226">近12月，单笔(1000,5000]:交 易总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>0</td></tr>
+                                        <tr><td class="S5227">近12月，单笔(1000,5000]:交 易总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>0</td></tr>
+                                        <tr><td class="S5228">近12月，单笔(5000,20000]:交易总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>0</td></tr>
+                                        <tr><td class="S5229">近12月，单笔(5000,20000]:交易总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>0</td></tr>
+                                        <tr><td class="S5230">近12月，单笔(5000,20000]:交易总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>0</td></tr>
+                                        <tr><td class="S5231">近12月，单笔(20000,+]:交易 总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>0</td></tr>
+                                        <tr><td class="S5232">近12月，单笔(20000,+]:交易 总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>0</td></tr>
+                                        <tr><td class="S5233">近12月，单笔(20000,+]:交易 总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>0</td></tr>
+                                        <tr><td class="S5234">近6月，单笔(0,200]:借记卡交 易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5235">近6月，单笔(200,600]:借记卡 交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5236">近6月，单笔(600,1000]:借记 卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5237">近6月，单笔(1000,5000]:借记 卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5238">近6月，单笔(5000,20000]:借 记卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5239">近6月，单笔(20000,+]:借记卡 交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5086">近12月，单笔（0，10]:借记卡 交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5087">近12月，单笔（10，500]:借 记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5088">近12月，单笔（500，1000]: 借记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5089">近12月，单笔（1000，2000]: 借记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5090">近12月，单笔（2000，5000]: 借记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+
+                                        <tr><td class="S5091">近12月，单笔（5000， 10000]:借记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5092">近12月，单笔（10000，+]:借 记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5240">近6月，单笔(0,200]:贷记卡交 易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5241">近6月，单笔(200,600]:贷记卡 交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5242">近6月，单笔(600,1000]:贷记 卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5243">近6月，单笔(1000,5000]:贷记 卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5244">近6月，单笔(5000,20000]:贷 记卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5245">近6月，单笔(20000,+]:贷记卡 交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5093">近12月，单笔（0，10]:贷记卡 交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5094">近12月，单笔（10，500]:贷 记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5095">近12月，单笔（500，1000]: 贷记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5096">近12月，单笔（1000，2000]: 贷记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5097">近12月，单笔（2000,5000]: 贷记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5098">近12月，单笔（5000， 10000]:贷记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5099">近12月，单笔（10000，+]:贷 记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5282">每月出账交易总金额枚举</td><td>近24月</td><td>商户支出交易枚举（如：撤销、退货等）</td><td>0</td></tr>
+                                        <tr><td class="S5284">近6月出账交易总金额</td><td>近6月</td><td>商户支出交易总计（如：撤销、退货等）</td><td>0</td></tr>
+                                        <tr><td class="S5283">每月出账交易总笔数枚举</td><td>近24月</td><td>商户支出交易枚举（如：撤销、退货等）</td><td>0</td></tr>
+                                        <tr><td class="S5285">近6月出账交易总笔数</td><td>近6月</td><td>商户支出交易总计（如：撤销、退货等）</td><td>0</td></tr>
+                                        <tr><td class="S5263">交易金额前五的客户的金额占比</td><td>近12月</td><td>交易金额排名前五的客户，其交易总金额占商户总金额的比</td><td>0</td></tr>
+
+                                        <tr><td class="S5264">交易金额前五的客户的笔数占比</td><td>近12月</td><td>交易金额排名前五的客户</td><td>0</td></tr>
+                                        <tr><td class="S5179">近1周交易金额TOP10客户，各客户交易总金额枚举</td><td>近1周</td><td>交易金额TOP10客户，各客户金额枚举</td><td>0</td></tr>
+                                        <tr><td class="S5186">近1月交易金额TOP10客户，各客户交易总金额枚举</td><td>近1月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>0</td></tr>
+                                        <tr><td class="S5187">近3月交易金额TOP10客户，各客户交易总金额枚举</td><td>近3月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>0</td></tr>
+                                        <tr><td class="S5188">近6月交易金额TOP10客户，各客户交易总金额枚举</td><td>近6月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>0</td></tr>
+                                        <tr><td class="S5189">近12月交易金额TOP10客户，各客户交易总金额枚举</td><td>近12月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>0</td></tr>
+                                        <tr><td class="S5190">近2年交易金额TOP10客户，各客户交易总金额枚举</td><td>近24月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>0</td></tr>
+                                        <tr><td class="S5180">近1周交易整数金额的次数</td><td>近1周</td><td>近1周交易整数金额的次数</td><td>0</td></tr>
+                                        <tr><td class="S5191">近1月交易整数金额的次数</td><td>近1月</td><td>近1月交易整数金额的次数</td><td>0</td></tr>
+                                        <tr><td class="S5192">近3月交易整数金额的次数</td><td>近3月</td><td>近3月交易整数金额的次数</td><td>0</td></tr>
+                                        <tr><td class="S5193">近6月交易整数金额的次数</td><td>近6月</td><td>近6月交易整数金额的次数</td><td>0</td></tr>
+                                        <tr><td class="S5194">近12月交易整数金额的次数</td><td>近12月</td><td>近12月交易整数金额的次数</td><td>0</td></tr>
+                                        <tr><td class="S5195">近两年交易整数金额的次数</td><td>近24月</td><td>近两年交易整数金额的次数</td><td>0</td></tr>
+                                        <tr><td class="S5079">近12月，非正常大额（单笔金 额大于本市同行排名前10%）交易金额</td><td>近12月</td><td>同地区同行业单笔交易额的排 名10%金额为临界值，单笔大 于该临界值的交易金额总和</td><td>0</td></tr>
+                                        <tr><td class="S5080">近12月，非正常大额（单笔金 额大于本市同行排名前10%）交易笔数</td><td>近12月</td><td>同地区同行业单笔交易额的排 名10%金额为临界值，单笔大 于该临界值的交易笔数总和</td><td>0</td></tr>
+                                        <tr><td class="S5155">近1月单日同卡多笔等额消费金额</td><td>近1月</td><td>去除单笔10元以下交易后，统 计近1月，单日交易3笔以上的 卡等额消费金额</td><td>0</td></tr>
+                                        <tr><td class="S5156">近6月单日同卡多笔等额消费金额</td><td>近6月</td><td>去除单笔10元以下交易后，统 计近6月，单日交易3笔以上的 卡等额消费金额</td><td>0</td></tr>
+                                        <tr><td class="S5157">近12月单日同卡多笔等额消费金额</td><td>近12月</td><td>去除单笔10元以下交易后，统 计近12月，单日交易3笔以上 的卡等额消费金额</td><td>0</td></tr>
+                                        <tr><td class="S5158">近1月单日同卡多笔等额消费笔数</td><td>近1月</td><td>去除单笔10元以下交易后，统 计近1月，单日交易3笔以上的 卡等额消费笔数</td><td>0</td></tr>
+                                        <tr><td class="S5159">近6月单日同卡多笔等额消费笔数</td><td>近6月</td><td>去除单笔10元以下交易后，统 计近6月，单日交易3笔以上的 卡等额消费笔数</td><td>0</td></tr>
+
+                                        <tr><td class="S5160">近12月单日同卡多笔等额消费笔数</td><td>近12月</td><td>去除单笔10元以下交易后，统计近12月，单日交易3笔以上的卡等额消费笔数</td><td>0</td></tr>
+                                        <tr><td class="S5161">近12月单月同卡大额交易金额枚举</td><td>近12月</td><td>统计当月消费5笔以上的卡，单笔交易金额大于等于5000元的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5162">近12月单月同卡大额交易笔数枚举</td><td>近12月</td><td>统计当月消费5笔以上的卡，单笔交易金额大于等于5000元的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5163">近12月单月非同卡大额交易金额枚举</td><td>近12月</td><td>统计当月消费5笔以下的卡，单笔交易金额大于等于5000元的交易总额</td><td>0</td></tr>
+                                        <tr><td class="S5164">近12月单月非同卡大额交易笔数枚举</td><td>近12月</td><td>统计当月消费5笔以下的卡，单笔交易金额大于等于5000元的交易笔数</td><td>0</td></tr>
+                                        <tr><td class="S5149">近1月单日同卡多笔消费次数</td><td>近1月</td><td>去除单笔10元以下交易后，统计近1月，单日交易3笔以上的卡，其消费总笔数</td><td>0</td></tr>
+                                        <tr><td class="S5150">近6月单日同商户多笔消费次数</td><td>近6月</td><td>去除单笔10元以下交易后，统计近6月，单日交易3笔以上的卡，其消费总笔数</td><td>0</td></tr>
+                                        <tr><td class="S5151">近12月单日同商户多笔消费次数</td><td>近12月</td><td>去除单笔10元以下交易后，统计近12月，单日交易3笔以上的卡，其消费总笔数</td><td>0</td></tr>
+                                        <tr><td class="S5152">近1月同商户多笔消费最小时间间隔</td><td>近1月</td><td>去除单笔10元以下交易后，该商户下同一张卡刷卡两次以上的最小时间间隔</td><td>0</td></tr>
+                                        <tr><td class="S5153">近6月同商户多笔消费最小时间间隔</td><td>近6月</td><td>去除单笔10元以下交易后，该商户下同一张卡刷卡两次以上的最小时间间隔</td><td>0</td></tr>
+                                        <tr><td class="S5154">近12月同商户多笔消费最小时间间隔</td><td>近12月</td><td>去除单笔10元以下交易后，该商户下同一张卡刷卡两次以上的最小时间间隔</td><td>0</td></tr>
+                                        <tr><td class="S5148">每月交易失败总金额枚举</td><td>近12月</td><td>每月交易失败总金额枚举</td><td>0</td></tr>
+                                        <tr><td class="S5149">每月交易失败总笔数枚举</td><td>近12月</td><td>每月交易失败总笔数枚举</td><td>0</td></tr>
+                                        <tr><td class="S5150">每月交易失败原因枚举</td><td>近12月</td><td>每月失败交易原因，以及该原因对应的金额枚举</td><td>0</td></tr>
+                                        <tr><td class="S5151">近12月，交易失败总金额</td><td>近12月</td><td>失败交易总金额</td><td>0</td></tr>
+                                        <tr><td class="S5152">近12月，交易失败总笔数</td><td>近12月</td><td>失败交易总笔数</td><td>0</td></tr>
+                                        <tr><td class="S5169">每月贷记卡交易总金额枚举</td><td>近12月</td><td>在该商户消费过的贷记卡金额枚举</td><td>0</td></tr>
+                                        <tr><td class="S5170">每月贷记卡交易总笔数枚举</td><td>近12月</td><td>在该商户消费过的贷记卡笔数枚举</td><td>0</td></tr>
+                                        <tr><td class="S5007">每月贷记卡笔单价枚举（10元 以上）</td><td>近12月</td><td>剔除交易金额最高的一笔及10元及以下的交易后，贷记卡每月笔单价枚举</td><td>0</td></tr>
+                                        <tr><td class="S5274">贷记卡交易总金额</td><td>近12月</td><td>贷记卡交易总金额</td><td>0</td></tr>
+
+                                        <tr><td class="S5275">贷记卡交易总笔数</td><td>近12月</td><td>贷记卡交易总笔数</td><td>0</td></tr>
+                                        <tr><td class="S5279">贷记卡交易总卡数</td><td>近12月</td><td>近6月，在该商户消费过的贷记卡数量</td><td>0</td></tr>
+                                        <tr><td class="S5276">贷记卡交易金额占比</td><td>近12月</td><td>该商户下，贷记卡交易总金额占商户总交易金额的比例</td><td>0</td></tr>
+                                        <tr><td class="S5287">贷记卡交易笔数占比</td><td>近12月</td><td>该商户下，贷记卡交易总笔数占商户总交易笔数的比例</td><td>0</td></tr>
+                                        <tr><td class="S5267">借记卡交易金额枚举</td><td>近12月</td><td>在该商户消费过的借记卡金额枚举</td><td>0</td></tr>
+                                        <tr><td class="S5268">借记卡交易笔数枚举</td><td>近12月</td><td>在该商户消费过的借记卡笔数枚举</td><td>0</td></tr>
+                                        <tr><td class="S5008">每月借记卡笔单价枚举（10元 以上）</td><td>近12月</td><td>剔除交易金额最高的一笔及10元及以下的交易后，借记卡每月笔单价枚举</td><td>0</td></tr>
+                                        <tr><td class="S5271">借记卡交易笔数枚举</td><td>近12月</td><td>借记卡交易笔数枚举</td><td>0</td></tr>
+                                        <tr><td class="S5272">借记卡的交易总笔数</td><td>近12月</td><td>借记卡的交易总笔数</td><td>0</td></tr>
+                                        <tr><td class="S5280">借记卡交易总卡数</td><td>近12月</td><td>近6月，在该商户消费过的借记卡数量</td><td>0</td></tr>
+                                        <tr><td class="S5273">借记卡交易金额占比</td><td>近12月</td><td>该商户下，借记卡交易总金额占商户总交易金额的比例</td><td>0</td></tr>
+                                        <tr><td class="S5286">借记卡交易笔数占比</td><td>近12月</td><td>该商户下，借记卡交易总笔数占商户总交易笔数的比例</td><td>0</td></tr>
+                                        <tr><td class="S5278">贷记卡借记卡客单价比例</td><td>近12月</td><td>贷记卡客单价与借记卡客单价的比例</td><td>0</td></tr>
+                                        <tr><td class="S5277">贷记卡借记卡交易笔数比例</td><td>近12月</td><td>贷记卡交易笔数与借记卡交易笔数的比例</td><td>0</td></tr>
+                                        <tr><td class="S5012">每月贷记卡借记卡交易笔数比例枚举（10元以上）</td><td>近12月</td><td>贷记卡交易笔数与借记卡交易笔数的比例，每月枚举</td><td>0</td></tr>
+                                        <tr><td class="S5253">贷记卡交易失败比例</td><td>近12月</td><td>全部失败交易中，贷记卡失败的比例</td><td>0</td></tr>
+                                        <tr><td class="S5208">夜消费交易总金额</td><td>近6月</td><td>22:00-5:00期间的交易总金额</td><td>0</td></tr>
+                                        <tr><td class="S5209">夜消费交易总笔数</td><td>近6月</td><td>22:00-5:00期间的交易总笔数</td><td>0</td></tr>
+                                        <tr><td class="S5281">疑似信用卡套现甄别</td><td>近12月</td><td>套现金额；套现笔数;套现金额占比</td><td>0</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <!--结果-->
+                            <div class="panel panel-info input-panel" ng-show="resultSwitch">
+                                <div class="panel-heading">
+                                    <span style="color: #474747;">查询结果</span>
+                                </div>
+                                <!--企业法院判决简项0-->
+                                <div ng-show="risksList[0].resultActive">
+                                    <table ng-if="otherMsg0" class="table-border-style grid_table">
+                                        <tr><td width="80%">{{resultMsg0}}</td></tr>
+                                    </table>
+                                    <table ng-if="dataMsg0" class="table-border-style grid_table">
+                                        <tr><td width="50%">裁判文书数据条数</td><td width="50%">	{{resultMsg0.totalCount}}</td></tr>
+                                        <tbody ng-repeat="(index,value) in resultMsg0.docList">
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">信息{{index+1}}</th></tr>
+                                        <tr><td width="40%">裁判文书编号</td><td width="40%">{{value.docId}}</td></tr>
+                                        <tr><td>审结时间</td><td>{{value.concludeTimeString}}</td></tr>
+                                        <tr><td>标题</td><td>{{value.title}}</td></tr>
+                                        <tr><td>内容</td><td>{{value.content}}</td></tr>
+                                        <tr><td>数据类型</td><td>{{value.dataType}}</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!--企业法院失信简项1-->
+                                <div ng-show="risksList[1].resultActive">
+                                    <table ng-if="otherMsg1" class="table-border-style grid_table">
+                                        <tr><td width="80%">{{resultMsg1}}</td></tr>
+                                    </table>
+                                    <table ng-if="dataMsg1" class="table-border-style grid_table">
+                                        <tr><td width="40%">失信公告数据条数</td><td width="40%">{{resultMsg1.count}}</td></tr>
+                                        <tbody ng-repeat="(index,value) in resultMsg1.dishonestyList">
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">信息{{index+1}}</th></tr>
+                                        <tr><td>失信公告编号</td><td>	{{value.id}}</td></tr>
+                                        <tr><td>立案时间</td><td>{{value.caseTime}}</td></tr>
+                                        <tr><td>标题</td><td>{{value.title}}</td></tr>
+                                        <tr><td>内容</td><td>{{value.content}}</td></tr>
+                                        <tr><td>数据类型</td><td>{{value.dataType}}</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!--企业工商信息查询2-->
+                                <div ng-show="risksList[2].resultActive">
+                                    <table ng-if="otherMsg2" class="table-border-style grid_table">
+                                        <tr><td width="80%">{{resultMsg2}}</td></tr>
+                                    </table>
+                                    <table ng-if="dataMsg2" class="table-border-style grid_table">
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">企业基本信息</th></tr>
+                                        <tr><td>工司名称</td><td>{{resultMsg2.basic.name}}</td></tr>
+                                        <tr><td>工司类型</td><td>{{resultMsg2.basic.type}}</td></tr>
+                                        <tr><td>注册资本</td><td>{{resultMsg2.basic.regcapital}}</td></tr>
+                                        <tr><td>经营范围</td><td>{{resultMsg2.basic.scope}}</td></tr>
+                                        <tr><td>经营起始日期</td><td>{{resultMsg2.basic.startdate}}</td></tr>
+                                        <tr><td>经营终止日期</td><td>{{resultMsg2.basic.enddate}}</td></tr>
+                                        <tr><td>登记机关</td><td>{{resultMsg2.basic.regorgan}}</td></tr>
+                                        <tr><td>法人代表</td><td>{{resultMsg2.basic.legalperson}}</td></tr>
+                                        <tr><td>核准日期</td><td>{{resultMsg2.basic.approvaldate}}</td></tr>
+                                        <tr><td>注册日期</td><td>{{resultMsg2.basic.regdate}}</td></tr>
+                                        <tr><td>注销日期</td><td>{{resultMsg2.basic.canceldate}}</td></tr>
+                                        <tr><td>登记状态</td><td>{{resultMsg2.basic.status}}</td></tr>
+                                        <tr><td>组织结构代码</td><td>{{resultMsg2.basic.orgno}}</td></tr>
+                                        <tr><td>统一信用代码</td><td>{{resultMsg2.basic.creditno}}</td></tr>
+                                        <tr><td>省份</td><td>{{resultMsg2.basic.province}}</td></tr>
+                                        <tr><td>注册号</td><td>{{resultMsg2.basic.regno}}</td></tr>
+                                        <tr><td>注册地址</td><td>{{resultMsg2.basic.regaddress}}</td></tr>
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">管理人员</th></tr>
+                                        <tbody ng-repeat="(index,value) in resultMsg2.keyperson">
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">信息{{index+1}}</th></tr>
+                                        <tr><td  width="40%">法定代表人/负责人/执行事务合伙人</td><td width="40%">{{value.name}}</td></tr>
+                                        <tr><td>职位</td><td>{{value.position}}</td></tr>
+                                        </tbody>
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">变更记录</th></tr>
+                                        <tbody ng-repeat="(index1,value1) in resultMsg2.changerecord">
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">信息{{index1+1}}</th></tr>
+                                        <tr><td>变更名称</td><td>{{value1.name}}</td></tr>
+                                        <tr><td>变更前内容</td><td>{{value1.beforecontent}}</td></tr>
+                                        <tr><td>变更后内容</td><td>{{value1.aftercontent}}</td></tr>
+                                        <tr><td>变更日期</td><td>{{value.changedate}}</td></tr>
+                                        </tbody>
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">股东出资信息</th></tr>
+                                        <tbody ng-repeat="(index2,value2) in resultMsg2.shareholder">
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">信息{{index2+1}}</th></tr>
+                                        <tr><td>人员姓名</td><td>{{value2.name}}</td></tr>
+                                        <tr><td>类型</td><td>{{value2.type}}</td></tr>
+                                        <tr><td>证件类型</td><td>{{value2.cardtype}}</td></tr>
+                                        <tr><td>证件号码</td><td>{{value2.cardno}}</td></tr>
+                                        <tr><td>认缴资本</td><td>{{value2.subcapital}}</td></tr>
+                                        <tr><td>实付资本</td><td>{{value2.paidcapital}}</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!--商户账单真伪验证3-->
+                                <div ng-show="risksList[3].resultActive">
+                                    <table ng-if="otherMsg3" class="table-border-style grid_table">
+                                        <tr><td width="80%">{{resultMsg3}}</td></tr>
+                                    </table>
+                                    <table ng-if="dataMsg3" class="table-border-style grid_table" ng-repeat="(index,value) in resultMsg3">
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">信息{{index+1}}</th></tr>
+                                        <tr><td  width="40%">交易时间</td><td width="40%">{{value.transTime}}</td></tr>
+                                        <tr><td>交易金额（单位分）</td><td>{{value.transAmount}}</td></tr>
+                                        <tr><td>银行卡</td><td>{{value.card}}</td></tr>
+                                    </table>
+                                </div>
+                                <!--POS易交账动4-->
+                                <div ng-show="risksList[4].resultActive">
+                                    <table ng-if="otherMsg4" class="table-border-style grid_table">
+                                        <tr><td  width="80%">{{resultMsg4}}</td></tr>
+                                    </table>
+                                    <table ng-if="dataMsg4" class="table-border-style grid_table">
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">核心经营指标</th></tr>
+                                        <tr><td width="40%">首次交易日期</td><td width="40%">{{resultMsg4.indexCore.firstTransDate}}</td></tr>
+                                        <tr><td>有效交易 POS 终端台数</td><td>{{resultMsg4.indexCore.effectivePosNum}}</td></tr>
+                                        <tr><td>交易总金额</td><td>{{resultMsg4.indexCore.totalAmount}}</td></tr>
+                                        <tr><td>交易总卡数（原是总人数）</td><td>{{resultMsg4.indexCore.totalCardNum}}</td></tr>
+                                        <tr><td>交易总笔数</td><td>{{resultMsg4.indexCore.totalCount}}</td></tr>
+                                        <tr><td>月均交易天数</td><td>{{resultMsg4.indexCore.avgTransDay}}</td></tr>
+                                        <tr><td>笔单价</td><td>{{resultMsg4.indexCore.countPrice}}</td></tr>
+                                        <tr><td>客单价</td><td>{{resultMsg4.indexCore.cusPrice}}</td></tr>
+                                        <tr><td>近12月单月最大交易金额 </td><td>{{resultMsg4.indexCore.transMaxAmount}}</td></tr>
+                                        <tr><td>近12月单月最小交易金额 </td><td>{{resultMsg4.indexCore.transMinAmount}}</td></tr>
+                                        <tr><td>近12月法定节假日交易金额占比 </td><td>{{resultMsg4.indexCore.holidayTransAmountPercent}}</td></tr>
+                                        <tr><td>近12月法定节假日交易笔数占比</td><td>{{resultMsg4.indexCore.holidayTransCountPercent}}</td></tr>
+                                        <tr><td>近12月卡均交易次数 </td><td>{{resultMsg4.indexCore.avgCardTransCount}}</td></tr>
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">核心经营指标</th></tr>
+                                        <tr><td>近24周低于周均交易额的周数</td><td>{{resultMsg4.indexStability.underAvgWeekAmountNum}}</td></tr>
+                                        <tr><td>三个月移动平均交易金额变异系数</td><td>{{resultMsg4.indexStability.transAmountCv}}</td></tr>
+                                        <tr><td>三个月移动平均交易卡数变异系数</td><td>{{resultMsg4.indexStability.transCardNumCv}}</td></tr>
+                                        <tr><td>三个月移动平均交易笔数变异系数 </td><td>{{resultMsg4.indexStability.transCountCv}}</td></tr>
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">异常经营指标</th></tr>
+                                        <tr><td>反向交易总金额</td><td>{{resultMsg4.indexAbnormal.reverseTransTotalAmount}}</td></tr>
+                                        <tr><td>反向交易总笔数</td><td>{{resultMsg4.indexAbnormal.reverseTransTotalCount}}</td></tr>
+                                        <tr><td>近12月交易金额前五的客户的金额占比</td><td>{{resultMsg4.indexAbnormal.transAmountTop5Percent}}</td></tr>
+                                        <tr><td>近12月交易金额前五的客户的笔数占比 </td><td>{{resultMsg4.indexAbnormal.transCountTop5Percent}}</td></tr>
+                                        <tr><td>贷记卡的交易总金额占比</td><td>{{resultMsg4.indexAbnormal.debitCardTotalAmountPercent}}</td></tr>
+                                        <tr><td>贷记卡的交易总笔数占比</td><td>{{resultMsg4.indexAbnormal.debitCardTotalCountPercent}}</td></tr>
+                                        <tr><td>非正常时间的交易总金额占比</td><td>{{resultMsg4.indexAbnormal.improperTransAmountPercent}}</td></tr>
+                                        <tr><td>非正常时间的交易总笔数占比</td><td>{{resultMsg4.indexAbnormal.improperTransCountPercent}}</td></tr>
+                                        <tr><td>同卡大额交易金额汇总</td><td>{{resultMsg4.indexAbnormal.cardLargeTotalAmount}}</td></tr>
+                                        <tr><td>同卡大额交易笔数汇总</td><td>{{resultMsg4.indexAbnormal.cardLargeTotalCount}}</td></tr>
+                                        <tr><td>非正常交易卡交易金额汇总</td><td>{{resultMsg4.indexAbnormal.improperTransTotalAmount}}</td></tr>
+                                        <tr><td>非正常交易卡交易笔数汇总</td><td>{{resultMsg4.indexAbnormal.improperTransTotalCount}}</td></tr>
+                                        <tr><td>交易失败总金额</td><td>{{resultMsg4.indexAbnormal.transFailedTotalAmount}}</td></tr>
+                                        <tr><td>交易失败总笔数</td><td>{{resultMsg4.indexAbnormal.transFailedTotalCount}}</td></tr>
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">疑似信用卡套现甄别</th></tr>
+                                        <tr><td>套现金额</td><td>{{resultMsg4.cashOut.cashAmount}}</td></tr>
+                                        <tr><td>套现笔数</td><td>{{resultMsg4.cashOut.cashCount}}</td></tr>
+                                        <tr><td>套现金额占比</td><td>{{resultMsg4.cashOut.cashAmountPercent}}</td></tr>
+                                        <tr><td>套现笔数占比</td><td>{{resultMsg4.cashOut.cashCountPercent}}</td></tr>
+                                        <tr><td>信用卡、借记卡客单价比例</td><td>{{resultMsg4.cashOut.debitCreditCusPricePercent}}</td></tr>
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">疑似信用卡套现甄别</th></tr>
+                                        <tr><td>每月交易金额</td><td>{{resultMsg4.indexChange.transAmount}}</td></tr>
+                                        <tr><td>每月交易金额同比增长率</td><td>{{resultMsg4.indexChange.transAmountFellPercent}}</td></tr>
+                                        <tr><td>每月交易金额在本市同行业的排名</td><td>{{resultMsg4.indexChange.transAmountPeerRank}}</td></tr>
+                                        <tr><td>每月交易笔数 </td><td>{{resultMsg4.indexChange.transCount}}</td></tr>
+                                        <tr><td>每月交易笔数同比增长率 </td><td>{{resultMsg4.indexChange.transCountFellPercent}}</td></tr>
+                                        <tr><td>每月交易笔数在本市同行业的排名</td><td>{{resultMsg4.indexChange.transCountPeerRank}}</td></tr>
+                                        <tr><td>每月交易卡数</td><td>{{resultMsg4.indexChange.transCardNum}}</td></tr>
+                                        <tr><td>每月交易卡数在本市同行业的排名</td><td>{{resultMsg4.indexChange.transCardNumPeerRank}}</td></tr>
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">每周经营状况</th></tr>
+                                        <tr><td>每周交易金额</td><td>{{resultMsg4.indexContrast.transAmount}}</td></tr>
+                                        <tr><td>每周交易笔数</td><td>{{resultMsg4.indexContrast.transCount}}</td></tr>
+                                        <tr><td>周交易额中值</td><td>{{resultMsg4.indexContrast.transMidAmount}}</td></tr>
+                                        <tr><td>周均交易金额</td><td>{{resultMsg4.indexContrast.transAvgAmount}}</td></tr>
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">客户忠诚度分析</th></tr>
+                                        <tr><td>交易金额占比</td><td>{{resultMsg4.indexLoyalty.transAmountPercent}}</td></tr>
+                                        <tr><td>交易笔数占比 </td><td>{{resultMsg4.indexLoyalty.transCountPercent }}</td></tr>
+                                        <tr><td>交易人数占比</td><td>{{resultMsg4.indexLoyalty.transCusNumPercent}}</td></tr>
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">客户地域分布</th></tr>
+                                        <tr><td>交易金额占比</td><td>{{resultMsg4.indexArea.transAmountPercent}}</td></tr>
+                                        <tr><td>交易笔数占比</td><td>{{resultMsg4.indexArea.transCountPercent}}</td></tr>
+                                        <tr><td>交易人数占比</td><td>{{resultMsg4.indexArea.transCusNumPercent}}</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col col-sm-3" style="padding: 0">
+        <div class="vbox">
+            <!--<div class="wrapper-md bg-light lter b-b clearfix">-->
+            <!--<div class="font-thin h4">个人智能查询</div>-->
+            <!--</div>-->
+            <div class="row-row">
+                <div class="cell">
+                    <div class="cell-inner">
+                        <div class="wrapper-md">
+                            <div class="panel b-a input-panel" style="margin-bottom: 0">
+                                <div class="wrapper bg-light">
+                                    <div class="font-thin h4">
+                                        信息查询总览
+                                    </div>
+                                </div>
+                                <table class="table table-hover table-condensed">
+                                    <tr>
+                                        <td>
+
+                                        </td>
+                                        <td style="border-top: none;">
+                                            <input type="checkbox" ng-model="Allchoice"
+                                                   ng-click="allSelect()" class="checkboxsStyle m-n">
+                                            <span class="allselectStyle">全选</span>
+                                        </td>
+                                    </tr>
+                                    <tr ng-repeat="list in risksList">
+                                        <td style="border-top: none;">
+                                            <div>
+                                                <input type="checkbox" ng-model="list.active"
+                                                       ng-click="selectOne(list.active)" class="v-middle m-n">
+                                                <span class="v-middle">{{list.name}}</span>
+                                            </div>
+                                        </td>
+                                        <td style="border-top: none;">
+                                            <span>{{list.price}}</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div class="panel-footer">
+                                    <span style="font-size: 16px;font-weight: 400">价格总计：￥{{totalMoney}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

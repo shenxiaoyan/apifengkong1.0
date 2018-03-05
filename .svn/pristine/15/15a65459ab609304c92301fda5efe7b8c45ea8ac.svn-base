@@ -1,0 +1,22 @@
+package apifengkong.entity;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+public interface APISearchLogRepository extends JpaRepository<APISearchLog, Integer> {
+	APISearchLog findFirstByApiAndParametersOrderByCreateTimeDesc(SupplyAPI api,String parameters);
+	//员工消费积分
+	@Query(value="select l.user.username,SUM(l.price) from #{#entityName} l where l.user.role.name!='ROLE_ADMIN' group by l.user")
+	List<?> getStuffConsumReport();
+	//接口数量报表
+	@Query(value="select l.api.name , count(l.api.id) from #{#entityName} l where l.customer.id=? group by l.api.id ")
+	List<?> getAPICount(Integer customerId);
+		
+	//本人消费报表
+	@Query(value="select l from #{#entityName} l where l.user.id=?")
+	List<APISearchLog> getSelfConsum(Integer userId);
+}
+
+

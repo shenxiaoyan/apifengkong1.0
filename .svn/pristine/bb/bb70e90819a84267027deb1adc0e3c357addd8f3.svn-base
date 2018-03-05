@@ -1,0 +1,600 @@
+package apifengkong.service;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
+
+import javax.annotation.PostConstruct;
+
+import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moxie.api.DefaultMoxieClient;
+import com.moxie.api.MoxieClient;
+import com.moxie.api.MoxieRequest;
+import com.moxie.api.MoxieResponse;
+import com.moxie.api.domain.Authorization;
+import com.moxie.api.domain.MoxieApiException;
+import com.moxie.api.http.HttpClient;
+import com.moxie.api.http.HttpClientConfig;
+import com.moxie.api.http.HttpMethod;
+
+import apifengkong.entity.APISearchLog;
+import apifengkong.entity.APISearchLogRepository;
+import apifengkong.entity.CompanyRepository;
+import apifengkong.entity.PersonLoan;
+import apifengkong.entity.PersonLoanRepository;
+import apifengkong.entity.SupplyAPI;
+import apifengkong.entity.SupplyAPIRepository;
+import apifengkong.util.AliyunCallable;
+import apifengkong.util.Common.API;
+import apifengkong.util.Common.Color;
+import apifengkong.util.Common.Response;
+import apifengkong.util.Important;
+import apifengkong.util.JsonTools;
+import apifengkong.util.YoufenCallable;
+
+@Service
+public class FetchService {
+
+	private static Logger logger = Logger.getLogger(FetchService.class);
+
+	@Autowired
+	private APISearchLogRepository apiSearchLogRepository;
+	@Autowired
+	private CompanyRepository companyRepository;
+	@Autowired
+	private ParameterService parameterService;
+	@Autowired
+	private SupplyAPIRepository supplyAPIRepository;
+	@Autowired
+	private CacheManager cacheManager;
+
+	@Autowired
+	private PersonLoanRepository personLoanRepository;
+	
+	@Autowired
+	private ZhimaService zhimaService;
+	@Autowired
+	private AnalysisService analysisService;
+	
+	private static HttpClient httpClient;
+	private static Authorization authorization;
+
+	@Value("${mojie.api.key}")
+	private String apiKey;
+	@Value("${mojie.api.token}")
+	private String token;
+	
+	
+	@PostConstruct
+	public void initHttpClient() {
+		HttpClientConfig httpClientConfig = HttpClientConfig.custom().setMaxTotal(100).setDefaultMaxPerRoute(2)
+				.setConnectTimeout(30 * 100).setConnectionRequestTimeout(30 * 100).setSocketTimeout(30 * 100).build();
+		httpClient = new HttpClient(httpClientConfig.getRequestConfig(), httpClientConfig.getPool());
+		authorization = Authorization.AuthorizationBuilder.newBuilder().withApiKey(apiKey).withToken(token).build();
+	}
+	
+	
+	@Async
+	public Future<Map> asyncFetchIdCard(Important savePerson) {
+		String idCard = savePerson.getIdCard();
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8034);
+		API api = new API();
+		api.setSupplyAPI(supplyApi);
+		api.getParameters().put("idcard", idCard);
+
+		Map fromCache = getCache(api);
+		if (fromCache != null) {
+			logger.info("缓存查询idCard");
+		} else {
+			logger.info("即时查询idCard");
+			AliyunCallable aliyunCallable = new AliyunCallable(api.getSupplyAPI(), new HashMap<String, String>(),
+					api.getParameters(), new HashMap<String, String>());
+			fromCache = aliyunCallable.call();
+			putCache(api, fromCache);
+		}
+		return new AsyncResult<Map>(fromCache);
+
+	}
+	@Async
+	public Future<Map> asyncFetchAntifraud(Important savePerson) {
+		String mobile = savePerson.getMobile();
+		String address = savePerson.getCommonAddress();
+		String name = savePerson.getName();
+		String bankCard = savePerson.getBankCard();
+		String certNo = savePerson.getIdCard();
+		String certType = "IDENTITY_CARD";
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8061);
+		API api = new API();
+		api.setSupplyAPI(supplyApi);
+		api.getParameters().put("mobile", mobile);
+		api.getParameters().put("address", address);
+		api.getParameters().put("name", name);
+		api.getParameters().put("bankCard", bankCard);
+		api.getParameters().put("certNo", certNo);
+		api.getParameters().put("certType", certType);
+
+		Map fromCache = getCache(api);
+		if (fromCache != null) {
+			logger.info("缓存查询Antifraud");
+		} else {
+			logger.info("即时查询Antifraud");
+			fromCache = zhimaService.antifraud(api);
+			putCache(api, fromCache);
+		}
+		return new AsyncResult<Map>(fromCache);
+	}
+	
+	@Async
+	public Future<Map> asyncFetchWatchlist(Important savePerson) {
+		String name = savePerson.getName();
+		String certNo = savePerson.getIdCard();
+		String certType = "IDENTITY_CARD";
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8062);
+		API api = new API();
+		api.setSupplyAPI(supplyApi);
+		api.getParameters().put("name", name);
+		api.getParameters().put("certNo", certNo);
+		api.getParameters().put("certType", certType);
+
+		Map fromCache = getCache(api);
+		if (fromCache != null) {
+			logger.info("缓存查询Antifraud");
+		} else {
+			logger.info("即时查询Antifraud");
+			fromCache = zhimaService.watchlist(api);
+			putCache(api, fromCache);
+		}
+		return new AsyncResult<Map>(fromCache);
+	}
+	
+	@Async
+	public Future<Map> asyncFetchZhimaScore(Important savePerson) {
+		String idCard = savePerson.getIdCard();
+		String name = savePerson.getName();
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8060);
+		API api = new API();
+		api.setSupplyAPI(supplyApi);
+		api.getParameters().put("idcard", idCard);
+		api.getParameters().put("name", name);
+
+		Map fromCache = getCache(api);
+		if (fromCache != null) {
+			logger.info("缓存查询zhimascore");
+		} else {
+			logger.info("即时查询zhimascore");
+			
+			fromCache = zhimaService.zhimaScore(api);
+			System.out.println(fromCache);
+			
+			putCache(api, fromCache);
+		}
+		return new AsyncResult<Map>(fromCache);
+
+	}
+	
+
+	@Async
+	public Future<Map> asyncFetchCellphone(Important savePerson) {
+		String mobile = savePerson.getMobile();
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8001);
+		API api = new API();
+		api.setSupplyAPI(supplyApi);
+		api.getParameters().put("mobile", mobile);
+		Map fromCache = getCache(api);
+		if (fromCache != null) {
+			logger.info("缓存查询Cellphone");
+		} else {
+			logger.info("即时查询Cellphone");
+			AliyunCallable aliyunCallable = new AliyunCallable(api.getSupplyAPI(), new HashMap<String, String>(),
+					api.getParameters(), new HashMap<String, String>());
+			fromCache = aliyunCallable.call();
+			putCache(api, fromCache);
+		}
+		return new AsyncResult<Map>(fromCache);
+	}
+
+	@Async
+	public Future<Map> asyncFetchDishonestBlacklist(Important savePerson) {
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8028);
+		API api = new API();
+		api.setSupplyAPI(supplyApi);
+		api.getParameters().put("name", savePerson.getName());
+		api.getParameters().put("cardno", savePerson.getIdCard());
+		api.getParameters().put("type", "person");
+
+		Map fromCache = getCache(api);
+		if (fromCache != null) {
+			logger.info("缓存查询DishonestBlacklist");
+		} else {
+			logger.info("即时查询DishonestBlacklist");
+			AliyunCallable aliyunCallable = new AliyunCallable(api.getSupplyAPI(), new HashMap<String, String>(),
+					api.getParameters(), new HashMap<String, String>());
+			fromCache = aliyunCallable.call();
+			putCache(api, fromCache);
+		}
+		return new AsyncResult<Map>(fromCache);
+	}
+
+	@Async
+	public Future<Map> asyncFetchCriminal(Important savePerson) {
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8022);
+		API api = new API();
+		api.setSupplyAPI(supplyApi);
+		api.getParameters().put("name", savePerson.getName());
+		api.getParameters().put("idcard", savePerson.getIdCard());
+		Map fromCache = getCache(api);
+		if (fromCache != null) {
+			logger.info("缓存查询Criminal");
+		} else {
+			logger.info("即时查询Criminal");
+			YoufenCallable youfenCallable = new YoufenCallable(api.getSupplyAPI(), new HashMap<String, String>(),
+					api.getParameters(), new HashMap<String, String>());
+			fromCache = youfenCallable.call();
+			putCache(api, fromCache);
+		}
+		return new AsyncResult<Map>(fromCache);
+
+	}
+
+	@Async
+	public Future<Map> asyncFetchEducation(Important savedPersonLoan) {
+
+		if (savedPersonLoan.isEnableEducation() == false) {
+			return new AsyncResult<Map>(null);
+		}
+
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8024);
+		API api = new API();
+		api.setSupplyAPI(supplyApi);
+		api.getParameters().put("name", savedPersonLoan.getName());
+		api.getParameters().put("idcard", savedPersonLoan.getIdCard());
+		Map fromCache = getCache(api);
+		if (fromCache != null) {
+			logger.info("缓存查询Education");
+		} else {
+			logger.info("即时查询Education");
+			YoufenCallable youfenCallable = new YoufenCallable(api.getSupplyAPI(), new HashMap<String, String>(),
+					api.getParameters(), new HashMap<String, String>());
+			fromCache = youfenCallable.call();
+			putCache(api, fromCache);
+		}
+		return new AsyncResult<Map>(fromCache);
+	}
+
+	@Async
+	public Future<Map> asyncFetchMultipleHeadLend(Important savePerson) {
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8006);
+		API api = new API();
+		api.setSupplyAPI(supplyApi);
+		api.getParameters().put("cycle", "12");
+		api.getParameters().put("cellphone", savePerson.getMobile());
+		Map fromCache = getCache(api);
+		if (fromCache != null) {
+			logger.info("缓存查询MultipleHeadLend");
+		} else {
+			logger.info("即时查询MultipleHeadLend");
+			YoufenCallable youfenCallable = new YoufenCallable(api.getSupplyAPI(), new HashMap<String, String>(),
+					api.getParameters(), new HashMap<String, String>());
+			fromCache = youfenCallable.call();
+			putCache(api, fromCache);
+		}
+		return new AsyncResult<Map>(fromCache);
+	}
+	@Async
+	public Future<Map> asyncCourtJudgment(Important savePerson) {
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8012);
+		API api = new API();
+		api.setSupplyAPI(supplyApi);
+		api.getParameters().put("name", savePerson.getName());
+		api.getParameters().put("idcard", savePerson.getIdCard());
+		Map fromCache = getCache(api);
+		if (fromCache != null) {
+			logger.info("缓存查询CourtJudgment");
+		} else {
+			logger.info("即时查询CourtJudgment");
+			YoufenCallable youfenCallable = new YoufenCallable(api.getSupplyAPI(), new HashMap<String, String>(),
+					api.getParameters(), new HashMap<String, String>());
+			fromCache = youfenCallable.call();
+			putCache(api, fromCache);
+		}
+		return new AsyncResult<Map>(fromCache);
+
+	}
+
+	@Async
+	public void asyncCourtJudgmentDetail(Important savePerson, Object result) {
+
+		JSONObject jsonResult = (JSONObject) JSON.toJSON(result);
+		JSONArray docList = jsonResult.getJSONArray("docList");
+		ArrayList<JSONObject> arrayList = new ArrayList<JSONObject>();
+		for (Object object : docList) {
+			arrayList.add((JSONObject) object);
+		}
+		arrayList.sort(new Comparator<JSONObject>() {
+			@Override
+			public int compare(JSONObject o1, JSONObject o2) {
+				int i1 = o1.getInteger("concludeTime");
+				int i2 = o2.getInteger("concludeTime");
+				if (i1 < i2) {
+					return 1;
+				}
+				if (i1 > i2) {
+					return -1;
+				}
+				return 0;
+			}
+		});
+		List<JSONObject> subList = new ArrayList();
+		if (arrayList.size() >= 3) {
+			subList = (ArrayList<JSONObject>) arrayList.subList(0, 2);
+		} else {
+			subList = arrayList;
+		}
+		for (JSONObject jsonObject : subList) {
+			String docId = jsonObject.getString("docId");
+			Map syncCourtJudgmentDetail = syncCourtJudgmentDetail(docId);
+			if (syncCourtJudgmentDetail.get("resCode").toString().equals("0000")) {
+				jsonObject.put("msg", ((HashMap) syncCourtJudgmentDetail.get("data")).get("statusMsg").toString());
+				if (((HashMap) syncCourtJudgmentDetail.get("data")).get("statusCode").toString().equals("2012")) {
+					jsonObject.put("detail", syncCourtJudgmentDetail.get("data"));
+				}
+				logger.info("法院审判细节，正常内容" + syncCourtJudgmentDetail.get("data"));
+
+			} else {
+				jsonObject.put("msg", syncCourtJudgmentDetail.get("resMsg").toString());
+				logger.info("法院审判细节，错误内容" + syncCourtJudgmentDetail.get("resMsg").toString());
+			}
+		}
+		jsonResult.put("docList", arrayList);
+
+		JSONObject object = JSON.parseObject(savePerson.getAnalyseCourtJudgment());
+		object.put("result", jsonResult);
+		PersonLoan findOne = personLoanRepository.findOne(savePerson.getId());
+		findOne.setAnalyseCourtJudgment(JsonTools.toJson(object));
+		personLoanRepository.save(findOne);
+
+	}
+	
+	@Async
+	public void asyncCellphoneRecord(String taskId, PersonLoan savedPersonLoan) {
+		String url = "https://api.51datakey.com/report/status/v1/carrier/status?userName=" + savedPersonLoan.getMobile()
+				+ "&taskId=" + taskId;
+		MoxieRequest moxieRequest = MoxieRequest.custom().setResponseClass(MoxieResponse.class).build();
+
+		// 轮询任务状态处理逻辑
+		long startTime = System.currentTimeMillis();
+		while (true) {
+			if (System.currentTimeMillis() - startTime > 10 * 60 * 1000) { // 超过{timeoutMillis}秒，退出；可根据实际业务情况调整
+				PersonLoan findByMojieTaskId = personLoanRepository.findFirstByMojieTaskOrderByIdDesc(taskId);
+				findByMojieTaskId.setStatus("超时失败");
+				Response res = new Response();
+				res.setColor(Color.info);
+				res.setStatus(400);
+				res.setMsg("取报告，超时失败");
+				findByMojieTaskId.setAnalyseCellphoneLog(JsonTools.toJson(res));
+				personLoanRepository.save(findByMojieTaskId);
+				return;
+			}
+
+			try {
+				Thread.sleep(2000); // 休眠2秒
+			} catch (InterruptedException e) {
+				// ignore
+			}
+
+			System.out.println(String.format(">>> 调用魔蝎URL: %s", url));
+			MoxieClient moxieClient = new DefaultMoxieClient(httpClient, url, authorization.getApiKey());
+			MoxieResponse response = null;
+			try {
+				response = moxieClient.execute(moxieRequest, HttpMethod.GET);
+			} catch (Exception e) {
+				// TODO 调用接口异常, 打印异常日志并记录异常信息, 此异常逻辑忽略
+				MoxieApiException moxieApiException = new MoxieApiException(e);
+				System.out.println("调用魔蝎接口异常: " + moxieApiException.getMessage());
+			}
+
+			if (response == null)
+				continue;
+
+			System.out.println(
+					"查询分析记录，调用魔蝎接口, 响应码: " + response.getResponseCode() + ", 响应结果: " + response.getResponseData());
+
+			JSONObject object = JSON.parseObject(response.getResponseData());
+			if (response.isSuccess()) {
+				if (object.getInteger("code").equals(200)) {
+					break;
+				} else if (object.getInteger("code").equals(0)) {
+
+				} else {
+					PersonLoan findByMojieTaskId = personLoanRepository.findFirstByMojieTaskOrderByIdDesc(taskId);
+					findByMojieTaskId.setStatus("处理失败");
+					String errorDesc = object.getString("message");
+					Response res = new Response();
+					res.setColor(Color.info);
+					res.setStatus(400);
+					res.setMsg(errorDesc);
+					findByMojieTaskId.setAnalyseCellphoneLog(JsonTools.toJson(res));
+					personLoanRepository.save(findByMojieTaskId);
+				}
+			} else {
+				String errorDesc = object.getString("message"); // 获取异常信息
+				System.out.println("查询分析记录，返回结果异常:" + errorDesc);
+				PersonLoan findByMojieTaskId = personLoanRepository.findFirstByMojieTaskOrderByIdDesc(taskId);
+				findByMojieTaskId.setStatus("处理失败");
+				Response res = new Response();
+				res.setColor(Color.info);
+				res.setStatus(400);
+				res.setMsg(errorDesc);
+				findByMojieTaskId.setAnalyseCellphoneLog(JsonTools.toJson(res));
+				personLoanRepository.save(findByMojieTaskId);
+				return;
+			}
+		}
+
+		String linkman1Mobile = savedPersonLoan.getLinkman1Mobile();
+		String linkman1Name = savedPersonLoan.getLinkman1Name();
+		String linkman1Relationship = savedPersonLoan.getLinkman1Relationship();
+
+		String linkman2Mobile = savedPersonLoan.getLinkman2Mobile();
+		String linkman2Name = savedPersonLoan.getLinkman2Name();
+		String linkman2Relationship = savedPersonLoan.getLinkman2Relationship();
+		String name = savedPersonLoan.getName();
+		String idCard = savedPersonLoan.getIdCard();
+
+		url = "https://api.51datakey.com/carrier/v3/mobiles/" + savedPersonLoan.getMobile() + "/mxreport?name=" + name
+				+ "&idcard=" + idCard + "&task_id=" + taskId + "&contact=" + linkman1Mobile + ":" + linkman1Name + ":"
+				+ linkman1Relationship + "," + linkman2Mobile + ":" + linkman2Name + ":" + linkman2Relationship;
+
+		moxieRequest = MoxieRequest.custom().setResponseClass(MoxieResponse.class).build();
+		System.out.println(String.format(">>> 取分析结果，调用魔蝎URL: %s", url));
+
+		MoxieClient moxieClient = new DefaultMoxieClient(httpClient, url, authorization.getToken());
+		MoxieResponse response = null;
+
+		try {
+			response = moxieClient.execute(moxieRequest, HttpMethod.GET);
+			System.out.println("========" + response);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+		JSONObject object = JSON.parseObject(response.getResponseData());
+		int i = 0;
+		while (!response.isSuccess()) {
+			try {
+				Thread.sleep(2 * 1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+			}
+			String errorDesc = object.getString("detail"); // 获取异常信息
+			System.out.println("调用魔蝎接口错误:" + errorDesc);
+			try {
+				response = moxieClient.execute(moxieRequest, HttpMethod.GET);
+				object = JSON.parseObject(response.getResponseData());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+			}
+			i++;
+			if (i > 30) {
+				HashMap<String, Object> o2 = new HashMap<String,Object>();
+				o2.put("color", "GRAY");
+				o2.put("msg", object.getString("detail"));
+				PersonLoan findOne = personLoanRepository.findOne(savedPersonLoan.getId());
+				findOne.setStatus("处理失败");
+				findOne.setAnalyseCellphoneLog(JsonTools.toJson(o2));
+				personLoanRepository.save(findOne);
+				return;
+			}
+		}
+		System.out.println("正确获得分析记录，取得结果再处理");
+		HashMap<String, Object> o3 = new HashMap<String,Object>();
+		o3.put("color", "GREEN");
+		o3.put("result", object);
+		o3.put("description", analysisService.handleCellphoneDescription(object));
+		o3.put("msg", "处理完成");
+		PersonLoan findOne = personLoanRepository.findOne(savedPersonLoan.getId());
+		findOne.setStatus("处理完成");
+		findOne.setAnalyseCellphoneLog(JsonTools.toJson(o3));
+		personLoanRepository.save(findOne);
+
+	}
+	
+
+	
+//---------------------------------------------------------------------------------------------------------------
+	private Map syncCourtJudgmentDetail(String docId) {
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8010);
+		API api = new API();
+		api.setSupplyAPI(supplyApi);
+		api.getParameters().put("docId", docId);
+		Map fromCache = getCache(api);
+		if (fromCache != null) {
+			logger.info("缓存查询CourtJudgment");
+		} else {
+			logger.info("即时查询CourtJudgment");
+			YoufenCallable youfenCallable = new YoufenCallable(api.getSupplyAPI(), new HashMap<String, String>(),
+					api.getParameters(), new HashMap<String, String>());
+			fromCache = youfenCallable.call();
+			putCache(api, fromCache);
+		}
+		return fromCache;
+	}
+	
+	private String parametersToString(HashMap<String, String> value) {
+		return parameterService.createSign(value, "");
+	}
+	private void putCache(API api, Object map) {
+		APISearchLog apiSearchLog = new APISearchLog();
+		apiSearchLog.setApi(api.getSupplyAPI());
+		apiSearchLog.setCreateTime(new Date());
+		apiSearchLog.setPrice(api.getSupplyAPI().getPrice());
+		apiSearchLog.setParameters(parametersToString(api.getParameters()));
+
+		ObjectMapper mapper = new ObjectMapper();
+		String writeValueAsString;
+		try {
+			writeValueAsString = mapper.writeValueAsString(map);
+			apiSearchLog.setResult(writeValueAsString);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		apiSearchLogRepository.save(apiSearchLog);
+
+	}
+	
+
+	private Map getCache(API api) {
+		String parameters = parametersToString(api.getParameters());
+		APISearchLog ret = apiSearchLogRepository.findFirstByApiAndParametersOrderByCreateTimeDesc(api.getSupplyAPI(),
+				parameters);
+		if (ret != null) {
+
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(ret.getCreateTime());
+			calendar.add(Calendar.SECOND, ret.getApi().getEffectiveTime());
+			Calendar calendarNow = Calendar.getInstance();
+			if (calendar.compareTo(calendarNow) < 0) {
+				return null;
+			}
+
+			ObjectMapper mapper = new ObjectMapper();
+			Map bean = null;
+			try {
+				bean = mapper.readValue(ret.getResult(), Map.class);
+			} catch (JsonParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JsonMappingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return bean;
+		} else {
+			return null;
+		}
+	}
+}

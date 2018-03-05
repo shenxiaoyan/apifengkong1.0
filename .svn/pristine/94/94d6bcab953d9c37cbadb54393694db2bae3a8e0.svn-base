@@ -1,0 +1,1438 @@
+<script>
+
+    "use strict";
+    app.controller("personloan_detailCtrl", [
+            "$scope", "$http", "$rootScope", '$state', '$stateParams',
+            function ($scope, $http, $rootScope, $state, $stateParams) {
+
+            $rootScope.currentPersonLoanId =  $scope.id = $stateParams.id;
+            $scope.creditInfo = {};
+            $scope.getInfo = function () {
+            $http.get(window.role_dir + '/personLoan/info/' + $scope.id).then(function (resRult) {
+
+            $scope.creditInfo = resRult.data;
+            if ($scope.creditInfo.analyseIdCard) {
+            $scope.creditInfo.analyseIdCard = JSON.parse($scope.creditInfo.analyseIdCard);
+            }
+            if ($scope.creditInfo.analyseCellphone) {
+            $scope.creditInfo.analyseCellphone = JSON.parse($scope.creditInfo.analyseCellphone);
+            }
+            if ($scope.creditInfo.analyseDishonestBlacklist) {
+            $scope.creditInfo.analyseDishonestBlacklist = JSON.parse($scope.creditInfo.analyseDishonestBlacklist);
+            }
+            if ($scope.creditInfo.analyseMultipleHeadLend) {
+            $scope.creditInfo.analyseMultipleHeadLend = JSON.parse($scope.creditInfo.analyseMultipleHeadLend);
+            }
+
+            if ($scope.creditInfo.analyseCriminal) {
+            $scope.creditInfo.analyseCriminal = JSON.parse($scope.creditInfo.analyseCriminal);
+            }
+
+            if ($scope.creditInfo.analyseCourtJudgment) {
+            $scope.creditInfo.analyseCourtJudgment = JSON.parse($scope.creditInfo.analyseCourtJudgment);
+            }
+            console.log($scope.creditInfo.analyseCourtJudgment);
+
+
+            if ($scope.creditInfo.analyseEducation) {
+            $scope.creditInfo.analyseEducation = JSON.parse($scope.creditInfo.analyseEducation);
+            }
+            
+            
+            if ($scope.creditInfo.analyseWatchlist) {
+            $scope.creditInfo.analyseWatchlist = JSON.parse($scope.creditInfo.analyseWatchlist);
+            }
+
+
+
+            if ($scope.creditInfo.analyseAntifraud) {
+            $scope.creditInfo.analyseAntifraud = JSON.parse($scope.creditInfo.analyseAntifraud);
+            }
+            if ($scope.creditInfo.analyseCellphoneLog) {
+            $scope.creditInfo.analyseCellphoneLog = JSON.parse($scope.creditInfo.analyseCellphoneLog);
+            $scope.creditInfo.analyseCellphoneLog.description.phoneSomeDetails = $scope.creditInfo.analyseCellphoneLog.description.phoneDetails.slice(0, 49);
+            }
+
+            if ($scope.creditInfo.analyseZhimaScore) {
+                $scope.creditInfo.analyseZhimaScore = JSON.parse($scope.creditInfo.analyseZhimaScore);
+                
+                if($scope.creditInfo.analyseZhimaScore.color == 'success'){
+                    $scope.creditInfo.analyseZhimaScore.color_code = '#009933';
+                }
+                if($scope.creditInfo.analyseZhimaScore.color == 'danger'){
+                    $scope.creditInfo.analyseZhimaScore.color_code = '#ff0000';
+                }
+                if($scope.creditInfo.analyseZhimaScore.color == 'warning'){
+                    $scope.creditInfo.analyseZhimaScore.color_code = '#ff6600';
+                }
+                
+                 if($scope.creditInfo.analyseZhimaScore.color == 'primary'){
+                    $scope.creditInfo.analyseZhimaScore.color_code = '#3366CC';
+                }
+                
+                if($scope.creditInfo.analyseZhimaScore.color == 'info'){
+                    $scope.creditInfo.analyseZhimaScore.color_code = '#cccccc';
+                }
+                
+            }
+
+
+
+
+            });
+            };
+            $scope.getInfo();
+            $scope.html2cavas = function () {
+            html2canvas(document.body).then(function (canvas) {
+            document.body.appendChild(canvas);
+            });
+            }
+
+            $scope.printArea = function () {
+            //jQuery("#print_wrap #print_intro").empty().append(jQuery("#detail_intro").html());
+            //jQuery("#print_wrap #print_analyseContent").empty().append(jQuery("#analyseContent").html());
+            //jQuery("#print_wrap #print_phonelogContent").empty().append(jQuery("#phonelogContent").html());
+                jQuery("#print_wrap").printArea();
+            }
+            
+             
+            
+            $scope.goForm = function (info) {
+                $state.go('personloan_form', {data: info});
+             }
+    }]);
+</script>
+<style>
+    label {
+        box-shadow: none;
+    }
+</style>
+<div   ng-controller="personloan_detailCtrl">
+    <div class="body_wrap detail_page" style="background:none;">
+        <div id="detail_header">
+            <div class="pull-left">
+                <div ui-jq="easyPieChart" ui-options="{
+                     percent: 60,
+                     lineWidth: 6,
+                     trackColor: '#e8eff0',
+                     barColor: '{{creditInfo.analyseZhimaScore.color_code}}',
+                     scaleColor: '#e8eff0',
+                     size: 100,
+                     lineCap: 'butt',
+                     animate: 1000
+                     }" class="easyPieChart" style="width: 100px; height: 100px; line-height:100px; margin-top: -8px;">
+                    <div>
+                        <span class="h3 m-l-sm text-{{creditInfo.analyseZhimaScore.color}}">{{creditInfo.analyseZhimaScore.result ? creditInfo.analyseZhimaScore.result:'暂无'}}</span>
+                        <div class="text text-sm">芝麻分</div>
+                    </div>
+                    <canvas width="100" height="100"></canvas></div>
+            </div>
+            <div class="pull-left" id="detail_intro" style="padding:3px 0 0 20px;">
+                <b>{{creditInfo.name}} {{creditInfo.idCard}}</b><span ng-if="creditInfo.search30days">（30天内被查询了 {{creditInfo.search30days}} 次）</span> <br />
+                <span ng-show="creditInfo.sex">{{creditInfo.sex}}，</span><span ng-show="creditInfo.birth">{{creditInfo.birth}}，</span><span ng-show="creditInfo.age">{{creditInfo.age}}岁，</span><span ng-show="creditInfo.area">出生于 {{creditInfo.area}}，</span><span ng-show="creditInfo.commonAddress">地址 {{creditInfo.commonAddress}}</span><br />
+                {{creditInfo.analyseEducation.result.result.college}}{{creditInfo.analyseEducation.result.result.degree}} 
+                <span ng-show="creditInfo.mobileCompany">{{creditInfo.mobileCompany}} </span>{{creditInfo.mobile}}<span ng-show="creditInfo.bankCard">，银行卡号 {{creditInfo.bankCard}}</span>
+                <div style="font-size:14px;">
+
+                    <span class="label label-{{creditInfo.analyseMultipleHeadLend.color}}" ng-if="creditInfo.analyseMultipleHeadLend.color == 'success'">多头借贷（优）</span> 
+                    <span class="label label-{{creditInfo.analyseMultipleHeadLend.color}}" ng-if="creditInfo.analyseMultipleHeadLend.color == 'warning'">多头借贷（警）</span> 
+                    <span class="label label-{{creditInfo.analyseMultipleHeadLend.color}}" ng-if="creditInfo.analyseMultipleHeadLend.color == 'danger'">多头借贷（差）</span> 
+
+                    <span class="label label-{{creditInfo.analyseAntifraud.color}}" ng-if="creditInfo.analyseAntifraud.color == 'success'">反欺诈分析（优）</span> 
+                    <span class="label label-{{creditInfo.analyseAntifraud.color}}" ng-if="creditInfo.analyseAntifraud.color == 'warning'">反欺诈分析（警）</span> 
+                    <span class="label label-{{creditInfo.analyseAntifraud.color}}" ng-if="creditInfo.analyseAntifraud.color == 'danger'">反欺诈分析（差）</span> 
+
+                    <span class="label label-{{creditInfo.analyseCriminal.color}}" ng-if="creditInfo.analyseCriminal.color == 'success'">刑事犯罪（优）</span> 
+                    <span class="label label-{{creditInfo.analyseCriminal.color}}" ng-if="creditInfo.analyseCriminal.color == 'warning'">刑事犯罪（警）</span> 
+                    <span class="label label-{{creditInfo.analyseCriminal.color}}" ng-if="creditInfo.analyseCriminal.color == 'danger'">刑事犯罪（差）</span> 
+
+                    <span class="label label-{{creditInfo.analyseCourtJudgment.color}}" ng-if="creditInfo.analyseCourtJudgment.color == 'warning'">法院判决（警） </span>
+                    <span class="label label-{{creditInfo.analyseCourtJudgment.color}}" ng-if="creditInfo.analyseCourtJudgment.color == 'danger'">法院判决（差）</span>
+                    <span class="label label-{{creditInfo.analyseCourtJudgment.color}}" ng-if="creditInfo.analyseCourtJudgment.color == 'success'">法院判决（优）</span>
+
+
+                    <span class="label label-{{creditInfo.analyseDishonestBlacklist.color}}" ng-if="creditInfo.analyseDishonestBlacklist.color == 'warning'">失信黑名单（警）</span>
+                    <span class="label label-{{creditInfo.analyseDishonestBlacklist.color}}" ng-if="creditInfo.analyseDishonestBlacklist.color == 'danger'">失信黑名单（差）</span>
+                    <span class="label label-{{creditInfo.analyseDishonestBlacklist.color}}" ng-if="creditInfo.analyseDishonestBlacklist.color == 'success'">失信黑名单（优）</span>
+
+
+
+
+                </div>
+
+            </div>
+            <div class="pull-right" style="text-align: right">
+                <button ng-click="goForm(creditInfo)" class="btn btn-danger btn-rounded">重新查询</button>
+                <a ng-click="printArea();" class="btn btn-success btn-rounded">打印报告</a>
+                <br />
+                <br />
+                 <div ng-if="creditInfo.analyseCellphoneLog.description.updateTime.message">
+                     数据分析时间：<span class="text-{{creditInfo.analyseCellphoneLog.description.updateTime.color}}">{{creditInfo.analyseCellphoneLog.description.updateTime.value}} </span>
+                 </div>
+                <div class="text-muted">
+                     报告生成时间：{{creditInfo.createAt| date:'yyyy-MM-dd HH:mm:ss' }}
+                </div>
+               
+            </div>
+        </div>
+        <div class="app-content-body detail_content">
+            <div class="hbox hbox-auto-xs bg-white">
+                <div class="col" style="width:52%">
+                    <div class="vbox  wrapper-sm">
+                        <div class="row-row">
+                            <div class="cell scrollable hover">
+                                <div class="cell-inner">
+                                    <div  id="analyseContent">
+                                        <div ng-if="creditInfo.analyseWatchlist.status == 0" class="alert alert-{{creditInfo.analyseWatchlist.color}}">逾期风险：{{creditInfo.analyseWatchlist.result}}</div>
+                                        <table class="table detail_table">
+                                            <tbody>
+                                                <tr>
+                                                    <th width="110">{{creditInfo.analyseCellphoneLog.description.reliability.message}}</th>
+                                                    <td>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.reliability.color}}">{{creditInfo.analyseCellphoneLog.description.reliability.value}} </span>
+                                                    </td>
+                                                    <th>
+                                                        {{creditInfo.analyseCellphoneLog.description.nameMatch.message}}
+                                                    </th>
+                                                    <td>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.nameMatch.color}}">{{creditInfo.analyseCellphoneLog.description.nameMatch.value}} </span>
+                                                    </td>
+                                                </tr>
+                                                 <tr>
+                                                  
+                                                    <th>
+                                                        {{creditInfo.analyseCellphoneLog.description.inTime.message}}
+                                                    </th>
+                                                    <td>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.inTime.color}}">{{creditInfo.analyseCellphoneLog.description.inTime.value}}</span>
+                                                    </td>
+                                                      <th>
+                                                        现居地
+                                                    </th>
+                                                    <td>
+                                                            <span class="text-{{creditInfo.analyseCellphoneLog.description.liveAddress.color}}">{{creditInfo.analyseCellphoneLog.description.liveAddress.value}} </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>
+                                                        平均通话
+                                                    </th>
+                                                    <td>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.callCountPerDay.color}}"> {{creditInfo.analyseCellphoneLog.description.callCountPerDay.value}}次/天 </span>
+                                                    </td>
+                                                    <th>
+                                                        平均通话时长
+                                                    </th>
+                                                    <td>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.callTimePerTime.color}}">{{creditInfo.analyseCellphoneLog.description.callTimePerTime.value}}秒/次</span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>
+                                                            平均话费
+                                                    </th>
+                                                    <td>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.moneyPerMonth.color}}">{{creditInfo.analyseCellphoneLog.description.moneyPerMonth.value}}元/月 </span>
+                                                    </td>
+                                                    <th>
+                                                         套餐
+                                                    </th>
+                                                    <td>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.packageName.color}}">{{creditInfo.analyseCellphoneLog.description.packageName.value}} </span>
+                                                    </td>
+                                                   
+                                                </tr>
+                                                 <tr>
+                                                    
+                                                    <th>
+                                                        流量使用
+                                                    </th>
+                                                    <td colspan="3">
+                                                            <span class="text-{{creditInfo.analyseCellphoneLog.description.netUsedPerMonth.color}}">{{creditInfo.analyseCellphoneLog.description.netUsedPerMonth.value}}M/月</span>
+                                                    </td>
+                                                </tr>
+                                               
+                                                 <tr>
+                                                    <th>
+                                                            查询TA的企业
+                                                    </th>
+                                                   <td colspan="3">
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.searchedOrganizationCount.color}}" ng-show="creditInfo.analyseCellphoneLog.description.searchedOrganizationCount.value>0">有{{creditInfo.analyseCellphoneLog.description.searchedOrganizationCount.value}}个</span>
+                                                        <span  ng-show="creditInfo.analyseCellphoneLog.description.searchedOrganizationCount.value == 0">没有企业查询</span>
+                                                        
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.searchedOrganizationType.color}}" ng-show="creditInfo.analyseCellphoneLog.description.searchedOrganizationCount.value>0">
+                                                            {{creditInfo.analyseCellphoneLog.description.searchedOrganizationType.value}} 
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        
+                                        
+                                        
+                                        <table class="table detail_table">
+                                            <tbody>
+                                                  <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.linkman1Check.color}}" ng-if="creditInfo.analyseCellphoneLog.description.linkman1Check.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.linkman1Check.color}}" ng-if="creditInfo.analyseCellphoneLog.description.linkman1Check.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.linkman1Check.color}}" ng-if="creditInfo.analyseCellphoneLog.description.linkman1Check.color == 'danger'">差</span> 
+
+                                                        {{creditInfo.analyseCellphoneLog.description.linkman1Check.relationship}}
+                                                    </td>
+                                                    <td>
+
+                                                        {{creditInfo.analyseCellphoneLog.description.linkman1Check.contact_name}}  {{creditInfo.analyseCellphoneLog.description.linkman1Check.key_value}}<br />
+                                                        <span class="detail_item_info">
+                                                         {{creditInfo.analyseCellphoneLog.description.linkman1Check.check_mobile}}<br />{{creditInfo.analyseCellphoneLog.description.linkman1Check.check_xiaohao}} <br />
+                                                        </span>
+                                                        
+
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.linkman2Check.color}}" ng-if="creditInfo.analyseCellphoneLog.description.linkman2Check.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.linkman2Check.color}}" ng-if="creditInfo.analyseCellphoneLog.description.linkman2Check.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.linkman2Check.color}}" ng-if="creditInfo.analyseCellphoneLog.description.linkman2Check.color == 'danger'">差</span> 
+
+                                                        {{creditInfo.analyseCellphoneLog.description.linkman2Check.relationship}}
+                                                    </td>
+                                                    <td>
+
+                                                              {{creditInfo.analyseCellphoneLog.description.linkman2Check.contact_name}}  {{creditInfo.analyseCellphoneLog.description.linkman2Check.key_value}}<br />
+                                                        <span class="detail_item_info">
+                                                         {{creditInfo.analyseCellphoneLog.description.linkman2Check.check_mobile}}<br /> {{creditInfo.analyseCellphoneLog.description.linkman2Check.check_xiaohao}}<br />
+                                                        </span>
+
+
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.phoneSilent.color}}" ng-if="creditInfo.analyseCellphoneLog.description.phonePowerOff.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.phoneSilent.color}}" ng-if="creditInfo.analyseCellphoneLog.description.phonePowerOff.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.phoneSilent.color}}" ng-if="creditInfo.analyseCellphoneLog.description.phonePowerOff.color == 'danger'">差</span> 
+
+                                                        关机情况
+                                                    </td>
+                                                    <td>
+
+                                                        {{creditInfo.analyseCellphoneLog.description.phonePowerOff.result}}  <br />
+                                                        <span class="detail_item_info">
+                                                        {{creditInfo.analyseCellphoneLog.description.phonePowerOff.evidence}} 
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactEachOther.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactEachOther.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactEachOther.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactEachOther.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactEachOther.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactEachOther.color == 'danger'">差</span> 
+                                                        互通过的电话
+                                                    </td>
+                                                    <td>
+                                                            <span class="text-{{creditInfo.analyseCellphoneLog.description.contactEachOther.color}}">
+                                                                {{creditInfo.analyseCellphoneLog.description.contactEachOther.result}}  <br />
+                                                                {{creditInfo.analyseCellphoneLog.description.contactEachOther.evidence}} 
+                                                            </span>
+                                                    </td>
+                                                </tr>
+                                                 <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.regularCircle.color}}" ng-if="creditInfo.analyseCellphoneLog.description.regularCircle.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.regularCircle.color}}" ng-if="creditInfo.analyseCellphoneLog.description.regularCircle.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.regularCircle.color}}" ng-if="creditInfo.analyseCellphoneLog.description.regularCircle.color == 'danger'">差</span> 
+                                                        通话朋友圈
+                                                    </td>
+                                                    <td>
+                                                        {{creditInfo.analyseCellphoneLog.description.regularCircle.result}}<br />
+                                                        <span class="detail_item_info">
+                                                        {{creditInfo.analyseCellphoneLog.description.regularCircle.evidence}}
+                                                        </span><br />
+                                                         <span class="text-{{creditInfo.analyseCellphoneLog.description.contactsClass1BlacklistCnt.color}}">直接联系人中有{{creditInfo.analyseCellphoneLog.description.contactsClass1BlacklistCnt.value}}人在黑名单中，</span>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.contactsClass2BlacklistCnt.color}}">间接联系人中有{{creditInfo.analyseCellphoneLog.description.contactsClass2BlacklistCnt.value}}人在黑名单中  </span>
+                                                    </td>
+                                                </tr>      
+                                                 <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCollection.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCollection.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCollection.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCollection.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCollection.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCollection.color == 'danger'">差</span> 
+                                                        催收类号码
+                                                    </td>
+                                                    <td>
+                                                        {{creditInfo.analyseCellphoneLog.description.contactCollection.result}}  <br />
+                                                        {{creditInfo.analyseCellphoneLog.description.contactCollection.total}} 
+                                                        <div ng-if="creditInfo.analyseCellphoneLog.description.contactCollection.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.contactCollection.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.contactCollection.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.contactCollection.evidence}} 
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactLoan.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactLoan.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactLoan.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactLoan.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactLoan.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactLoan.color == 'danger'">差</span> 
+                                                        贷款类号码
+                                                    </td>
+                                                    <td>
+                                                        {{creditInfo.analyseCellphoneLog.description.contactLoan.result}} <br />
+                                                        {{creditInfo.analyseCellphoneLog.description.contactLoan.total}}
+                                                       
+                                                        <div ng-if="creditInfo.analyseCellphoneLog.description.contactLoan.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.contactLoan.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.contactLoan.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.contactLoan.evidence}} 
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                               
+
+                                                <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCreditCard.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCreditCard.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCreditCard.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCreditCard.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCreditCard.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCreditCard.color == 'danger'">差</span> 
+                                                        信用卡类号码
+                                                    </td>
+                                                    <td>
+                                                        {{creditInfo.analyseCellphoneLog.description.contactCreditCard.result}}<br />
+                                                        {{creditInfo.analyseCellphoneLog.description.contactCreditCard.total}}
+                                                          <div ng-if="creditInfo.analyseCellphoneLog.description.contactCreditCard.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.contactCreditCard.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.contactCreditCard.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.contactCreditCard.evidence}} 
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactBank.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactBank.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactBank.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactBank.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactBank.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactBank.color == 'danger'">差</span> 
+                                                        银行类号码
+                                                    </td>
+                                                    <td>
+
+                                                        {{creditInfo.analyseCellphoneLog.description.contactBank.result}} 
+                                                        <div ng-if="creditInfo.analyseCellphoneLog.description.contactBank.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.contactBank.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.contactBank.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.contactBank.evidence}} 
+                                                        </div>
+                                                        
+                                                        
+                                                       
+                                                    </td>
+                                                </tr>
+                                                
+                                                  
+                                                
+                                                 <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCourt.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCourt.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCourt.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCourt.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCourt.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCourt.color == 'danger'">差</span> 
+                                                        法院类号码
+                                                    </td>
+                                                    <td>
+
+                                                        {{creditInfo.analyseCellphoneLog.description.contactCourt.result}}  <br />
+                                                        {{creditInfo.analyseCellphoneLog.description.contactCourt.total}} 
+                                                        <div ng-if="creditInfo.analyseCellphoneLog.description.contactCourt.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.contactCourt.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.contactCourt.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.contactCourt.evidence}} 
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                 <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactLawyer.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactLawyer.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactLawyer.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactLawyer.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactLawyer.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactLawyer.color == 'danger'">差</span> 
+                                                        律师类号码
+                                                    </td>
+                                                    <td>
+
+                                                        {{creditInfo.analyseCellphoneLog.description.contactLawyer.result}}  <br />
+                                                        {{creditInfo.analyseCellphoneLog.description.contactLawyer.total}} 
+                                                        <div ng-if="creditInfo.analyseCellphoneLog.description.contactLawyer.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.contactLawyer.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.contactLawyer.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.contactLawyer.evidence}} 
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                
+                                                 <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactMacao.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactMacao.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactMacao.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactMacao.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactMacao.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactMacao.color == 'danger'">差</span> 
+                                                        澳门号码
+                                                    </td>
+                                                    <td>
+
+                                                        {{creditInfo.analyseCellphoneLog.description.contactMacao.result}} <br />
+                                                        {{creditInfo.analyseCellphoneLog.description.contactMacao.total}} 
+                                                        <div ng-if="creditInfo.analyseCellphoneLog.description.contactMacao.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.contactMacao.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.contactMacao.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.contactMacao.evidence}} 
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                
+                                                <tr>
+                                                    <td>
+                                                       通话概况
+                                                    </td>
+                                                    <td>
+                                                        {{creditInfo.analyseCellphoneLog.description.phoneCall.result}} <br />
+                                                        {{creditInfo.analyseCellphoneLog.description.phoneCall.total}} 
+                                                        <div ng-if="creditInfo.analyseCellphoneLog.description.phoneCall.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.phoneCall.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.phoneCall.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.phoneCall.evidence}} 
+                                                        </div>
+                                                    </td>
+                                                </tr>       
+                                                <tr ng-if="creditInfo.analyseEducation.color"  style="display:none;">
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseEducation.color}}" ng-if="creditInfo.analyseEducation.color == 'success'">优</span>
+                                                        学历
+                                                    </td>
+                                                    <td>
+                                                        <div ng-if="creditInfo.analyseEducation.status == 600">
+                                                            {{creditInfo.analyseEducation.msg}}
+                                                        </div>
+                                                        <div ng-if="creditInfo.analyseEducation.status == 0 && creditInfo.analyseEducation.color == 'info'">
+                                                            {{creditInfo.analyseEducation.msg}}
+                                                        </div>
+                                                        <div ng-if="creditInfo.analyseEducation.status == 0 && creditInfo.analyseEducation.color == 'success'">
+                                                            {{creditInfo.analyseEducation.result.result.college}} （{{creditInfo.analyseEducation.result.result.collegeCity}}，{{creditInfo.analyseEducation.result.result.manageDept}}，
+                                                            {{creditInfo.analyseEducation.result.result.character}}，{{creditInfo.analyseEducation.result.result.schoolType}}，{{creditInfo.analyseEducation.result.result.collegeCategory}}，{{creditInfo.analyseEducation.result.result.educationApproach}}） <br />
+                                                            {{creditInfo.analyseEducation.result.result.degree}}（{{creditInfo.analyseEducation.result.result.startTime}} 入学，{{creditInfo.analyseEducation.result.result.graduateTime}} {{creditInfo.analyseEducation.result.result.studyResult}}）
+
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col  wrapper-sm">
+                    <div class="vbox">
+                        <div class="row-row">
+                            <div class="cell scrollable hover">
+                                <div class="cell-inner" id="detail_right">
+                                        <tabset class="tab-container">
+                                            <tab>
+                                                <tab-heading>
+                                                    记事本
+                                                </tab-heading>
+                                                  <div data-ng-include=" 'fengkongweishi/pages/personloan_notes.html' ">
+                                                  </div>
+                                            </tab>
+                                             <tab>
+                                                <tab-heading>
+                                                    <span class="text-{{creditInfo.analyseMultipleHeadLend.color}}">多头借贷</span>
+                                                </tab-heading>
+
+                                                <div  ng-if="creditInfo.analyseMultipleHeadLend">
+                                                    
+                                                    <table class="table detail_table">
+                                                        <tbody>
+                                                            <tr>
+                                                                <th width="110">
+                                                                    网贷平台注册次数
+                                                                </th>
+                                                                <td>
+                                                                     {{creditInfo.analyseMultipleHeadLend.description.webRegisterCount}}
+                                                                </td>
+                                                                <th>
+                                                                     网贷逾期次数
+                                                                </th>
+                                                                <td>
+                                                                     {{creditInfo.analyseMultipleHeadLend.description.webOverdueCount}}
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>网贷申请借款次数
+                                                                </th>
+                                                                <td>
+                                                                    {{creditInfo.analyseMultipleHeadLend.description.webApplyCount}}
+                                                                </td>
+                                                                 <th>
+                                                                    申请借款金额约
+                                                                </th>
+                                                                <td>
+                                                                     {{creditInfo.analyseMultipleHeadLend.description.webApplyMax*1000}}元
+                                                                </td>
+                                                            </tr>
+                                                             <tr>
+                                                                <th>网贷借款平台数
+                                                                </th>
+                                                                <td>
+                                                                    {{creditInfo.analyseMultipleHeadLend.description.webLendCount}}
+                                                                </td>
+                                                                <th>
+                                                                    借款金额约
+                                                                </th>
+                                                                <td>
+                                                                     {{creditInfo.analyseMultipleHeadLend.description.webLendMax*1000}}元
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>网贷逾期平台数
+                                                                </th>
+                                                                <td>
+                                                                    {{creditInfo.analyseMultipleHeadLend.description.webOverduePlat}}
+                                                                </td>
+                                                                <th>
+                                                                    逾期金额约
+                                                                </th>
+                                                                <td>
+                                                                     {{creditInfo.analyseMultipleHeadLend.description.webOverdueMax*1000}}元
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div  ng-if="!creditInfo.analyseMultipleHeadLend.color">
+                                                    无
+                                                </div>
+                                            </tab>
+
+                                            <tab>
+                                                <tab-heading>
+                                                    <span class="text-{{creditInfo.analyseDishonestBlacklist.color}}">失信黑单</span>
+                                                </tab-heading>
+
+                                                <div ng-if="creditInfo.analyseDishonestBlacklist">
+                                                    <div class="form-group" ng-repeat="(key, value) in creditInfo.analyseDishonestBlacklist.result">
+                                                                <table>
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td width="100">描述</td>
+                                                                            <td> {{value.duty}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td>执行类行</td>
+                                                                            <td> {{value.disrupt_type}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td>执行字号</td>
+                                                                            <td> {{value.code}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td>姓名</td>
+                                                                            <td> {{value.name}}，{{value.age}}，{{value.sex}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td>身份证号</td>
+                                                                            <td> {{value.idcardno}}</td>
+                                                                        </tr>
+
+                                                                        <tr>
+                                                                            <td>公告日期</td>
+                                                                            <td> {{value.pub_time}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td>法院</td>
+                                                                            <td> {{value.court}}</td>
+                                                                        </tr>
+
+                                                                        <tr>
+                                                                            <td>地区</td>
+                                                                            <td> {{value.area}}</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td>执行情况</td>
+                                                                            <td> {{value.performance}}</td>
+                                                                        </tr>
+
+                                                                    </tbody>
+                                                                </table>
+                                                        <hr>
+                                                    </div>
+                                                </div> 
+                                                <div  ng-if="creditInfo.analyseDishonestBlacklist.color == 'success'">
+                                                    {{creditInfo.analyseDishonestBlacklist.msg}}
+                                                </div>
+                                            </tab>
+
+                                          
+                                            <tab>
+                                                <tab-heading>
+                                                    <span class="text-{{creditInfo.analyseAntifraud.color}}">反欺诈</span>
+                                                </tab-heading>
+
+                                                <div  ng-if="creditInfo.analyseAntifraud">
+                                                    <div class="form-group" ng-repeat="item in creditInfo.analyseAntifraud.description"> 
+                                                        <span class="text-{{item.color}}">
+                                                            {{item.message}}
+                                                        </span>
+                                                    </div>
+
+                                                </div>
+                                                <div  ng-if="!creditInfo.analyseAntifraud.color">
+                                                    无
+                                                </div>
+                                                <div   ng-if="creditInfo.analyseAntifraud.color == 'info'">
+                                                    查询超时
+                                                </div>
+                                            </tab>
+
+                                            <tab>
+                                                <tab-heading>
+                                                    <span class="text-{{creditInfo.analyseCriminal.color}}">刑事犯罪</span>
+                                                </tab-heading>
+                                                 <div class="form-group" ng-repeat="item in creditInfo.analyseCriminal.result.result">
+                                                    涉案类型：{{item.crimeType}}<br />
+                                                  案件数量：{{item.count}}<br />
+                                                  案件类型：{{item.caseType}}<br />
+                                                  案件来源：{{item.caseSource}}<br />
+                                                  型罚时长：{{item.casePeriod}}<br />
+                                                  案件等级：{{item.caseLevel}}<br />
+                                                  <hr />
+                                                </div>
+                                                  
+                                                  
+                                                <div ng-if="creditInfo.analyseCriminal.result.statusCode == 2007">
+                                                    {{creditInfo.analyseCriminal.result.statusMsg}}
+                                                </div>
+                                            </tab>
+                                            
+                                            
+                                            <tab>
+                                                <tab-heading>
+                                                    <span class="text-{{creditInfo.analyseCourtJudgment.color}}">法院判决</span>
+                                                </tab-heading>
+                                                <div ng-if="creditInfo.analyseCourtJudgment.result.result.totalCount > 0" ng-repeat="item in creditInfo.analyseCourtJudgment.result.result.docList">
+                                                    <div ng-bind-html="item.detail.result.content"></div>
+                                                   
+                                                    <hr>
+                                                </div>
+                                                 <div ng-if="creditInfo.analyseCourtJudgment.result.totalCount > 0" ng-repeat="item in creditInfo.analyseCourtJudgment.result.docList">
+                                                    <div ng-bind-html="item.detail.result.content"></div>
+                                            
+                                                    <hr>
+                                                </div>
+                                                 <div ng-if="creditInfo.analyseCourtJudgment.result.result.totalCount == 0">
+                                                            {{creditInfo.analyseCourtJudgment.result.result.docList[0]}}
+                                                </div>
+                                            </tab>
+
+                                            <tab>
+                                                 <tab-heading>
+                                                    <span class="text-{{creditInfo.creditInfo.analyseCellphoneLog.description.phoneCall.color}}">通话分析</span>
+                                                </tab-heading>
+                                                <table width="100%">
+                                                    <thead>
+                                                        <Tr>
+                                                    <th>主叫</th>
+                                                    <th>被叫</th>
+                                                    <th>号码</th>
+                                                    <th>城市</th>
+                                                    <th>公司</th>
+                                                    <th>总通时长</th>
+                                                    </Tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr ng-repeat="item in creditInfo.analyseCellphoneLog.description.phoneSomeDetails">
+                                                            <td >{{item.dialCount}}</td>
+                                                            <td >{{item.dialedCount}}</td>
+                                                            <td >{{item.peerNum}}</td>
+                                                            <td >{{item.city}}</td>
+                                                            <td >{{item.companyName}}</td>
+                                                            <td>{{item.callTime}}分钟</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>   
+
+                                            </tab>
+                                        </tabset>
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div style="display:none;">
+        <div id="print_wrap" style="position:relative;">
+            <div id="print_header">
+                <div style="position: absolute;right:0;top:0;">
+                    <img src="fengkongweishi/images/certified.png"  />
+                </div>
+                <img src="fengkongweishi/images/print_title.jpg"  />
+
+                <div style="font-size:22px; text-align: center;">
+                    {{creditInfo.name}}（{{creditInfo.idCard}}）个人征信报告（通讯版）
+                </div>
+
+               <div ng-if="creditInfo.analyseCellphoneLog.description.updateTime.message"  style="text-align: center;">
+                     数据分析时间：<span class="text-{{creditInfo.analyseCellphoneLog.description.updateTime.color}}">{{creditInfo.analyseCellphoneLog.description.updateTime.value}} </span>
+                 </div>
+                <div class="text-muted"   style="text-align: center;">
+                     报告生成时间：{{creditInfo.createAt| date:'yyyy-MM-dd HH:mm:ss' }}
+                </div>
+                <br />
+                <br />
+            </div>
+            <div id="print_intro" style="text-align:center;">
+                <b>{{creditInfo.name}} {{creditInfo.idCard}}</b><span ng-if="creditInfo.search30days">（30天内被查询了 {{creditInfo.search30days}} 次）</span> <br />
+                <span ng-show="creditInfo.sex">{{creditInfo.sex}}，</span><span ng-show="creditInfo.birth">{{creditInfo.birth}}，</span><span ng-show="creditInfo.age">{{creditInfo.age}}岁，</span><span ng-show="creditInfo.area">出生于 {{creditInfo.area}}，</span><span ng-show="creditInfo.commonAddress">地址 {{creditInfo.commonAddress}}</span><br />
+                {{creditInfo.analyseEducation.result.result.college}}{{creditInfo.analyseEducation.result.result.degree}} 
+                <span ng-show="creditInfo.mobileCompany">{{creditInfo.mobileCompany}} </span>{{creditInfo.mobile}}<span ng-show="creditInfo.bankCard">，银行卡号 {{creditInfo.bankCard}}</span>
+                <div style="font-size:14px;">
+
+                    <span class="label label-{{creditInfo.analyseMultipleHeadLend.color}}" ng-if="creditInfo.analyseMultipleHeadLend.color == 'success'">多头借贷（优）</span> 
+                    <span class="label label-{{creditInfo.analyseMultipleHeadLend.color}}" ng-if="creditInfo.analyseMultipleHeadLend.color == 'warning'">多头借贷（警）</span> 
+                    <span class="label label-{{creditInfo.analyseMultipleHeadLend.color}}" ng-if="creditInfo.analyseMultipleHeadLend.color == 'danger'">多头借贷（差）</span> 
+
+                    <span class="label label-{{creditInfo.analyseAntifraud.color}}" ng-if="creditInfo.analyseAntifraud.color == 'success'">反欺诈分析（优）</span> 
+                    <span class="label label-{{creditInfo.analyseAntifraud.color}}" ng-if="creditInfo.analyseAntifraud.color == 'warning'">反欺诈分析（警）</span> 
+                    <span class="label label-{{creditInfo.analyseAntifraud.color}}" ng-if="creditInfo.analyseAntifraud.color == 'danger'">反欺诈分析（差）</span> 
+
+                    <span class="label label-{{creditInfo.analyseCriminal.color}}" ng-if="creditInfo.analyseCriminal.color == 'success'">刑事犯罪（优）</span> 
+                    <span class="label label-{{creditInfo.analyseCriminal.color}}" ng-if="creditInfo.analyseCriminal.color == 'warning'">刑事犯罪（警）</span> 
+                    <span class="label label-{{creditInfo.analyseCriminal.color}}" ng-if="creditInfo.analyseCriminal.color == 'danger'">刑事犯罪（差）</span> 
+
+                    <span class="label label-{{creditInfo.analyseCourtJudgment.color}}" ng-if="creditInfo.analyseCourtJudgment.color == 'warning'">法院判决（警） </span>
+                    <span class="label label-{{creditInfo.analyseCourtJudgment.color}}" ng-if="creditInfo.analyseCourtJudgment.color == 'danger'">法院判决（差）</span>
+                    <span class="label label-{{creditInfo.analyseCourtJudgment.color}}" ng-if="creditInfo.analyseCourtJudgment.color == 'success'">法院判决（优）</span>
+
+
+                    <span class="label label-{{creditInfo.analyseDishonestBlacklist.color}}" ng-if="creditInfo.analyseDishonestBlacklist.color == 'warning'">失信黑名单（警）</span>
+                    <span class="label label-{{creditInfo.analyseDishonestBlacklist.color}}" ng-if="creditInfo.analyseDishonestBlacklist.color == 'danger'">失信黑名单（差）</span>
+                    <span class="label label-{{creditInfo.analyseDishonestBlacklist.color}}" ng-if="creditInfo.analyseDishonestBlacklist.color == 'success'">失信黑名单（优）</span>
+                </div>
+
+            </div>
+            <h4>逾期风险</h4>
+                                                    <div ng-if="creditInfo.analyseWatchlist.status == 0" class="alert alert-{{creditInfo.analyseWatchlist.color}}">{{creditInfo.analyseWatchlist.result}}</div>
+
+                      <br />
+                <br />
+                           <h4>通信分析</h4>
+                           <table class="table detail_table print_table">
+                                            <tbody>
+                                                <tr>
+                                                    <th width="120">{{creditInfo.analyseCellphoneLog.description.reliability.message}}</th>
+                                                    <td>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.reliability.color}}">{{creditInfo.analyseCellphoneLog.description.reliability.value}} </span>
+                                                    </td>
+                                                    <th>
+                                                        {{creditInfo.analyseCellphoneLog.description.nameMatch.message}}
+                                                    </th>
+                                                    <td>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.nameMatch.color}}">{{creditInfo.analyseCellphoneLog.description.nameMatch.value}} </span>
+                                                    </td>
+                                                </tr>
+                                                 <tr>
+                                                  
+                                                    <th>
+                                                        {{creditInfo.analyseCellphoneLog.description.inTime.message}}
+                                                    </th>
+                                                    <td>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.inTime.color}}">{{creditInfo.analyseCellphoneLog.description.inTime.value}}月</span>
+                                                    </td>
+                                                      <th>
+                                                        现居地
+                                                    </th>
+                                                    <td>
+                                                            <span class="text-{{creditInfo.analyseCellphoneLog.description.liveAddress.color}}">{{creditInfo.analyseCellphoneLog.description.liveAddress.value}} </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>
+                                                        平均通话
+                                                    </th>
+                                                    <td>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.callCountPerDay.color}}"> {{creditInfo.analyseCellphoneLog.description.callCountPerDay.value}}次/天 </span>
+                                                    </td>
+                                                    <th>
+                                                        平均通话时长
+                                                    </th>
+                                                    <td>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.callTimePerTime.color}}">{{creditInfo.analyseCellphoneLog.description.callTimePerTime.value}}秒/次</span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>
+                                                            平均话费
+                                                    </th>
+                                                    <td>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.moneyPerMonth.color}}">{{creditInfo.analyseCellphoneLog.description.moneyPerMonth.value}}元/月 </span>
+                                                    </td>
+                                                    <th>
+                                                         套餐
+                                                    </th>
+                                                    <td>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.packageName.color}}">{{creditInfo.analyseCellphoneLog.description.packageName.value}} </span>
+                                                    </td>
+                                                   
+                                                </tr>
+                                                 <tr>
+                                                    
+                                                    <th>
+                                                        流量使用
+                                                    </th>
+                                                    <td colspan="3">
+                                                            <span class="text-{{creditInfo.analyseCellphoneLog.description.netUsedPerMonth.color}}">{{creditInfo.analyseCellphoneLog.description.netUsedPerMonth.value}}M/月</span>
+                                                    </td>
+                                                </tr>
+                                               
+                                                 <tr>
+                                                    <th>
+                                                            查询TA的企业
+                                                    </th>
+                                                   <td colspan="3">
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.searchedOrganizationCount.color}}" ng-show="creditInfo.analyseCellphoneLog.description.searchedOrganizationCount.value>0">有{{creditInfo.analyseCellphoneLog.description.searchedOrganizationCount.value}}个</span>
+                                                        <span  ng-show="creditInfo.analyseCellphoneLog.description.searchedOrganizationCount.value == 0">没有企业查询</span>
+                                                        
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.searchedOrganizationType.color}}" ng-show="creditInfo.analyseCellphoneLog.description.searchedOrganizationCount.value>0">
+                                                            {{creditInfo.analyseCellphoneLog.description.searchedOrganizationType.value}} 
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                            <table class="table print_table">
+                            <tbody>
+                                                  <tr>
+                                                    <td width="120">>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.linkman1Check.color}}" ng-if="creditInfo.analyseCellphoneLog.description.linkman1Check.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.linkman1Check.color}}" ng-if="creditInfo.analyseCellphoneLog.description.linkman1Check.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.linkman1Check.color}}" ng-if="creditInfo.analyseCellphoneLog.description.linkman1Check.color == 'danger'">差</span> 
+
+                                                        {{creditInfo.analyseCellphoneLog.description.linkman1Check.relationship}}
+                                                    </td>
+                                                    <td>
+
+                                                        {{creditInfo.analyseCellphoneLog.description.linkman1Check.contact_name}}  {{creditInfo.analyseCellphoneLog.description.linkman1Check.key_value}}<br />
+                                                        <span class="detail_item_info">
+                                                         {{creditInfo.analyseCellphoneLog.description.linkman1Check.check_mobile}}<br />{{creditInfo.analyseCellphoneLog.description.linkman1Check.check_xiaohao}} <br />
+                                                        </span>
+                                                        
+
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.linkman2Check.color}}" ng-if="creditInfo.analyseCellphoneLog.description.linkman2Check.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.linkman2Check.color}}" ng-if="creditInfo.analyseCellphoneLog.description.linkman2Check.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.linkman2Check.color}}" ng-if="creditInfo.analyseCellphoneLog.description.linkman2Check.color == 'danger'">差</span> 
+
+                                                        {{creditInfo.analyseCellphoneLog.description.linkman2Check.relationship}}
+                                                    </td>
+                                                    <td>
+
+                                                              {{creditInfo.analyseCellphoneLog.description.linkman2Check.contact_name}}  {{creditInfo.analyseCellphoneLog.description.linkman2Check.key_value}}<br />
+                                                        <span class="detail_item_info">
+                                                         {{creditInfo.analyseCellphoneLog.description.linkman2Check.check_mobile}}<br /> {{creditInfo.analyseCellphoneLog.description.linkman2Check.check_xiaohao}}<br />
+                                                        </span>
+
+
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.phonePowerOff.color}}" ng-if="creditInfo.analyseCellphoneLog.description.phonePowerOff.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.phonePowerOff.color}}" ng-if="creditInfo.analyseCellphoneLog.description.phonePowerOff.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.phonePowerOff.color}}" ng-if="creditInfo.analyseCellphoneLog.description.phonePowerOff.color == 'danger'">差</span> 
+
+                                                        关机情况
+                                                    </td>
+                                                    <td>
+
+                                                        {{creditInfo.analyseCellphoneLog.description.phonePowerOff.result}}  <br />
+                                                        <span class="detail_item_info">
+                                                        {{creditInfo.analyseCellphoneLog.description.phonePowerOff.evidence}} 
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactEachOther.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactEachOther.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactEachOther.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactEachOther.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactEachOther.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactEachOther.color == 'danger'">差</span> 
+                                                        互通过的电话
+                                                    </td>
+                                                    <td>
+                                                            <span class="text-{{creditInfo.analyseCellphoneLog.description.contactEachOther.color}}">
+                                                                {{creditInfo.analyseCellphoneLog.description.contactEachOther.result}}  <br />
+                                                                {{creditInfo.analyseCellphoneLog.description.contactEachOther.evidence}} 
+                                                            </span>
+                                                    </td>
+                                                </tr>
+                                                 <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.regularCircle.color}}" ng-if="creditInfo.analyseCellphoneLog.description.regularCircle.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.regularCircle.color}}" ng-if="creditInfo.analyseCellphoneLog.description.regularCircle.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.regularCircle.color}}" ng-if="creditInfo.analyseCellphoneLog.description.regularCircle.color == 'danger'">差</span> 
+                                                        通话朋友圈
+                                                    </td>
+                                                    <td>
+                                                        {{creditInfo.analyseCellphoneLog.description.regularCircle.result}}<br />
+                                                        <span class="detail_item_info">
+                                                        {{creditInfo.analyseCellphoneLog.description.regularCircle.evidence}}
+                                                        </span><br />
+                                                         <span class="text-{{creditInfo.analyseCellphoneLog.description.contactsClass1BlacklistCnt.color}}">直接联系人中有{{creditInfo.analyseCellphoneLog.description.contactsClass1BlacklistCnt.value}}人在黑名单中，</span>
+                                                        <span class="text-{{creditInfo.analyseCellphoneLog.description.contactsClass2BlacklistCnt.color}}">间接联系人中有{{creditInfo.analyseCellphoneLog.description.contactsClass2BlacklistCnt.value}}人在黑名单中  </span>
+                                                    </td>
+                                                </tr>      
+                                                 <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCollection.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCollection.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCollection.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCollection.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCollection.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCollection.color == 'danger'">差</span> 
+                                                        催收类号码
+                                                    </td>
+                                                    <td>
+                                                        {{creditInfo.analyseCellphoneLog.description.contactCollection.result}}<br/>
+                                                        {{creditInfo.analyseCellphoneLog.description.contactCollection.total}}
+                                                        <div ng-if="creditInfo.analyseCellphoneLog.description.contactCollection.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.contactCollection.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.contactCollection.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.contactCollection.evidence}} 
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactLoan.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactLoan.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactLoan.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactLoan.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactLoan.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactLoan.color == 'danger'">差</span> 
+                                                        贷款类号码
+                                                    </td>
+                                                    <td>
+                                                        {{creditInfo.analyseCellphoneLog.description.contactLoan.result}} <br />
+                                                        {{creditInfo.analyseCellphoneLog.description.contactLoan.total}} 
+                                                           <div ng-if="creditInfo.analyseCellphoneLog.description.contactLoan.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.contactLoan.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.contactLoan.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.contactLoan.evidence}} 
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                               
+
+                                                <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCreditCard.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCreditCard.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCreditCard.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCreditCard.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCreditCard.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCreditCard.color == 'danger'">差</span> 
+                                                        信用卡类号码
+                                                    </td>
+                                                    <td>
+                                                        {{creditInfo.analyseCellphoneLog.description.contactCreditCard.result}}<br />
+                                                        {{creditInfo.analyseCellphoneLog.description.contactCreditCard.total}}
+                                                        <div ng-if="creditInfo.analyseCellphoneLog.description.contactCreditCard.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.contactCreditCard.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.contactCreditCard.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.contactCreditCard.evidence}} 
+                                                        </div>
+                                                    </td>
+                                                </tr>
+ 
+                                                 <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCourt.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCourt.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCourt.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCourt.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactCourt.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactCourt.color == 'danger'">差</span> 
+                                                        法院类号码
+                                                    </td>
+                                                    <td>
+
+                                                        {{creditInfo.analyseCellphoneLog.description.contactCourt.result}}  <br />
+                                                        {{creditInfo.analyseCellphoneLog.description.contactCourt.total}} 
+                                                        <div ng-if="creditInfo.analyseCellphoneLog.description.contactCourt.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.contactCourt.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.contactCourt.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.contactCourt.evidence}} 
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                 <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactLawyer.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactLawyer.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactLawyer.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactLawyer.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactLawyer.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactLawyer.color == 'danger'">差</span> 
+                                                        律师类号码
+                                                    </td>
+                                                    <td>
+
+                                                        {{creditInfo.analyseCellphoneLog.description.contactLawyer.result}}  <br />
+                                                        {{creditInfo.analyseCellphoneLog.description.contactLawyer.total}} 
+                                                        <div ng-if="creditInfo.analyseCellphoneLog.description.contactLawyer.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.contactLawyer.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.contactLawyer.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.contactLawyer.evidence}} 
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                
+                                                 <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactMacao.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactMacao.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactMacao.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactMacao.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactMacao.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactMacao.color == 'danger'">差</span> 
+                                                        澳门号码
+                                                    </td>
+                                                    <td>
+
+                                                        {{creditInfo.analyseCellphoneLog.description.contactMacao.result}} <br />
+                                                        {{creditInfo.analyseCellphoneLog.description.contactMacao.total}} 
+                                                        <div ng-if="creditInfo.analyseCellphoneLog.description.contactMacao.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.contactMacao.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.contactMacao.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.contactMacao.evidence}} 
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                
+                                                <tr>
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactBank.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactBank.color == 'success'">优</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactBank.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactBank.color == 'warning'">警</span> 
+                                                        <span class="label label-{{creditInfo.analyseCellphoneLog.description.contactBank.color}}" ng-if="creditInfo.analyseCellphoneLog.description.contactBank.color == 'danger'">差</span> 
+                                                        银行类号码
+                                                    </td>
+                                                    <td>
+
+                                                        {{creditInfo.analyseCellphoneLog.description.contactBank.result}}                 <br />
+                                                        {{creditInfo.analyseCellphoneLog.description.contactBank.total}}                 
+                                                        <div ng-if="creditInfo.analyseCellphoneLog.description.contactBank.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.contactBank.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.contactBank.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.contactBank.evidence}} 
+                                                        </div>
+                                                        
+                                                        
+                                                        
+                                                       
+                                                    </td>
+                                                </tr>
+                                                
+                                                <tr>
+                                                    <td>
+                                                       通话概况
+                                                    </td>
+                                                    <td>
+                                                        {{creditInfo.analyseCellphoneLog.description.phoneCall.result}}<br />
+                                                        {{creditInfo.analyseCellphoneLog.description.phoneCall.total}}
+                                                        <div ng-if="creditInfo.analyseCellphoneLog.description.phoneCall.rows">
+                                                            <div ng-repeat="item in creditInfo.analyseCellphoneLog.description.phoneCall.rows">
+                                                                {{item}}
+                                                            </div>
+                                                        </div>
+                                                        <div ng-if="!creditInfo.analyseCellphoneLog.description.phoneCall.rows">
+                                                            {{creditInfo.analyseCellphoneLog.description.phoneCall.evidence}} 
+                                                        </div>
+                                                    </td>
+                                                </tr>       
+                                                <tr ng-if="creditInfo.analyseEducation.color"  style="display:none;">
+                                                    <td>
+                                                        <span class="label label-{{creditInfo.analyseEducation.color}}" ng-if="creditInfo.analyseEducation.color == 'success'">优</span>
+                                                        学历
+                                                    </td>
+                                                    <td>
+                                                        <div ng-if="creditInfo.analyseEducation.status == 600">
+                                                            {{creditInfo.analyseEducation.msg}}
+                                                        </div>
+                                                        <div ng-if="creditInfo.analyseEducation.status == 0 && creditInfo.analyseEducation.color == 'info'">
+                                                            {{creditInfo.analyseEducation.msg}}
+                                                        </div>
+                                                        <div ng-if="creditInfo.analyseEducation.status == 0 && creditInfo.analyseEducation.color == 'success'">
+                                                            {{creditInfo.analyseEducation.result.result.college}} （{{creditInfo.analyseEducation.result.result.collegeCity}}，{{creditInfo.analyseEducation.result.result.manageDept}}，
+                                                            {{creditInfo.analyseEducation.result.result.character}}，{{creditInfo.analyseEducation.result.result.schoolType}}，{{creditInfo.analyseEducation.result.result.collegeCategory}}，{{creditInfo.analyseEducation.result.result.educationApproach}}） <br />
+                                                            {{creditInfo.analyseEducation.result.result.degree}}（{{creditInfo.analyseEducation.result.result.startTime}} 入学，{{creditInfo.analyseEducation.result.result.graduateTime}} {{creditInfo.analyseEducation.result.result.studyResult}}）
+
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+                                            </tbody>
+                        </table>
+                         <br />
+                         <br />
+                           
+                           <h4 class="text-{{creditInfo.analyseMultipleHeadLend.color}}">多头借贷</h4>
+                               <div  ng-if="creditInfo.analyseMultipleHeadLend">
+                                    <table class="table detail_table">
+                                                        <tbody>
+                                                            <tr>
+                                                                <th width="110">
+                                                                    网贷平台注册次数
+                                                                </th>
+                                                                <td>
+                                                                     {{creditInfo.analyseMultipleHeadLend.description.webRegisterCount}}
+                                                                </td>
+                                                                <th>
+                                                                     网贷逾期次数
+                                                                </th>
+                                                                <td>
+                                                                     {{creditInfo.analyseMultipleHeadLend.description.webOverdueCount}}
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>网贷申请借款次数
+                                                                </th>
+                                                                <td>
+                                                                    {{creditInfo.analyseMultipleHeadLend.description.webApplyCount}}
+                                                                </td>
+                                                                 <th>
+                                                                    申请借款金额约
+                                                                </th>
+                                                                <td>
+                                                                     {{creditInfo.analyseMultipleHeadLend.description.webApplyMax*1000}}元
+                                                                </td>
+                                                            </tr>
+                                                             <tr>
+                                                                <th>网贷借款平台数
+                                                                </th>
+                                                                <td>
+                                                                    {{creditInfo.analyseMultipleHeadLend.description.webLendCount}}
+                                                                </td>
+                                                                <th>
+                                                                    借款金额约
+                                                                </th>
+                                                                <td>
+                                                                     {{creditInfo.analyseMultipleHeadLend.description.webLendMax*1000}}元
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th>网贷逾期平台数
+                                                                </th>
+                                                                <td>
+                                                                    {{creditInfo.analyseMultipleHeadLend.description.webOverduePlat}}
+                                                                </td>
+                                                                <th>
+                                                                    逾期金额约
+                                                                </th>
+                                                                <td>
+                                                                     {{creditInfo.analyseMultipleHeadLend.description.webOverdueMax*1000}}元
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                               </div>
+                               <div  ng-if="!creditInfo.analyseMultipleHeadLend.color">
+                                    无
+                               </div>
+                           <br/>
+                           <br/>
+                            <h4 class="text-{{creditInfo.analyseDishonestBlacklist.color}}"> 失信黑名单</h4>
+                                <div ng-if="creditInfo.analyseDishonestBlacklist">
+                                    <div class="form-group" ng-repeat="(key, value) in creditInfo.analyseDishonestBlacklist.result">
+                                                <table>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td width="120">描述</td>
+                                                            <td> {{value.duty}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>执行类行</td>
+                                                            <td> {{value.disrupt_type}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>执行字号</td>
+                                                            <td> {{value.code}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>姓名</td>
+                                                            <td> {{value.name}}，{{value.age}}，{{value.sex}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>身份证号</td>
+                                                            <td> {{value.idcardno}}</td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td>公告日期</td>
+                                                            <td> {{value.pub_time}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>法院</td>
+                                                            <td> {{value.court}}</td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td>地区</td>
+                                                            <td> {{value.area}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>business_entity</td>
+                                                            <td> {{value.business_entity}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>执行情况</td>
+                                                            <td> {{value.performance}}</td>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>
+                                        <hr>
+                                    </div>
+                                </div> 
+                                <div  ng-if="creditInfo.analyseDishonestBlacklist.color == 'success'">
+                                    {{creditInfo.analyseDishonestBlacklist.msg}}
+                                </div>
+                            <br />
+            <br />  
+                
+                         <h4 class="text-{{creditInfo.analyseAntifraud.color}}"> 反欺诈</h4>
+
+                            <div  ng-if="creditInfo.analyseAntifraud">
+                                <div class="form-group" ng-repeat="item in creditInfo.analyseAntifraud.description"> 
+                                    <span class="text-{{item.color}}">
+                                        {{item.message}}
+                                    </span>
+                                </div>
+
+                            </div>
+                            <div  ng-if="!creditInfo.analyseAntifraud.color">
+                                无
+                            </div>
+                            <div   ng-if="creditInfo.analyseAntifraud.color == 'info'">
+                                查询超时
+                            </div>
+
+                  <br />
+            <br />
+                             
+                            <h4 class="text-{{creditInfo.analyseCriminal.color}}"> 刑事犯罪</h4>
+                            
+                       
+                                <div ng-if="creditInfo.analyseCriminal">
+                                    <div class="form-group" ng-repeat="item in creditInfo.analyseCriminal.result.result">
+                                                    涉案类型：{{item.crimeType}}<br />
+                                                  案件数量：{{item.count}}<br />
+                                                  案件类型：{{item.caseType}}<br />
+                                                  案件来源：{{item.caseSource}}<br />
+                                                  型罚时长：{{item.casePeriod}}<br />
+                                                  案件等级：{{item.caseLevel}}<br />
+                                                  <hr />
+                                                </div>
+                                </div> 
+                            
+                            
+                                <div ng-if="creditInfo.analyseCriminal.result.statusCode == 2007">
+                                    {{creditInfo.analyseCriminal.result.statusMsg}}
+                                </div>
+                                  <br />
+            <br />            
+                                            
+
+                            <h4 class="text-{{creditInfo.analyseCourtJudgment.color}}"> 法院判决</h4>
+
+                            <div ng-if="creditInfo.analyseCourtJudgment.result.result.totalCount > 0" ng-repeat="item in creditInfo.analyseCourtJudgment.result.result.docList">
+                                <div ng-bind-html="item.detail.result.content"></div>
+
+                                <hr>
+                            </div>
+                             <div ng-if="creditInfo.analyseCourtJudgment.result.totalCount > 0" ng-repeat="item in creditInfo.analyseCourtJudgment.result.docList">
+                                <div ng-bind-html="item.detail.result.content"></div>
+                                <hr>
+                            </div>
+                             <div ng-if="creditInfo.analyseCourtJudgment.result.result.totalCount == 0">
+                                        {{creditInfo.analyseCourtJudgment.result.result.docList[0]}}
+                            </div>
+
+            <br />
+            <br />
+            
+             <h4 > 通话记录</h4>
+                                <table width="100%">
+                                                    <thead>
+                                                        <tr>
+                                                        <th>主叫</th>
+                                                        <th>被叫</th>
+                                                        <th>号码</th>
+                                                        <th>城市</th>
+                                                        <th>公司</th>
+                                                        <th>总通时长</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr ng-repeat="item in creditInfo.analyseCellphoneLog.description.phoneSomeDetails">
+                                                            <td >{{item.dialCount}}</td>
+                                                            <td >{{item.dialedCount}}</td>
+                                                            <td >{{item.peerNum}}</td>
+                                                            <td >{{item.city}}</td>
+                                                            <td >{{item.companyName}}</td>
+                                                            <td>{{item.callTime}}分钟</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>   
+            
+            
+        </div>
+    </div>
+</div>
+

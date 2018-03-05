@@ -1,0 +1,52 @@
+package apifengkong.util;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import apifengkong.entity.User;
+
+
+public class Common {
+	
+	public static User getPrincipal() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()) {
+			return null;
+		}
+		if (authentication.getPrincipal() instanceof User) {
+			return (User) authentication.getPrincipal();
+		} else {
+			return null;
+		}
+	}
+	
+	public static int youfen_money_min(String s){
+		String[] split = s.split("～");
+		if(split[0].substring(0,split[0].indexOf("w")).equalsIgnoreCase("0")){
+			return 1;
+		}else{
+			Double valueOf = Double.valueOf(split[0].substring(0,split[0].indexOf("w")));
+			valueOf = valueOf * 10;
+			int intValue = valueOf.intValue();
+			return intValue;
+		}
+	}
+	public static int youfen_money_max(String s){
+		String[] split = s.split("～");
+		if(split[1].substring(0,split[1].indexOf("w")).equalsIgnoreCase("0")){
+			return 1;
+		}else{
+			Double valueOf = Double.valueOf(split[1].substring(0,split[1].indexOf("w")));
+			valueOf = valueOf * 10;
+			int intValue = valueOf.intValue();
+			return intValue;
+		}
+	}
+}

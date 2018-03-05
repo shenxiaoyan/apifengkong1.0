@@ -1,0 +1,141 @@
+<script>
+    "use strict";
+    app.controller("financeCtrl", [
+            "$scope", "$http", "$rootScope", "$state",
+            function ($scope, $http, $rootScope, $state) {
+
+            $scope.list = [];
+            $scope.number = 0;
+            $scope.deposit_value  = 100;
+            //初始化分页参数
+            $scope.pageList = {
+            size: 0,
+                    total_elements: 0,
+                    current_page: 0,
+                    num_page: 1,
+                    total_page: 1
+            };
+            $scope.getList = function(page){
+
+            //String name,String idCard,String mobile
+            $http({
+            method:'GET',
+                    url:'/company/remainderLog/list?sort=id,desc&size=10&page=' + page,
+            })
+                    .then(function (resResult) {
+                    if (resResult.data.content){
+                    $scope.list = resResult.data.content;
+                    $scope.number = $scope.list.length;
+                    //设置分页参数
+                    $scope.pageList = {
+                    size: resResult.data.size,
+                            total_elements: resResult.data.numberOfElements,
+                            current_page: resResult.data.number,
+                            num_page: resResult.data.totalPages,
+                            total_page: resResult.data.totalPages
+                    };
+                    //生成翻页插件
+                    if ($scope.list.length > 0) {
+                    $rootScope.setPaginator("#finance_list_paginator", $scope.pageList, $scope.getList);
+                    }
+                    }
+                    });
+            };
+            $scope.getList(0);
+            $scope.goDetail = function (id) {
+                $state.go('personloan_detail', {id: id});
+            }
+            
+            $scope.deposit100 = function(){
+                $scope.deposit_value = 100;
+            }
+            $scope.deposit1000 = function(){
+                $scope.deposit_value = 1000;
+            }
+            $scope.deposit5000 = function(){
+                $scope.deposit_value = 5000;
+            }
+            $scope.deposit10000 = function(){
+                $scope.deposit_value = 10000;
+            }
+            
+             $scope.depositSubmit = function(){
+                     $http({method: "post", url: '/company/deposit', data:{platform:'ALIPAY',amount:$scope.deposit_value}}).then(function (response) {
+                        console.log(response.data);
+                        var resResult = response.data;
+                        if (typeof resResult.status != 'undefined' && resResult.status == 'fail') {
+                                alert(resResult.msg);
+                        } else {
+                            jQuery("#alipay_return").html(response.data);
+                        }
+                    }, function(){
+
+                    });
+                }
+            
+            }
+    ]);</script>
+<div class="body_wrap list_wrap" ng-controller="financeCtrl">
+    <div class="title_wrap">
+        <div class="page_title">
+            <div class="pull-left">
+                余额
+                
+                <span>{{myinfo.company.remainder ? myinfo.company.remainder:0}}</span>
+                元
+            </div>
+        </div>
+    </div>
+    <div class="content_wrap">
+        <div class="pull-left" style="width: 40%">
+            <div id="alipay_return">
+                
+            </div>
+            <p>充值有一定优惠</p>
+            <p>
+                <button class="btn btn-default btn-sm" ng-click="deposit100()">充100元体验</button>
+                <button class="btn btn-default btn-sm" ng-click="deposit1000()">充1000元得1100</button>
+                <button class="btn btn-default btn-sm" ng-click="deposit5000()">充5000元得5750</button>
+                <button class="btn btn-default btn-sm" ng-click="deposit10000()">充10000元得12000</button>
+            </p>
+            <br />
+            <form>
+                <div class="form-group">
+                    <input type="text" class="form-control" ng-model="deposit_value">
+                </div>
+                <button ng-click="depositSubmit()" class="btn btn-success">支付宝充值</button>
+            </form>
+        </div>
+        <div class="pull-right" style="width:50%">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>用户</th>
+                        <th>变动类型</th>
+                        <th>余额变动</th>
+                        <th>档案</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="(key, row) in list">
+                        <td>{{row.createTime| date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                        <td>{{row.byUser.username}}</td>
+
+                        <td><span ng-if="row.type == 'DEPOSIT'">充值</span><span ng-if="row.type == 'WITHDRAW'">消费</span></td>
+                        <td><span ng-if="row.type == 'DEPOSIT'">+{{row.value}}</span><span ng-if="row.type == 'WITHDRAW'">-{{row.value}}</span></td>
+                        <td>
+                            <a ng-click="goDetail(row.entityId)" class="btn btn-default btn-xs" ng-if="row.entityId > 0">详情</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="wrapper b-t b-light clearfix">
+                <ul id="finance_list_paginator" style="margin:2px 0;float: right;"></ul>
+                <small class="m-l-md pull-right text-muted inline m-t-sm m-b-sm m-r">本页共 {{ pageList.total_elements}} 条</small>
+            </div>
+            
+        </div>
+
+    </div>
+</div>

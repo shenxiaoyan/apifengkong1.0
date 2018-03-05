@@ -1,0 +1,60 @@
+<script>
+    "use strict";
+    /*
+     * 创建人：沈小艳
+     * 创建时间：2017/08/23
+     * 供应商
+     * */
+    app.controller('managementStaff', ['$scope', '$http', '$state', function ($scope, $http, $state) {
+
+        // 显示
+        $scope.addedData = function () {
+            $http({
+                method: 'POST',
+                url: '/getRechargeLog'
+
+            }).then(function successCallback(response) {
+                console.log(response.data)
+
+                $scope.rechargeLog = response.data;
+
+            }, function errorCallback(response) {
+                // 请求失败执行代码
+                console.log(response.data)
+            });
+        };
+        $scope.addedData();
+
+
+    }])
+</script>
+<div class="hbox hbox-auto-xs bg-light" ng-controller="managementStaff">
+    <div class="bg-light lter b-b wrapper-md">
+        <span class="m-n font-thin h3">充值记录</span>
+    </div>
+
+    <div class="wrapper-md">
+        <table class="table table-hover table-condensed bg-white-only">
+            <tr style="font-weight: bold">
+                <td class="text-center v-middle">序号</td>
+                <td class="text-center v-middle">操作人</td>
+                <td class="text-center v-middle">公司</td>
+                <td class="text-center v-middle">充值金额</td>
+                <td class="text-center v-middle">充值时间</td>
+            </tr>
+            <tbody ng-repeat="(index,rechargeRcord) in rechargeLog" style="border: none;">
+            <tr>
+                <td class="text-center v-middle">{{index + 1}}</td>
+                <td class="text-center v-middle">{{rechargeRcord.user.username}}</td>
+                <td class="text-center v-middle">{{rechargeRcord.customer.companyName}}</td>
+                <td class="text-center v-middle">{{rechargeRcord.integrate}}</td>
+                <td class="text-center v-middle">{{rechargeRcord.rechargeTime | date : 'yyyy-MM-dd HH:mm:ss'}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+

@@ -1,0 +1,45 @@
+package apifengkong.controller;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import apifengkong.entity.PersonCreditSubmit;
+import apifengkong.entity.PersonCreditSubmitRepository;
+import apifengkong.service.PersonCreditSearchService;
+
+@Controller
+public class PersonCreditSearchController {
+	
+	@Autowired
+	PersonCreditSearchService personCreditSearchService;
+	
+	@Autowired
+	PersonCreditSubmitRepository personCreditSubmitRepository;
+	
+
+	@RequestMapping(value = "/personCreditSearch", method = RequestMethod.GET)
+	public String info1(PersonCreditSubmit p) {
+		return "personForm";
+	}
+
+	@RequestMapping(value = "/personCreditSearch", method = RequestMethod.POST)
+	public String info2(@Valid PersonCreditSubmit personForm, BindingResult result) {
+		if (result.getAllErrors().isEmpty()) {
+			
+			PersonCreditSubmit save = personCreditSubmitRepository.save(personForm);
+			
+			personCreditSearchService.personCreditSearch(save);
+			return "success";
+		} else {
+			return "personForm";
+		}
+	}
+
+	
+
+}

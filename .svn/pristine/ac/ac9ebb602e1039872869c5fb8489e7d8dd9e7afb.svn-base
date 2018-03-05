@@ -1,0 +1,11 @@
+package apifengkong.entity;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface APISearchLogRepository extends JpaRepository<APISearchLog, Integer> {
+	APISearchLog findFirstByApiAndParametersOrderByCreateTimeDesc(SupplyAPI api,String parameters);
+//	@Query(value="select l from APISearchLog l where l.user.role.name='ROLE_USER'")
+//	List<APISearchLog> getStuffConsumReport();
+}
+
+

@@ -1,0 +1,35 @@
+{
+	"id": 1,
+	"name": "利用",
+	"url": null,
+	"description": "啊啊啊",
+	"supplier": {
+		"id": 1,
+		"supplyName": "aliyun",
+		"linkman": "liyang",
+		"linkmanMobile": "123",
+		"webURL": "www.aliyun.com",
+		"appCode": "1",
+		"appSecret": "2"
+	},
+	"parameterNumber": 3,
+	"price": 1,
+	"effectiveTime": null,
+	"parameterCouples": [
+		{
+			"id": 3,
+			"uniformParameter": "b",
+			"searchParameter": "b1"
+		},
+		{
+			"id": 2,
+			"uniformParameter": "a",
+			"searchParameter": "a2"
+		},
+		{
+			"id": 4,
+			"uniformParameter": "c",
+			"searchParameter": "c1"
+		}
+	]
+}

@@ -1,0 +1,287 @@
+package apifengkong.controller;
+
+import java.nio.charset.Charset;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
+import apifengkong.controller.UserController.PaymentChannel;
+import apifengkong.entity.Company;
+import apifengkong.entity.CompanyRemainderLog;
+import apifengkong.entity.CompanyRemainderLogRepository;
+import apifengkong.entity.CompanyRepository;
+import apifengkong.entity.PersonLoan;
+import apifengkong.entity.PersonLoanRepository;
+import apifengkong.entity.Role;
+import apifengkong.entity.Supplier;
+import apifengkong.entity.SupplierRepository;
+import apifengkong.entity.SupplyAPI;
+import apifengkong.entity.SupplyAPIRepository;
+import apifengkong.entity.User;
+import apifengkong.entity.UserRepository;
+import apifengkong.service.CompanyService;
+import apifengkong.service.ParameterService;
+import apifengkong.util.Common;
+import apifengkong.util.FailResponse;
+import apifengkong.util.Common.personLoanHistoryCriteria;
+import apifengkong.entity.UserRemainderLog.ChargeStatus;
+
+@Controller
+@RequestMapping(value = "/admin")
+public class AdminController {
+
+	@Autowired
+	UserRepository userRepository;
+
+	@Autowired
+	CompanyRepository companyRepository;
+
+	@Autowired
+	PersonLoanRepository personLoanRepository;
+
+	@Autowired
+	SupplierRepository supplierRepository;
+
+	@Autowired
+	SupplyAPIRepository supplyAPIRepository;
+
+	@Autowired
+	CompanyService companyService;
+
+	@Autowired
+	ParameterService parameterService;
+
+	@Autowired
+	private CompanyRemainderLogRepository companyRemainderLogRepository;
+
+	@RequestMapping(value = "/user/info/{id}")
+	@ResponseBody
+	@PreAuthorize("hasRole('ADMIN')")
+	public User userInfo(@PathVariable Integer id) {
+		User findOne = userRepository.findOne(id);
+		findOne.setPassword(null);
+		return findOne;
+	}
+
+	@RequestMapping(value = "/user/insertOrUpdate", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('ADMIN')")
+	@ResponseBody
+	public User insertOrUpdateUser(@RequestBody User user) {
+		if (user.getCreateTime() == null) {
+			user.setCreateTime(new Date());
+		}
+		return userRepository.save(user);
+
+	}
+
+	@RequestMapping(value = "/user/list")
+	@ResponseBody
+	@PreAuthorize("hasRole('ADMIN')")
+	public Page<User> list(Pageable page) {
+		return userRepository.findAll(page);
+	}
+
+	// -------------------------------------------------------
+	@RequestMapping(value = "/company/info/{id}")
+	@ResponseBody
+	@PreAuthorize("hasRole('ADMIN')")
+	public Company companyInfo(@PathVariable Integer id) {
+		return companyRepository.findOne(id);
+	}
+
+	@RequestMapping(value = "/company/list")
+	@ResponseBody
+	@PreAuthorize("hasRole('ADMIN')")
+	public Page<Company> companyList(Pageable page) {
+		return companyRepository.findAll(page);
+	}
+
+	@RequestMapping(value = "/company/insertOrUpdate", method = RequestMethod.POST)
+	@ResponseBody
+	@PreAuthorize("hasRole('ADMIN')")
+	public Company insertOrUpdateCompany(@RequestBody Company company) {
+		if (company.getCreateTime() == null) {
+			company.setCreateTime(new Date());
+			company.setAppCode(parameterService.getMD5(new Date().toString().getBytes(Charset.forName("utf-8"))));
+		}
+		return companyRepository.save(company);
+	}
+
+	@RequestMapping(value = "/company/deposit", method = RequestMethod.POST)
+	@ResponseBody
+	@PreAuthorize("hasRole('ADMIN')")
+	public Object deposit(@RequestBody @Valid AdminChargeCompany form, BindingResult result) {
+		if (result.getAllErrors().isEmpty()) {
+			Company company = companyRepository.findOne(form.getId());
+			companyService.directDeposit(company, form.getAmount(), PaymentChannel.BACKEND, form.getNote());
+			return company;
+		} else {
+			String defaultMessage = result.getAllErrors().get(0).getDefaultMessage();
+			ObjectError objectError = result.getAllErrors().get(0);
+			BeanWrapperImpl beanWrapperImpl = new BeanWrapperImpl(objectError);
+			Object propertyValue = beanWrapperImpl.getPropertyValue("field");
+			String field = propertyValue.toString();
+			HashMap<String, Object> hashMap = new HashMap<String, Object>();
+			hashMap.put("status", "fail");
+			hashMap.put("code", field);
+			hashMap.put("message", defaultMessage);
+			return hashMap;
+		}
+	}
+
+	@RequestMapping(value = "/company/{id}/remainderLog/list", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasRole('ADMIN')")
+	public Page<CompanyRemainderLog> remainderLogList(@PathVariable Integer id, Pageable page) {
+		Company company = companyRepository.findOne(id);
+		Page<CompanyRemainderLog> findByCompany = companyRemainderLogRepository.findByCompanyAndStatusNotOrderByIdDesc(company, ChargeStatus.WAIT_BUYER_PAY, page);
+		return findByCompany;
+	}
+
+	// -------------------------------------------------------
+
+	@RequestMapping(value = "/supply/info/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	@ResponseBody
+	public Supplier supplyInfo(@PathVariable Integer id) {
+		return supplierRepository.findOne(id);
+	}
+
+	@RequestMapping(value = "/supply/list")
+	@PreAuthorize("hasRole('ADMIN')")
+	@ResponseBody
+	public Page<Supplier> supplyList(Pageable page) {
+		return supplierRepository.findAll(page);
+	}
+
+	@RequestMapping(value = "/supply/insertOrUpdate", method = RequestMethod.POST)
+	@ResponseBody
+	@PreAuthorize("hasRole('ADMIN')")
+	public Supplier insertOrUpdate(@RequestBody Supplier supplier) {
+		return supplierRepository.save(supplier);
+	}
+
+	// -------------------------------------------------------
+	@RequestMapping(value = "/supplyAPI/info/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	@ResponseBody
+	public SupplyAPI info(@PathVariable Integer id) {
+		return supplyAPIRepository.findOne(id);
+	}
+
+	@RequestMapping(value = "/supplyAPI/list")
+	@ResponseBody
+	public Page<SupplyAPI> supplyAPIlist(Pageable page) {
+		return supplyAPIRepository.findAll(page);
+	}
+
+	@RequestMapping(value = "/supplyAPI/insertOrUpdate", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('ADMIN')")
+	@ResponseBody
+	public SupplyAPI insertOrUpdate(@RequestBody SupplyAPI supplyAPI) {
+		return supplyAPIRepository.save(supplyAPI);
+	}
+
+	// -------------------------------------------------------
+
+	// 获取个人信息列表
+	@RequestMapping(value = "/personLoan/history", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasRole('ADMIN')")
+	public Page<PersonLoan> personLoanList(String name, String idCard, String mobile, Pageable page) {
+
+		personLoanHistoryCriteria personLoanHistory = new Common.personLoanHistoryCriteria(name, idCard, mobile, null,null);
+		Page<PersonLoan> findAll = personLoanRepository.findAll(personLoanHistory, page);
+
+		for (PersonLoan personLoan : findAll.getContent()) {
+			// 分析其通话记录
+			String analyseCellphoneLog = personLoan.getAnalyseCellphoneLog();
+			if (analyseCellphoneLog != null) {
+				// 将前端json类型数据转object
+				JSONObject object = JSON.parseObject(analyseCellphoneLog);
+				object.put("result", null);
+				personLoan.setAnalyseCellphoneLog(object.toJSONString());
+			}
+		}
+		return findAll;
+	}
+
+
+
+	// 根据用户id显示信息
+	@RequestMapping(value = "/personLoan/info/{id}", method = RequestMethod.GET)
+	@ResponseBody
+	@PreAuthorize("hasRole('ADMIN')")
+	public PersonLoan personLoanInfo(@PathVariable Integer id) {
+		PersonLoan findOne = personLoanRepository.findOne(id);
+		String analyseCellphoneLog = findOne.getAnalyseCellphoneLog();
+		if (analyseCellphoneLog != null) {
+			JSONObject object = JSON.parseObject(analyseCellphoneLog);
+			object.put("result", null);
+			findOne.setAnalyseCellphoneLog(object.toJSONString());
+		}
+		Calendar c1 = Calendar.getInstance();// 取当前日期。
+		c1.add(Calendar.DATE, -30);
+		Long countByIdCardAndCreateAtGreaterThan = personLoanRepository
+				.countByIdCardAndCreateAtGreaterThan(findOne.getIdCard(), c1.getTime());
+		findOne.setSearch30days(countByIdCardAndCreateAtGreaterThan.intValue());
+		return findOne;
+	}
+
+	public static class AdminChargeCompany {
+		@NotNull
+		private Integer id;
+		@NotBlank
+		private String note;
+		@NotNull
+		private Integer amount;
+
+		public Integer getId() {
+			return id;
+		}
+
+		public void setId(Integer id) {
+			this.id = id;
+		}
+
+		public String getNote() {
+			return note;
+		}
+
+		public void setNote(String note) {
+			this.note = note;
+		}
+
+		public Integer getAmount() {
+			return amount;
+		}
+
+		public void setAmount(Integer amount) {
+			this.amount = amount;
+		}
+
+	}
+}

@@ -1,0 +1,221 @@
+<script>
+    /*
+     * 创建人：刘雅倩
+     * 创建时间：2017/08/10
+     * 平台看的各公司接口请求数量
+     *
+     * */
+    "use strict";
+    app.controller("companyInterCtrl", [
+        "$scope","$http",
+        function($scope,$http) {
+
+            $scope.branchList = [{
+                id: "",
+                name: "公司1",
+                custorm: "456",
+                time: "2017-02-13"
+            }, {
+                id: "",
+                name: "公司1",
+                custorm: "456",
+                time: "2017-02-13"
+            }, {
+                id: "",
+                name: "公司1",
+                custorm: "456",
+                time: "2017-02-13"
+            }, {
+                id: "",
+                name: "公司1",
+                custorm: "456",
+                time: "2017-02-13"
+            }, {
+                id: "",
+                name: "公司1",
+                custorm: "456",
+                time: "2017-02-13"
+            }];
+
+
+            $scope.getEregist=function () {
+                $scope.registEmployee=null;
+                $scope.registNum=null;
+
+                //获取参数
+                //查询员工消费的金额 当天
+                $http({
+                    method: 'POST',
+//                        url: '/companycombo/stuffConsumLastWeek'
+//                        url: '/companycombo/stuffConsumToday'
+                    url: '/comapnyStatistics/couapiweek'
+                }).then(function successCallback(response) {
+
+                    console.log(response)
+
+                    //定义变量接充值和消费的列表
+//                        $scope.rechargeList = response.data.reportConsume;
+//                        $scope.custormList = response.data.reportRecharge;
+
+                    //循环出消费列表的account，把所有数据相加，得到本月的总值
+//                        angular.forEach(response.data.reportConsume,function(val,index){
+//                            $scope.custormScore += val.account;
+//                        })
+
+//                        angular.forEach(response.data.reportRecharge,function(val,index){
+//                            $scope.chargeScore += val.account;
+//                        })
+
+                    //调用图表的方法，参数要对应
+//                        $scope.setCharts($scope.chargeScore,$scope.custormScore);
+                });
+
+
+            }
+
+            $scope.getEregist()
+
+
+
+
+
+
+            //echarts，数据是假的
+
+
+            $scope.setCharts = function() {
+                var branchChart = echarts.init(document.getElementById('brand_dashboard_chart'));
+
+                var option = {
+                    title: {
+                        text: '公司接口数量'
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    legend: {
+                        data: ['2011年']
+                    },
+                    grid: {
+                        left: '7%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'value',
+                        boundaryGap: [0, 0.01]
+                    },
+                    yAxis: {
+                        type: 'category',
+                        data: ['信用卡接口', '线下接口', '支付宝接口', '违章接口', '支付接口', '信用卡接口',
+                            '线下接口', '支付宝接口', '违章接口', '支付接口', '信用卡接口', '线下接口',
+                            '支付宝接口', '违章接口', '支付接口', '信用卡接口', '线下接口', '支付宝接口',
+                            '违章接口', '支付接口', '信用卡接口', '线下接口', '支付宝接口', '违章接口',
+                            '支付接口', '信用卡接口', '线下接口', '支付宝接口', '违章接口', '支付接口',
+                            '信用卡接口', '线下接口', '支付宝接口', '违章接口', '支付接口', '信用卡接口',
+                            '线下接口', '支付宝接口', '违章接口', '支付接口', '信用卡接口', '线下接口',
+                        ]
+                    },
+                    series: [{
+                        name: '2011年',
+                        type: 'bar',
+                        itemStyle: {
+                            normal: {
+                                color: '#7BBBF6'
+                            }
+                        },
+                        data: [18203, 23489, 29034, 104970, 131744, 63030,
+                            18203, 23489, 29034, 104970, 131744, 60230,
+                            18203, 23489, 29034, 104970, 131744, 63230,
+                            18203, 23489, 29034, 104970, 131744, 60230,
+                            18203, 23489, 29034, 104970, 131744, 63230,
+                            18203, 23489, 29034, 104970, 131744, 60230,
+                            18203, 23489, 29034, 104970, 131744, 63020,
+                        ]
+                    }]
+                };
+
+
+
+                branchChart.setOption(option);
+
+                //窗口大小改变时重新绘制图表
+                $(window).resize(function() {
+                    branchChart.resize();
+                });
+            };
+
+            $scope.setCharts();
+        }
+    ]);
+</script>
+
+<div class="hbox hbox-auto-xs lter" ng-controller="companyInterCtrl">
+    <!-- column -->
+    <div class="col">
+        <div class="vbox">
+            <div class="bg-light lter b-b clearfix" style="padding: 14.5px 20px;">
+                <div class="btn-group">
+                    <button type="button" class="m-r btn btn-sm btn-addon btn-info">
+                        <i class="fa fa-plus" ng-class="iconClass[btn]"></i><span>打印</span>
+                    </button>
+                </div>
+                <div class="pull-right">
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-default" ng-click="changeView($event)">今天</button>
+                        <button class="btn btn-sm btn-default" ng-click="changeView($event)">昨天</button>
+                        <button class="btn btn-sm btn-default" ng-click="changeView($event)">前天</button>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-default" ng-click="changeView('agendaDay')">本周</button>
+                        <button class="btn btn-sm btn-default" ng-click="changeView('agendaWeek')">上周</button>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-default" ng-click="changeView('month')">本月</button>
+                        <button class="btn btn-sm btn-default" ng-click="changeView('month')">上月</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row-row">
+                <div class="cell">
+                    <div class="cell-inner wrapper-md">
+                        <div style="padding-top: 0;">
+                            <div class="panel wrapper">
+                                <div id="brand_dashboard_chart" style="height:800px;"></div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="table-responsive">
+                                <table class="table table-striped b-t b-light">
+                                    <thead>
+                                        <tr>
+                                            <th>公司</th>
+                                            <th>信用卡查询数量</th>
+                                            <th>支付宝查询数量</th>
+                                            <th>违章查询数量</th>
+                                            <th>线下查询数量</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="list in branchList">
+                                            <td><span class="pull-left waybill_item_number"><a>{{ list.name }}</a></span></td>
+                                            <td><span class="pull-left waybill_item_number">{{ list.custorm }}</span></td>
+                                            <td><span class="text-ellipsis">{{ list.custorm }}</span></td>
+                                            <td><span class="text-ellipsis">{{ list.custorm }}</span></td>
+                                            <td><span class="text-ellipsis">{{ list.custorm }}</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

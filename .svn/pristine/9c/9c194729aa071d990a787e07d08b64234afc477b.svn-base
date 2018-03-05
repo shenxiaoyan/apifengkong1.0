@@ -1,0 +1,120 @@
+<script>
+    /*
+     * 创建人：沈小艳
+     * 创建时间：2017/08/10
+     * 员工管理
+     * */
+
+    "use strict";
+    app.controller('managementStaff',['$scope','$http',function ($scope,$http) {
+
+        $scope.weixinSrc = "/toaddStuff?companyid="
+        //添加
+        $scope.add = function(addName){
+            //显示bootstrap中的模块窗口
+            $('#modal-1').modal('show');
+             $scope.weixinSrc = "/toaddStuff?companyid=" + addName
+        };
+
+//        checkbox的样式改变员工的相应状态
+        $scope.checkboxType=function (text) {
+            text.checkBox=!text.checkBox;
+            console.log('ddd')
+        }
+
+        //        改变CheckBox状态
+        $scope.updateChangebox = function ($event,x) {
+
+            var isChecked = $(($event.delegateTarget)).prop("checked");
+
+            x.state = isChecked;
+
+
+            $http({
+                method: 'POST',
+                url: '//manger/updateStuff',
+                data: x
+            }).then(function successCallback(response) {
+
+                console.log(response)
+            }, function errorCallback(response) {
+                // 请求失败执行代码
+                console.log('aaa')
+            });
+
+        };
+
+
+
+
+        $scope.popStuff=function () {
+            $http({
+                method:'POST',
+                url:'/manger/stuff'
+            }).then(function successCallback(response){
+                console.log(response)
+                $scope.stuffs = response.data.stuff
+            })
+        }
+
+        $scope.popStuff();
+
+    }])
+</script>
+<div class="hbox hbox-auto-xs bg-light" ng-controller="managementStaff">
+    <div class="bg-light lter b-b wrapper-md">
+        <h1 class="m-n font-thin h3">员工管理</h1>
+    </div>
+    <div class="wrapper-md">
+        <button class="btn btn-default m-t m-b-md pull-right" ng-click="add(myinfo.company.id)">添加</button>
+    </div>
+    <div class="wrapper-md">
+        <table class="table table-hover table-condensed bg-white-only">
+            <tr style="font-weight: bold">
+                <td class="text-center">序号</td>
+                <td class="text-center">姓名</td>
+                <td class="text-center">消费金额</td>
+                <td class="text-center">时间</td>
+                <td class="text-center">操作</td>
+            </tr>
+            <tr ng-repeat="(index,x) in stuffs" ng-class="{'disabledStyle':!x.state}">
+                <td class="text-center">{{index+1}}</td>
+                <td class="text-center">{{x.nickname}}</td>
+                <td class="text-center">{{x.consum}}</td>
+                <td class="text-center">{{x.createTime}}</td>
+                <td>
+                    <label class="i-switch m-t-xs" style="margin: auto;display: block">
+                        <input type="checkbox" ng-modal="x.state" ng-checked="x.state" ng-click="updateChangebox($event,x)">
+                        <i></i>
+                    </label>
+                </td>
+            </tr>
+        </table>
+
+        <!-- 添加信息 -->
+        <div class="modal" id="modal-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                        <h3 class="modal-title">添加员工信息</h3>
+                    </div>
+                    <div class="modal-body" style="padding-left: 145px">
+                        <iframe style="margin: auto;" src="{{weixinSrc}}" frameborder="0" scrolling="no" width="300px" height="400px"></iframe>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-sm btn-default" data-dismiss="modal">关闭</button>
+                        <button class="btn btn-sm btn-success" data-dismiss="modal">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+

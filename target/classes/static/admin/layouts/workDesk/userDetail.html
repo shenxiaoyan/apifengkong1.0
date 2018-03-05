@@ -1,0 +1,396 @@
+<script>
+    "use strict";
+    /*
+     * 创建人：沈小艳
+     * 创建时间：2017/08/23
+     * 供应商
+     * */
+    app.controller('managementStaff', ['$scope', '$http', '$state','$filter', function ($scope, $http, $state,$filter) {
+
+        $scope.companyList = [];
+        $scope.customer={};
+        $http({
+            method: 'POST',
+            url: '/customer/list',
+
+        }).then(function successCallback(response) {
+
+            $scope.companyLists = response.data;
+//            console.log(response)
+
+            $scope.customer = $scope.companyList[0];
+
+        });
+
+
+
+
+
+
+        //        获取所有员工信息
+        $scope.showUser = function () {
+            $http({
+                method: 'POST',
+                url: '/user/list'
+            }).then(function successCallback(response) {
+
+                $scope.userLists = response.data;
+                console.log(response.data)
+            });
+        };
+        $scope.showUser();
+
+        //        改变CheckBox状态
+        $scope.updateUserState = function ($event,userList) {
+
+            delete userList.authorities
+
+            console.log(userList)
+
+
+            var isChecked = $(($event.delegateTarget)).prop("checked");
+
+            userList.enabled = isChecked;
+
+
+            if(userList.role.id === 2){
+                $http({
+                    method: 'POST',
+                    url: '/user/insertOrUpdateEmployee',
+                    data: userList
+                }).then(function successCallback(response) {
+
+                }, function errorCallback(response) {
+                    // 请求失败执行代码
+                    console.log('aaa')
+                });
+            }
+            if(userList.role.id === 3){
+                $http({
+                    method: 'POST',
+                    url: '/user/insertOrUpdateManager',
+                    data: userList
+                }).then(function successCallback(response) {
+
+                }, function errorCallback(response) {
+                    // 请求失败执行代码
+                    console.log('aaa')
+                });
+            }
+            else{
+                console.log('aaaa')
+                return false;
+
+            }
+
+        };
+
+        //    显示员工模态框
+        $scope.modalUser = function () {
+            //显示bootstrap中的模块窗口
+            $('#modalUser').modal('show');
+        };
+
+        //    显示老板模态框
+        $scope.modalBoss = function () {
+            //显示bootstrap中的模块窗口
+            $('#modalBoss').modal('show');
+        };
+
+        //    添加员工
+        $scope.addUsers = {};
+        $scope.addUser = function () {
+            var addEmployee = {};
+            $scope.addUsers.enabled = true;
+            addEmployee.customer = $scope.customer;
+            addEmployee.enabled = $scope.addUsers.enabled;
+            addEmployee.username = $scope.addUsers.username;
+            addEmployee.password = $scope.addUsers.password;
+            $http({
+                method: 'POST',
+                url: '/user/insertOrUpdateEmployee',
+                data: addEmployee
+            }).then(function successCallback(response) {
+                $state.reload(true);
+                //关闭模块窗口
+                $('#modalUser').modal('hide');
+            });
+        }
+
+        //    添加老板
+        $scope.addBoss = {};
+        $scope.addManager=function () {
+            var addBosses = {};
+            $scope.addBoss.enabled =true;
+            addBosses.customer = $scope.customer;
+            addBosses.enabled = $scope.addBoss.enabled;
+            addBosses.username = $scope.addBoss.username;
+            addBosses.password = $scope.addBoss.password;
+            $http({
+                method: 'POST',
+                url: '/user/insertOrUpdateManager',
+                data: addBosses
+            }).then(function successCallback(response) {
+                $state.reload(true);
+                //关闭模块窗口
+                $('#modalBoss').modal('hide');
+            });
+        }
+
+        //显示详情页
+        $scope.getUserDetail = function (userList) {
+
+            $("#user_detail_model").modal("show");
+
+            $scope.detailUser = userList;
+        };
+
+        //弹出模态框修改员工信息
+        $scope.getUserUpdate = function (userList) {
+            delete userList.authorities
+            $("#user_update_model").modal("show");
+
+            $scope.updateUser = userList;
+        };
+
+        //修改员工信息
+        $scope.updateUserSave = function () {
+
+            $http({
+                url:"/user/insertOrUpdateEmployee",
+                method:"POST",
+                data:$scope.updateUser
+            }).success(function(resResult){
+                $("#user_update_model").modal("hide");
+                $state.reload(true);
+            });
+
+        };
+
+
+
+    }])
+</script>
+<div class="hbox hbox-auto-xs bg-light" ng-controller="managementStaff">
+    <div class="bg-light lter b-b wrapper-md">
+        <span class="m-n font-thin h3">用户信息</span>
+        <button class="btn m-b-xs btn-info pull-right"  ng-click="modalUser()">添加员工</button>
+        <button class="btn m-b-xs btn-info pull-right m-r"  ng-click="modalBoss()">添加老板</button>
+    </div>
+    <div class="wrapper-md">
+        <table class="table table-hover table-condensed bg-white-only">
+            <tr class="fontWeight">
+                <td class="text-center">序号</td>
+                <td class="text-center">账户</td>
+                <td class="text-center">公司名称</td>
+                <td class="text-center">是否启用</td>
+                <td class="text-center v-middle">操作</td>
+            </tr>
+            <tbody ng-repeat="(index,userList) in userLists" style="border: none;">
+            <tr ng-class="{'disabledStyle':!userList.enabled}">
+                <td class="text-center">{{index+1}}</td>
+                <td class="text-center">{{userList.username}}</td>
+                <td class="text-center">{{userList.customer.companyName}}</td>
+                <td class="v-middle">
+                    <label class="i-switch m-t-xs" style="margin: auto;display: block">
+                        <input type="checkbox" ng-modal="userList.enabled" ng-checked="userList.enabled"
+                               ng-click="updateUserState($event,userList)">
+                        <i></i>
+                    </label>
+                </td>
+                <td class="v-middle text-center clearfix">
+                    <button class=" btn btn-info btn-sm" ng-click="getUserDetail(userList)">详情</button>
+                    <button class=" btn btn-info btn-sm" ng-click="getUserUpdate(userList)">修改</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- 添加员工信息 -->
+        <div class="modal" id="modalUser">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                        <h3 class="modal-title">添加员工信息</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right"><span style="color: #ff0000">*</span>公司名称:</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control" ng-model="customer" ng-options="customer.companyName for customer in companyLists" >
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">账户：</label>
+                                <div class="col-sm-7"><input ng-model="addUsers.username" class="form-control" type="text">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">密码：</label>
+                                <div class="col-sm-7"><input ng-model="addUsers.password" class="form-control" type="text"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-sm btn-default" data-dismiss="modal">关闭</button>
+                        <button class="btn btn-sm btn-success" ng-click="addUser()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 添加老板信息 -->
+        <div class="modal" id="modalBoss">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                        <h3 class="modal-title">添加老板信息</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right"><span style="color: #ff0000">*</span>公司名称:</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control" ng-model="customer" ng-options="customer.companyName for customer in companyLists" >
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">账户：</label>
+                                <div class="col-sm-7"><input ng-model="addBoss.username" class="form-control" type="text">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">密码：</label>
+                                <div class="col-sm-7"><input ng-model="addBoss.password" class="form-control" type="text"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-sm btn-default" data-dismiss="modal">关闭</button>
+                        <button class="btn btn-sm btn-success" ng-click="addManager()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 添加详细信息 -->
+        <div class="modal" id="user_detail_model">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                        <h3 class="modal-title">员工详情信息</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                员工详情信息
+                            </div>
+                            <table class="table table-striped m-b-none">
+                                <tbody>
+                                <tr>
+                                    <td class="text-right b-r">
+                                        账户
+                                    </td>
+                                    <td>
+                                        {{ detailUser.username }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right b-r">
+                                        密码
+                                    </td>
+                                    <td>
+                                        {{ detailUser.password }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right b-r">
+                                        是否启用
+                                    </td>
+                                    <td>
+                                        {{ detailUser.enabled?"是":"否" }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right b-r">
+                                        角色
+                                    </td>
+                                    <td>
+                                        {{ detailUser.role.name }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-right b-r">
+                                        所在公司
+                                    </td>
+                                    <td>
+                                        {{ detailUser.customer.companyName }}
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- 添加修改信息 -->
+        <div class="modal" id="user_update_model">
+            <div class="modal-dialog" style="width:1300px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                        <h3 class="modal-title">员工修改</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                员工修改信息
+                            </div>
+                            <div class="panel-body">
+                                <form class="form-horizontal">
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">账户名称</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" ng-model="updateUser.username">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">账户密码</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" ng-model="updateUser.password">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="panel-footer clearfix">
+                                <button class="pull-right btn btn-sm btn-success" ng-click="updateUserSave()">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+
+

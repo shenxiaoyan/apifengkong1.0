@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>登录</title>
+   <link href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="starter-template">
+
+            <h2 style="margin-bottom: 35px">个人信用综合查询</h2>
+            
+            <form class="form-signin" th:action="@{/search/personLoan}"  method="post" th:object="${personLoan}">
+                <div class="form-group">
+                    <label for="name">姓名</label>
+                    <input type="text" class="form-control" th:field="*{name}" placeholder="姓名"/>
+                    <div th:errors="${personLoan.name}"></div>
+                </div>
+                <div class="form-group">
+                    <label for="mobile">手机</label>
+                    <input type="text" class="form-control" th:field="*{mobile}" placeholder="手机"/>
+        	<div th:errors="${personLoan.mobile}"></div>  
+                </div>
+                  <div class="form-group">
+                    <label for="IdCard">身份证号码</label>
+                    <input type="text" class="form-control"  th:field="*{idCard}" placeholder="身份证号码"/>
+        	<div th:errors="${personLoan.idCard}"></div>  
+                </div>
+                
+                   <div class="form-group">
+                    <label for="bankCard">常用银行卡号</label>
+                    <input type="text" class="form-control"  th:field="*{bankCard}" placeholder="常用银行卡号"/>
+        	<div th:errors="${personLoan.bankCard}"></div>  
+                </div>
+            
+                
+                <div class="form-group">
+                    <label for="servicePassword">运营商服务密码</label>
+                    <input type="text" class="form-control" th:field="*{servicePassword}" placeholder="服务密码"/>
+                    <a href="#">重置密码</a>
+        	<div th:errors="${personLoan.servicePassword}"></div>  
+                </div>
+                
+                  <div class="form-group">
+                    <label for="servicePassword">运营商短信验证（非必须）</label>
+                    <input type="text" class="form-control" th:field="*{sms}" placeholder="运营商短信验证"/>
+        	<div th:errors="${personLoan.sms}"></div>  
+                </div>
+                
+                
+             <div class="form-group">
+                    <label for="commonAddress">常用地址</label>
+                    <input type="text" class="form-control" th:field="*{commonAddress}" placeholder="常用地址"/>
+        	<div th:errors="${personLoan.commonAddress}"></div>  
+                </div>
+                <hr>
+                 <div class="form-group">
+                    <label for="linkman1Relationship">联系人关系</label>
+                   <select th:field="*{linkman1Relationship}">
+					  <option value="父母" selected="selected">父母</option>
+					  <option value="配偶">配偶</option>
+					  <option value="子女">子女</option>
+					</select>
+                </div>
+                 <div class="form-group">
+                    <label for="linkman1Name">姓名</label>
+                    <input type="text" class="form-control" th:field="*{linkman1Name}" placeholder="姓名"/>
+        	<div th:errors="${personLoan.linkman1Name}"></div>  
+                </div>
+                     <div class="form-group">
+                    <label for="linkman1Mobile">手机</label>
+                    <input type="text" class="form-control" th:field="*{linkman1Mobile}" placeholder="手机"/>
+        	<div th:errors="${personLoan.linkman1Mobile}"></div>  
+                </div>
+                
+                
+                 <hr>
+                 <div class="form-group">
+                    <label for="linkman2Relationship">联系人关系</label>
+                   <select th:field="*{linkman2Relationship}">
+					  <option value="朋友" selected="selected">朋友</option>
+					</select>
+                </div>
+                 <div class="form-group">
+                    <label for="linkman2Name">姓名</label>
+                    <input type="text" class="form-control" th:field="*{linkman2Name}" placeholder="姓名"/>
+        	<div th:errors="${personLoan.linkman2Name}"></div>  
+                </div>
+                     <div class="form-group">
+                    <label for="linkman2Mobile">手机</label>
+                    <input type="text" class="form-control" th:field="*{linkman2Mobile}" placeholder="手机"/>
+        	<div th:errors="${personLoan.linkman2Mobile}"></div>  
+                </div>
+                
+                 <hr>
+                 
+                <input type="submit" id="submit" value="提交" class="btn btn-primary"/>
+            </form>
+
+
+
+        </div>
+    </div>
+
+
+
+
+
+</body>
+</html>

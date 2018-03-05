@@ -1,0 +1,68 @@
+package apifengkong.service;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.http.util.EntityUtils;
+import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import apifengkong.controller.SupplyAPIController;
+import apifengkong.controller.PersonCreditSearchController.PersonForm;
+import apifengkong.entity.APISearchLog;
+import apifengkong.entity.APISearchLogRepository;
+import apifengkong.entity.Customer;
+import apifengkong.entity.CustomerRepository;
+import apifengkong.entity.SupplyAPI;
+import apifengkong.util.AliyunCallable;
+import apifengkong.util.Common;
+import apifengkong.util.YoufenCallable;
+
+@Service
+public class PersonCreditSearchService {
+
+	private static Logger logger = Logger.getLogger(PersonCreditSearchService.class);
+
+	private ExecutorService executor;
+	@Autowired
+	private APISearchLogRepository apiSearchLogRepository;
+	@Autowired
+	private CustomerRepository customerRepository;
+
+	@Autowired
+	private ParameterService parameterService;
+
+	@PostConstruct
+	public void init() {
+		this.executor = Executors.newCachedThreadPool();
+		logger.info("personCreditSearch线程池启动");
+	}
+
+	public void personCreditSearch(PersonForm personForm){
+		
+	}
+	
+	
+}

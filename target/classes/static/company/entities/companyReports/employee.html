@@ -1,0 +1,259 @@
+<script>
+    /*
+     * 创建人：刘雅倩
+     * 创建时间：2017/08/10
+     * 员工消费数量报表
+     *
+     *
+     * */
+    "use strict";
+    app.controller("employReportCtrl",
+        [
+            "$scope","$http",
+            function ($scope,$http) {
+
+
+                $scope.consumeArr=[];
+
+                $scope.getEregist=function (type) {
+                    $scope.employeeReg=[];
+                    $scope.employeeName=[];
+
+                    //获取参数
+                    //查询员工消费的金额 当天
+
+                    $scope.consumeArr = [
+                        {
+                            link:"/stuffTodayConsum",
+                            tips:"今天暂无消费记录",
+                            text:"今天员工消费积分数"
+                        },
+                        {
+                            link:"/stuffYestodayConsum",
+                            tips:"昨天暂无消费记录",
+                            text:"昨天员工消费积分数"
+                        }
+                        ,{
+                            link:"/stuffTheWeekConsum",
+                            tips:"本周暂无消费记录",
+                            text:"本周员工消费积分数"
+                        }
+                        ,{
+                            link:"/stuffTheMonthConsum",
+                            tips:"本月暂无消费记录",
+                            text:"本月员工消费积分数"
+                        }
+                        ,{
+                            link:"/stuffTheLastMonthConsum",
+                            tips:"上月暂无消费记录",
+                            text:"上月员工消费积分数"
+                        }
+                        ,{
+                            link:"/stuffConsum",
+                            tips:"暂无总消费记录",
+                            text:"员工消费总积分数"
+                        }];
+
+                        $http({
+                            method: 'POST',
+                            url: $scope.consumeArr[type].link
+                        }).then(function successCallback(response) {
+                            console.log(response);
+
+                            if(response.data.length!==0){
+
+                                $scope.consumeNumber=response.data;
+
+                                // 定义员工名称和对应消费的积分列表
+                                angular.forEach(response.data,function (res,index) {
+                                    $scope.employeeName.push(res[0]);
+                                    $scope.employeeReg.push(res[1]);
+                                });
+                                // 调用图表的方法，参数要对应
+                                $scope.setCharts($scope.employeeName,$scope.employeeReg,type);
+                            }
+                            else{
+                                sweetAlert('',$scope.consumeArr[type].tips)
+                            }
+                        });
+                };
+
+                $scope.setCharts = function(name,reg,type){
+                    var brandChart = echarts.init(document.getElementById('brand_dashboard_chart'));
+
+                    var dataAxis = name;
+                    var data = reg;
+//                    var yMax = 1000;
+                    var dataShadow = [];
+
+//                    for (var i = 0; i < data.length; i++) {
+//                        dataShadow.push(yMax);
+//                    }
+                    var option = {
+                        title: {
+                            text: $scope.consumeArr[type].text,
+                            subtext: ''
+                        },
+                        toolbox: {
+                            show: true,
+                            feature: {
+                                dataZoom: {
+                                    yAxisIndex: 'none'
+                                },
+//                                dataView: {readOnly: false},
+                                magicType: {type: ['line', 'bar']},
+                                restore: {},
+                                saveAsImage: {}
+                            }
+                        },
+                        xAxis: {
+                            name: '员工',
+                            data: dataAxis,
+                            axisLabel: {
+                                inside: true,
+                                textStyle: {
+                                    color: '#000'
+                                }
+                            },
+                            axisTick: {
+                                show: false
+                            },
+                            axisLine: {
+                                show: false
+                            },
+                            z: 10
+                        },
+                        yAxis: {
+                            axisLine: {
+                                show: false
+                            },
+                            axisTick: {
+                                show: false
+                            },
+                            axisLabel: {
+                                textStyle: {
+                                    color: '#999'
+                                }
+                            }
+                        },
+                        dataZoom: [
+                            {
+                                type: 'inside'
+                            }
+                        ],
+                        series: [
+                            { // For shadow
+                                type: 'bar',
+                                itemStyle: {
+                                    normal: {color: 'rgba(0,0,0,0.05)'}
+                                },
+                                barGap:'-100%',
+                                barCategoryGap:'40%',
+                                data: dataShadow,
+                                animation: false
+                            },
+                            {
+                                type: 'bar',
+                                itemStyle: {
+                                    normal: {
+                                        color: new echarts.graphic.LinearGradient(
+                                            0, 0, 0, 1,
+                                            [
+                                                {offset: 0, color: '#83bff6'},
+                                                {offset: 0.5, color: '#188df0'},
+                                                {offset: 1, color: '#188df0'}
+                                            ]
+                                        )
+                                    },
+                                    emphasis: {
+                                        color: new echarts.graphic.LinearGradient(
+                                            0, 0, 0, 1,
+                                            [
+                                                {offset: 0, color: '#2378f7'},
+                                                {offset: 0.7, color: '#2378f7'},
+                                                {offset: 1, color: '#83bff6'}
+                                            ]
+                                        )
+                                    }
+                                },
+                                data: data
+                            }
+                        ]
+                    };
+
+
+                    brandChart.setOption(option);
+
+                    //窗口大小改变时重新绘制图表
+                    $(window).resize(function () {
+                        brandChart.resize();
+                    });
+                };
+
+                $scope.getEregist(5)
+
+
+
+
+
+
+
+            }]);
+</script>
+
+<div class="hbox hbox-auto-xs lter" ng-controller="employReportCtrl">
+    <!-- column -->
+    <div class="col">
+        <div class="vbox">
+            <div class="bg-light lter b-b clearfix" style="padding: 14.5px 20px;">
+                <div class="btn-group">
+                    <button type="button" class="m-r btn btn-sm btn-addon btn-info">
+                    <i class="fa fa-plus" ng-class="iconClass[btn]"></i><span translate="">打印</span>
+                    </button>
+                </div>
+                <div class="pull-right">
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-default" ng-click="getEregist(0)">今天</button>
+                        <button class="btn btn-sm btn-default" ng-click="getEregist(1)">昨天</button>
+                        <button class="btn btn-sm btn-default" ng-click="getEregist(2)">本周</button>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-default" ng-click="getEregist(3)">本月</button>
+                        <button class="btn btn-sm btn-default" ng-click="getEregist(4)">上月</button>
+                        <button class="btn btn-sm btn-default" ng-click="getEregist(5)">总积分</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row-row" >
+                <div class="cell">
+                    <div class="cell-inner wrapper-md">
+                        <div style="padding-top: 0;">
+                            <div class="panel wrapper">
+                                <div id="brand_dashboard_chart" style="height:500px;"></div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default col-sm-12 pbr1">
+                            <div class="table-responsive">
+                                <table class="table table-striped b-t b-light text-center">
+                                    <tr class="fontWeight">
+                                        <td>员工</td>
+                                        <td>消费积分</td>
+                                    </tr>
+                                    <tr ng-repeat="name in consumeNumber">
+                                        <td><span class="text-ellipsis">{{ name[0] }}</span></td>
+                                        <td><span class="text-ellipsis">{{ name[1] }}</span></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

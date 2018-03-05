@@ -1,0 +1,156 @@
+<!-- list -->
+<ul class="nav">
+  <!--工作台-->
+  <!--<li class="hidden-folded padder m-t m-b-sm text-muted text-xs">-->
+    <!--<span>工作台</span>-->
+  <!--</li>-->
+  <!--<li ui-sref-active="active">-->
+    <!--<a ui-sref="xiaojinCredit">-->
+      <!--<i class="fa fa-calendar text-info-dker"></i>-->
+      <!--<span class="font-bold">小金信用<sup>个人版</sup></span>-->
+    <!--</a>-->
+  <!--</li>-->
+  <!--<li ui-sref-active="active">-->
+    <!--<a ui-sref="personalIntelligence">-->
+      <!--<i class="glyphicon glyphicon-th text-info-dker"></i>-->
+      <!--<span class="font-bold">个人智能查询</span>-->
+    <!--</a>-->
+  <!--</li>-->
+  <!--<li ui-sref-active="active">-->
+    <!--<a ui-sref="enterpriseIntelligence">-->
+      <!--<i class="glyphicon glyphicon-signal text-primary-dker"></i>-->
+      <!--<span class="font-bold">企业智能查询</span>-->
+    <!--</a>-->
+  <!--</li>-->
+  <!--<li ui-sref-active="active">-->
+    <!--<a ui-sref="personalSearch">-->
+      <!--<i class="glyphicon glyphicon-tags text-info-dker"></i>-->
+      <!--<span class="font-bold">智能查询</span>-->
+    <!--</a>-->
+  <!--</li>-->
+
+  <!--搜索-->
+  <!--<li class="line dk"></li>-->
+  <!--<li class="hidden-folded padder m-t m-b-sm text-muted text-xs">-->
+    <!--<span>搜索</span>-->
+  <!--</li>-->
+  <!--<li ui-sref-active="active">-->
+    <!--<a ui-sref="personalSearch">-->
+      <!--<i class="glyphicon glyphicon-tags text-info-dker"></i>-->
+      <!--<span class="font-bold">个人搜索查询</span>-->
+    <!--</a>-->
+  <!--</li>-->
+  <!--<li ui-sref-active="active">-->
+    <!--<a ui-sref="enterpriseSearch">-->
+      <!--<i class="glyphicon glyphicon-tags text-info-dker"></i>-->
+      <!--<span class="font-bold">企业搜索查询</span>-->
+    <!--</a>-->
+  <!--</li>-->
+  <!--个人-->
+  <li class="line dk"></li>
+  <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
+    <span>个人</span>
+  </li>
+  <li ui-sref-active="active">
+    <a ui-sref="personalAllList">
+      <i class="glyphicon glyphicon-tags text-info-dker"></i>
+      <span class="font-bold">个人综合查询</span>
+    </a>
+  </li>
+  <li ui-sref-active="active">
+    <a ui-sref="personalReal">
+      <i class="glyphicon glyphicon-tags text-info-dker"></i>
+      <span class="font-bold">个人真实性</span>
+    </a>
+  </li>
+  <li ui-sref-active="active">
+    <a ui-sref="personalCredit">
+      <i class="fa fa-paste text-primary-dker"></i>
+      <span class="font-bold">个人信用&反欺诈</span>
+    </a>
+  </li>
+  <li ui-sref-active="active">
+    <a ui-sref="personalAssets">
+      <i class="fa fa-codepen text-success-dker"></i>
+      <span class="font-bold">资产查询</span>
+    </a>
+  </li>
+  <li ui-sref-active="active">
+    <a ui-sref="personalEconomics">
+      <i class="glyphicon  glyphicon-stats text-warning-dker"></i>
+      <span class="font-bold">经济状态查询</span>
+    </a>
+  </li>
+
+
+
+  <li class="line dk hidden-folded"></li>
+  <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">          
+    <span>企业</span>
+  </li>
+  <li ui-sref-active="active">
+    <a ui-sref="enterpriseReal">
+      <i class="glyphicon glyphicon-film text-info-dker"></i>
+      <span class="font-bold">企业真实性</span>
+    </a>
+  </li>
+  <li ui-sref-active="active">
+    <a ui-sref="enterpriseCredit">
+      <i class="glyphicon glyphicon-road text-primary-dker"></i>
+      <span class="font-bold">企业信用&反欺诈</span>
+    </a>
+  </li>
+  <li ui-sref-active="active">
+    <a ui-sref="enterpriseAssets">
+      <i class="glyphicon glyphicon-align-center text-success-dker"></i>
+      <span class="font-bold">财务资产查询</span>
+    </a>
+  </li>
+  <!--报表-->
+  <li class="line dk hidden-folded"></li>
+  <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
+    <span>报表</span>
+  </li>
+  <li ui-sref-active="active" ng-if="userManager">
+    <a ui-sref="companyReport">
+      <i class="fa fa-paper-plane-o text-info-dker"></i>
+      <span class="font-bold">公司报表</span>
+    </a>
+  </li>
+  <li ui-sref-active="active">
+    <a ui-sref="employeeReport">
+      <i class="fa fa-eraser text-primary-dker"></i>
+      <span class="font-bold">员工报表</span>
+    </a>
+  </li>
+  <li ui-sref-active="active" ng-if="userManager">
+    <a ui-sref="financeReport">
+      <i class="fa fa-bar-chart-o text-success"></i>
+      <span class="font-bold">财务报表</span>
+    </a>
+  </li>
+<!--管理-->
+  <li class="line dk hidden-folded"></li>
+  <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
+    <span>管理</span>
+  </li>
+  <li ui-sref-active="active" ng-if="userManager">
+    <a ui-sref="managementStaff">
+      <i class="fa fa-calendar text-info-dker"></i>
+      <span class="font-bold">员工管理</span>
+    </a>
+  </li>
+  <li ui-sref-active="active">
+    <a ui-sref="managementFinance">
+      <i class="fa fa-indent text-primary-dker"></i>
+      <span class="font-bold">财务管理</span>
+    </a>
+  </li>
+  <li ui-sref-active="active">
+    <a ui-sref="reportDownload">
+      <i class="fa fa-briefcase text-success-dker"></i>
+      <span class="font-bold">报告下载</span>
+    </a>
+  </li>
+
+</ul>

@@ -1,0 +1,122 @@
+<script>
+
+    "use strict";
+    app.controller("personalRealCtrl", [
+        "$scope","$http","$rootScope",
+        function ( $scope,$http,$rootScope) {
+//            $scope.risksList = [
+//                {
+//                    id: "",
+//                    name: "身份核查",
+//                    sref: "personalReal.page({view_type:'intellegence'})"
+//                },
+//                {
+//                    id: "",
+//                    name: "入网时长核查",
+//                    sref: "personalReal.page({view_type:'phone_online'})"
+//
+//                },
+//                {
+//                    id: "",
+//                    name: "手机号归属地查询",
+//                    sref: "personalReal.page({view_type:'phone_attribution'})"
+//
+//                },
+//                {
+//                    id: "",
+//                    name: "手机号状态核查",
+//                    sref: "personalReal.page({view_type:'phone_status'})"
+//
+//                },
+//                {
+//                    id: "",
+//                    name: "肖像核查",
+//                    sref: "personalReal.page({view_type:'man_verification'})"
+//
+//                },
+//                {
+//                    id: "",
+//                    name: "银行卡核查",
+//                    sref: "personalReal.page({view_type:'card_query'})"
+//                },
+//                {
+//                    id: "",
+//                    name: "银联消费报告",
+//                    sref: "personalReal.page({view_type:'card_presentation'})"
+//                },
+//
+//                {
+//                    id: "",
+//                    name: "手机绑定银行卡信息",
+//                    sref: "personalReal.page({view_type:'card_binding'})"
+//                },
+//                {
+//                    id: "",
+//                    name: "个人投资核查",
+//                    sref: "personalReal.page({view_type:'individual_investment'})"
+//                },
+//                {
+//                    id: "",
+//                    name: "学历信息核查",
+//                    sref: "personalReal.page({view_type:'academic_info'})"
+//                }
+//            ]
+
+
+
+//            $rootScope.apiId=[];
+
+            $http({
+                method: 'POST',
+                url: '/supplyAPI/getShowList?typeId='+1
+            }).then(function successCallback(response) {
+
+                $scope.RealLists=response.data;
+//                angular.forEach($scope.RealLists,function (val,index) {
+//                    $rootScope.apiId.push(val.id);
+//
+//                })
+
+            });
+
+            $scope.nameId=function (id) {
+
+                window.localStorage.setItem("apiNameId",id);
+            }
+
+        }
+    ]);
+</script>
+
+<div class="hbox hbox-auto-xs hbox-auto-sm" ng-controller="personalRealCtrl">
+  <div class="col w-md bg-light dk b-r bg-auto hidden-sm hidden-xs">
+    <div class="wrapper-md b-b bg-light">
+      <div class="font-thin h4">
+        个人信息查询
+      </div>
+    </div>
+    <div class="wrapper-md">
+      <ul class="nav nav-pills nav-stacked nav-sm">
+        <li ui-sref-active="active" ng-repeat="(index,RealList) in RealLists">
+          <a ng-click="nameId(RealList.id)" ui-sref="{{RealList.root}}">{{RealList.description}}</a>
+          <!--<a href="RealList.path" ui-sref="personalReal.page({view_type:'{{index}}'})">{{RealList}}</a>-->
+        </li>
+        <!--<li ui-sref-active="active">-->
+          <!--<a ui-sref="personalReal.page({view_type:'card_portrait'})">银联消费画像<sup class="supCol">dev</sup></a>-->
+        <!--</li>-->
+        <!--<li ui-sref-active="active">-->
+          <!--<a ui-sref="personalReal.page({view_type:'man_information'})">ocr身份信息识别<sup class="supCol">dev</sup></a>-->
+        <!--</li>-->
+        <!--<li ui-sref-active="active">-->
+          <!--<a ui-sref="personalReal.page({view_type:'man_recognition'})">智能人脸识别验证<sup class="supCol">dev</sup></a>-->
+        <!--</li>-->
+        <!--<li ui-sref-active="active">-->
+          <!--<a ui-sref="personalReal.page({view_type:'man_comparison'})">人像对比认证<sup class="supCol">dev</sup></a>-->
+        <!--</li>-->
+      </ul>
+    </div>
+  </div>
+  <div class="col">
+    <div class="hbox hbox-auto-xs bg-light" ui-view></div>
+  </div>
+</div>

@@ -1,0 +1,211 @@
+<script>
+    "use strict";
+    /*
+     *创建人：沈小艳
+     *创建时间：2017/07/31
+     *利用银行卡三要素
+     * */
+    app.controller('cardQueryCheck', ['$scope','$http','utifyFunction',"$rootScope",
+        function ($scope,$http,utifyFunction,$rootScope) {
+
+            //数据初始化
+            $scope.info = {
+                name: '',
+                idCard: '',
+                cellphone:'',
+                bankCard: '',
+                apiId:localStorage.getItem("apiNameId")
+            };
+
+            //结果与样例的切换初始化
+            $scope.resultSwitch = false;
+
+            //重置数据
+            $scope.resetInfo = function () {
+                $scope.info.name = '';
+                $scope.info.idCard = '';
+                $scope.info.cellphone='';
+                $scope.info.bankCard = '';
+                $scope.resultSwitch = false;
+            };
+
+            $('#cache_model').modal("hide");
+
+            //提交
+            $scope.submitInfo = function (myForm) {
+                //数据信息格式错误时阻止表单提交
+
+                if (myForm.name) {
+                    myForm.name.$dirty = true
+                }
+                if (myForm.idCard) {
+                    myForm.idCard.$dirty = true
+                }
+                if (myForm.cellphone) {
+                    myForm.cellphone.$dirty = true
+                }
+                if (myForm.bankCard) {
+                    myForm.bankCard.$dirty = true
+                }
+
+                if (!myForm.$valid) {
+                    $scope.resultSwitch = false;
+                    return
+                }
+//            6212261314000935555
+                $('#cache_model').modal("show");
+
+                $http({
+                    method: 'POST',
+                    url: '/normalSearch'+utifyFunction($scope.info)
+                }).then(function successCallback(response) {
+                    console.log(response)
+                    $('#cache_model').modal("hide");
+                    if(response.data.code === 8652){
+                        $scope.resultSwitch = false;
+                        sweetAlert("",response.data.message, "error");
+                        return;
+                    }
+                    if(response.data["ali银行卡四要素查询"].status === '0'){
+                        if(response.data["ali银行卡四要素查询"].result.verifystatus === '0'){
+                            $scope.resultMsg = response.data["ali银行卡四要素查询"].result.verifymsg;
+
+                        }
+                        if(response.data["ali银行卡四要素查询"].result.verifystatus === '1'){
+                            $scope.resultMsg = response.data["ali银行卡四要素查询"].result.verifymsg;
+
+                        }
+                        $scope.resultSwitch = true;
+                    }
+                    else{
+                        $scope.resultMsg = response.data["ali银行卡四要素查询"].msg;
+                        $scope.resultSwitch = true;
+                    }
+
+
+                })
+            }
+
+            $scope.apiName=localStorage.getItem("apiNameId");
+            $http({
+                url:"/supplyAPI/showApiScore?apiId="+$scope.apiName,
+                method:"GET"
+            }).then(function successCallback(response) {
+                console.log(response)
+                $scope.priceResult=response.data[0];
+            })
+
+        }]);
+</script>
+<div class="vbox" ng-controller="cardQueryCheck">
+    <div class="wrapper b-b">
+        <div class="font-thin h4">个人信息查询</div>
+    </div>
+    <div class="row-row">
+        <div class="cell scrollable">
+            <div class="cell-inner">
+                <div class="wrapper-md">
+                    <div class="panel panel-info input-panel" style="margin-bottom: 0">
+                        <div class="panel-heading overflow" style="font-size: 16px">
+                            <span class="pull-left text-left">银行卡核查</span>
+                            <span class="pull-right text-right supCol">{{priceResult}}积分/次</span>
+                        </div>
+                        <div class="panel-body">
+                            <form name="myForm" class="form-horizontal">
+                                <div class="form-group validate">
+                                    <label class="col-sm-4 col-md-2 control-label"><span class="supCol">*</span>姓名：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.name" name="name" class="form-control" ng-required="true" pattern="[\u4E00-\u9FA5]{2,5}(?:·[\u4E00-\u9FA5]{2,5})*">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.name.$dirty&&myForm.name.$invalid">
+                                        <span class="supCol" ng-show="myForm.name.$error.required">姓名不能为空</span>
+                                        <span class="supCol" ng-show="myForm.name.$error.pattern">姓名格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 col-md-2 control-label"><span class="supCol">*</span>手机号：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.cellphone" name="cellphone" class="form-control" ng-required="true" pattern="^1[3|4|5|7|8][0-9]{9}$" >
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.cellphone.$dirty && myForm.cellphone.$invalid">
+                                        <span class="supCol" ng-show="myForm.cellphone.$error.required">手机号不能为空</span>
+                                        <span class="supCol" ng-show="myForm.cellphone.$error.pattern">手机号格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group validate">
+                                    <label class="col-sm-4 col-md-2 control-label"><span class="supCol">*</span>银行卡：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.bankCard" name="bankCard" class="form-control" ng-required="true" pattern="^(\d{16}|\d{19})$">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.bankCard.$dirty && myForm.bankCard.$invalid">
+                                        <span class="supCol" ng-show="myForm.bankCard.$error.required">银行卡号不能为空</span>
+                                        <span class="supCol" ng-show="myForm.bankCard.$error.pattern">银行卡号格式错误</span>
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group validate">
+                                    <label class="col-sm-4 col-md-2 control-label"><span class="supCol">*</span>身份证：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.idCard" name="idCard" class="form-control" ng-required="true" pattern="(^\d{15}$)|(^\d{17}([0-9]|X)$)">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.idCard.$dirty && myForm.idCard.$invalid">
+                                        <span class="supCol" ng-show="myForm.idCard.$error.required">身份证号不能为空</span>
+                                        <span class="supCol" ng-show="myForm.idCard.$error.pattern">身份证号格式错误</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-offset-4 col-md-offset-2 col-sm-8" style="padding-left: 20px">
+                                        <button type="button" class="btn btn-info" ng-click="submitInfo(myForm)">提交</button>
+                                        <button type="button" class="btn btn-info" ng-click="resetInfo()">重置</button>
+                                        <button type="button" class="btn btn-danger" ng-click="createPdf()"><i class="fa fa-file-pdf-o"></i> 生成PDF</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!--样例-->
+                <div class="wrapper-md" ng-show="!resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                            <span style="color: red;">样例</span>
+                        </div>
+                        <div>
+                            <table class="table-border-style">
+                                <tr>
+                                    <td>姓名、手机号、银行卡、身份证</td>
+                                    <td>一致</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!--结果-->
+                <div id="business_flowing_pdf" class="wrapper-md" ng-show="resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                        </div>
+                        <div>
+                            <table class="table-border-style grid_table">
+                                <tr>
+                                    <td width="40%">姓名、手机号、银行卡、身份证</td>
+                                    <td width="40%" ng-bind="resultMsg"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="modal gifPosition" id="cache_model">
+        <img src="../../../../img/cache1.gif" alt="">
+    </div>
+</div>

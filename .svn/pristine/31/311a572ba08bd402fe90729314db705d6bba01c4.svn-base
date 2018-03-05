@@ -1,0 +1,13 @@
+package apifengkong.controller;
+
+import org.springframework.stereotype.Controller;
+@Controller
+public class AccountRechargeController {
+//	AccountRechargeLogRepository accountRechargeLog;
+//@RequestMapping(value="/rechargerLog")
+//@ResponseBody
+//public List<AccountRechargeLog> getFinancialOverview() {//充值积分  充值时间
+//	Integer customerId=Common.getPrincipal().getCustomer().getId();
+//	return accountRechargeLog.getRechargeByCustomer(customerId);
+//}
+}

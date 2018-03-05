@@ -1,0 +1,174 @@
+package apifengkong.controller;
+
+import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import apifengkong.entity.APIParameterCouple;
+import apifengkong.entity.APIParameterCoupleRepository;
+import apifengkong.entity.Supplier;
+import apifengkong.entity.SupplierRepository;
+import apifengkong.entity.SupplyAPI;
+import apifengkong.entity.SupplyAPIRepository;
+import apifengkong.util.Common;
+import apifengkong.util.FailResponse;
+
+@Controller
+@RequestMapping(value="/supplyAPI")
+public class SupplyAPIController {
+	
+	private static Logger logger = Logger.getLogger(SupplyAPIController.class);
+	
+	@Autowired
+	SupplyAPIRepository supplyAPIRepository;
+	
+	@Autowired
+	APIParameterCoupleRepository apiParameterCoupleRepository;
+	
+	@RequestMapping(value="/info/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	@ResponseBody
+	public SupplyAPI info(@PathVariable Integer id){
+		return supplyAPIRepository.findOne(id);
+	}
+	
+	@RequestMapping(value="/list")
+	@ResponseBody
+	public List<SupplyAPI> list(){
+		return supplyAPIRepository.findAll();
+	}
+	
+	@RequestMapping(value="/insertOrUpdate",method=RequestMethod.POST)
+	@PreAuthorize("hasRole('ADMIN')")
+	@ResponseBody
+	public SupplyAPI insertOrUpdate(@RequestBody SupplyAPI supplyAPI){
+		return supplyAPIRepository.save(supplyAPI);
+	}
+	
+	@RequestMapping(value="/addParameterCouple",method=RequestMethod.POST)
+	@PreAuthorize("hasRole('ADMIN')")
+	@ResponseBody
+	public SupplyAPI addParameterCouple(@RequestBody @Valid AddParameterCouple addParameterCouple){
+		
+		logger.info(addParameterCouple);
+		
+		SupplyAPI API = supplyAPIRepository.findOne(addParameterCouple.getApiId());
+		if(API==null){
+			throw new FailResponse(1311, "没有这个api");
+		}
+		APIParameterCouple savedCouple = apiParameterCoupleRepository.findByUniformParameterAndSearchParameter(addParameterCouple.getUniformParameter(), addParameterCouple.getSearchParameter());
+		logger.info(savedCouple);
+		if(savedCouple == null){
+			APIParameterCouple apiParameterCouple = new APIParameterCouple();
+			apiParameterCouple.setSearchParameter(addParameterCouple.getSearchParameter());
+			apiParameterCouple.setUniformParameter(addParameterCouple.getUniformParameter());
+			apiParameterCouple.setDefaultValue(addParameterCouple.getDefaultValue());
+			savedCouple = apiParameterCoupleRepository.save(apiParameterCouple);
+		}
+		savedCouple.getApis().add(API);
+		API.getParameterCouples().add(savedCouple);
+		API.setParameterNumber(API.getParameterCouples().size());
+		supplyAPIRepository.save(API);
+		return API;
+	}
+	@RequestMapping(value="/deleteParameterCouple",method=RequestMethod.POST)
+	@PreAuthorize("hasRole('ADMIN')")
+	@ResponseBody
+	public SupplyAPI deleteParameterCouple(@RequestBody @Valid DeleteParameterCouple deleteParameterCouple){
+		
+		logger.info(deleteParameterCouple);
+		
+		SupplyAPI API = supplyAPIRepository.findOne(deleteParameterCouple.getApiId());
+		if(API==null){
+			throw new FailResponse(1311, "没有这个api");
+		}
+		APIParameterCouple APIParameterCouple = apiParameterCoupleRepository.findOne(deleteParameterCouple.getParameterCoupleId());
+		
+		API.getParameterCouples().remove(APIParameterCouple);
+		API.setParameterNumber(API.getParameterCouples().size());
+		supplyAPIRepository.save(API);
+		return API;
+	}
+	
+	public static class DeleteParameterCouple{
+		@NotNull
+		private Integer apiId;
+		@NotNull
+		private Integer parameterCoupleId;
+		public Integer getApiId() {
+			return apiId;
+		}
+		public void setApiId(Integer apiId) {
+			this.apiId = apiId;
+		}
+		public Integer getParameterCoupleId() {
+			return parameterCoupleId;
+		}
+		public void setParameterCoupleId(Integer parameterCoupleId) {
+			this.parameterCoupleId = parameterCoupleId;
+		}
+		
+	}
+	public static class AddParameterCouple{
+		@NotNull
+		private Integer apiId;
+		@NotNull
+		private String uniformParameter;
+		@NotNull
+		private String searchParameter;
+		private String defaultValue;
+		
+		public String getDefaultValue() {
+			return defaultValue;
+		}
+		public void setDefaultValue(String defaultValue) {
+			this.defaultValue = defaultValue;
+		}
+		public Integer getApiId() {
+			return apiId;
+		}
+		public void setApiId(Integer apiId) {
+			this.apiId = apiId;
+		}
+		public String getUniformParameter() {
+			return uniformParameter;
+		}
+		public void setUniformParameter(String uniformParameter) {
+			this.uniformParameter = uniformParameter;
+		}
+		public String getSearchParameter() {
+			return searchParameter;
+		}
+		public void setSearchParameter(String searchParameter) {
+			this.searchParameter = searchParameter;
+		}
+		@Override
+		public String toString() {
+			return "AddParameterCouple [apiId=" + apiId + ", uniformParameter=" + uniformParameter
+					+ ", searchParameter=" + searchParameter + "]";
+		}
+		
+		
+	}
+/**
+ * 接口分类显示
+ */
+	@RequestMapping(value="/getShowList")
+	@ResponseBody
+	public List<SupplyAPI> getShowList(Integer typeId) {
+		List<SupplyAPI> getPerList=supplyAPIRepository.getShowList(typeId);
+		return getPerList;
+	}
+}

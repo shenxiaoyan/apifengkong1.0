@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" data-ng-app="app">
+<head>
+  <meta charset="utf-8" />
+  <title>金融平台</title>
+  <meta name="description" content="Angularjs, Html5, Music, Landing, 4 in 1 ui kits package" />
+  <meta name="keywords" content="AngularJS, angular, bootstrap, admin, dashboard, panel, app, charts, components,flat, responsive, layout, kit, ui, route, web, app, widgets" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <link href="https://cdn.bootcss.com/animate.css/3.5.2/animate.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/simple-line-icons/2.4.1/css/simple-line-icons.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Sweetalert -->
+  <link href="https://cdn.bootcss.com/sweetalert/1.1.3/sweetalert.min.css" rel="stylesheet">
+  <!-- toaster -->
+  <link href="../libs/angular/angularjs-toaster/toaster.css" type="text/css" rel="stylesheet"/>
+
+  <!-- build:css css/app.min.css -->
+  <link rel="stylesheet" href="../css/font.css" type="text/css" />
+  <link rel="stylesheet" href="../css/app.css" type="text/css" />
+  <!-- endbuild -->
+</head>
+<body ng-controller="AppCtrl">
+  <div id="pdf"></div>
+  <toaster-container toaster-options="{'position-class': 'toast-bottom-right', 'close-button':true}"></toaster-container>
+  <div class="app" id="app"
+  ng-class="{'app-header-fixed':app.settings.headerFixed, 'app-aside-fixed':app.settings.asideFixed, 'app-aside-folded':app.settings.asideFolded, 'app-aside-dock':app.settings.asideDock, 'container':app.settings.container}">
+
+  <!-- navbar -->
+  <div data-ng-include=" '../company/tpl/blocks/header.html'" class="app-header navbar" style="-webkit-app-region: drag;">
+  </div>
+  <!-- / navbar -->
+
+  <!-- menu -->
+  <div data-ng-include=" '../company/tpl/blocks/aside.html'"
+  class="app-aside hidden-xs" ng-class="app.settings.asideColor">
+</div>
+<!-- / menu -->
+
+<!--setting-->
+<div data-ng-include=" '../company/tpl/blocks/settings.html'" class="settings panel panel-default">
+</div>
+
+
+<!-- content -->
+<div id="app-content" class="app-content">
+  <div ui-butterbar style="z-index:10000;"></div>
+  <a href class="off-screen-toggle hide" ui-toggle-class="off-screen" data-target=".app-aside"></a>
+
+  <div class="app-content-body app-content-full fade-in-up h-full" ui-view=""></div>
+</div>
+<!-- /content -->
+
+</div>
+<!-- build:js js/app.angular.js -->
+<!-- jQuery -->
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<!-- Bootstrap -->
+<script src="https://cdn.bootcss.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<!-- Sweetalert -->
+<script src="https://cdn.bootcss.com/sweetalert/1.1.3/sweetalert.min.js"></script>
+<!-- moment.js -->
+<script src="https://cdn.bootcss.com/moment.js/2.18.1/moment.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.18.1/locale/zh-cn.js"></script>
+<!-- echarts -->
+<script src="https://cdn.bootcss.com/echarts/3.7.0/echarts.min.js"></script>
+
+<!-- Angular -->
+<script src="https://cdn.bootcss.com/angular.js/1.5.8/angular.min.js"></script>
+
+<script src="https://cdn.bootcss.com/angular.js/1.5.8/angular-animate.min.js"></script>
+<script src="https://cdn.bootcss.com/angular.js/1.5.8/angular-aria.min.js"></script>
+<script src="https://cdn.bootcss.com/angular.js/1.5.8/angular-cookies.min.js"></script>
+<!-- <script src="../libs/angular/angular-messages/angular-messages.js"></script> -->
+<script src="https://cdn.bootcss.com/angular.js/1.5.8/angular-resource.min.js"></script>
+<script src="https://cdn.bootcss.com/angular.js/1.5.8/angular-sanitize.min.js"></script>
+<!-- <script src="../libs/angular/angular-touch/angular-touch.js"></script> -->
+
+<script src="https://cdn.bootcss.com/angular-ui-router/0.2.15/angular-ui-router.min.js"></script>
+<script src="../libs/angular/ngstorage/ngStorage.min.js"></script>
+<script src="../libs/angular/angular-ui-utils/ui-utils.min.js"></script>
+
+<script src="../libs/angular/angularjs-toaster/toaster.js"></script>
+
+<!-- bootstrap -->
+<script src="https://cdn.bootcss.com/angular-ui-bootstrap/0.12.1/ui-bootstrap-tpls.min.js"></script>
+<!-- lazyload -->
+<script src="https://cdn.bootcss.com/oclazyload/0.5.2/ocLazyLoad.min.js"></script>
+
+<!-- App -->
+<script src="../company/js/app.js"></script>
+<script src="../company/js/config.js"></script>
+<script src="../company/js/config.lazyload.js"></script>
+<script src="../company/js/config.router.js"></script>
+<script src="../company/js/main.js"></script>
+  <script src="../company/js/services/utifyFunction.js"></script>
+<script src="../company/js/services/customService.js"></script>
+<script src="../company/js/services/ui-load.js"></script>
+<script src="../company/js/filters/customFilters.js"></script>
+<script src="../company/js/directives/setnganimate.js"></script>
+<script src="../company/js/directives/ui-butterbar.js"></script>
+<script src="../company/js/directives/ui-focus.js"></script>
+<script src="../company/js/directives/ui-fullscreen.js"></script>
+<script src="../company/js/directives/ui-jq.js"></script>
+<script src="../company/js/directives/ui-module.js"></script>
+<script src="../company/js/directives/ui-nav.js"></script>
+<script src="../company/js/directives/ui-scroll.js"></script>
+<script src="../company/js/directives/ui-shift.js"></script>
+<script src="../company/js/directives/ui-toggleclass.js"></script>
+<script src="../company/js/controllers/bootstrap.js"></script>
+<!-- endbuild -->
+<!-- Lazy loading -->
+</body>
+</html>

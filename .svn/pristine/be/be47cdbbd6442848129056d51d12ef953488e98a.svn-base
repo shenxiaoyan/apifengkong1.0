@@ -1,0 +1,695 @@
+package apifengkong.entity;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Pattern;
+
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import apifengkong.util.Important;
+
+
+@Entity
+@Table(indexes = {@Index(name="mojie_task",columnList = "mojieTask"),@Index(name="id_card",columnList = "idCard"),@Index(name="mobile",columnList = "mobile")})
+public class PersonLoan extends BaseEntity implements Important{
+	
+
+	@Transient
+	Integer search30days;
+	
+	@ManyToOne
+	User user;
+	
+	@ManyToOne
+	Company company;
+	
+	@NotBlank(message="姓名不能为空")
+	@Length(min = 2, max = 5,message="2-5位中文姓名")
+	String name="";
+	@NotBlank(message="手机号码不能为空")
+	@Digits(integer = 11, fraction = 0, message = "需要11位整数数字")
+	String mobile="";
+
+	@NotBlank(message="身份证不能为空")
+	@Pattern(regexp = "[0-9]{17}([0-9]|X|x)",message="18位身份证格式不正确")
+	String idCard="";
+
+	@NotBlank(message="银行卡不能为空")
+	@Pattern(regexp = "[0-9]{16,19}", message = "需要16/19位银行卡号") 
+	String bankCard="";
+
+
+	@NotBlank(message="运营商服务密码不能为空")
+	String servicePassword="";
+	
+	String sms;
+
+	@NotBlank(message="常用地址不能为空")
+	String commonAddress="";
+
+	@NotBlank(message="联系人姓名不能为空")
+	@Length(min = 2, max = 5,message="2-5位中文姓名")
+	String linkman1Name="";
+
+	String linkman1Relationship="";
+
+	@NotBlank(message="联系人手机不能为空")
+	@Digits(integer = 11, fraction = 0,message = "需要11位整数数字")
+	String linkman1Mobile="";
+
+	@NotBlank(message="联系人姓名不能为空")
+	@Length(min = 2, max = 5,message="2-5位中文姓名")
+	String linkman2Name="";
+	String linkman2Relationship="";
+	@NotBlank(message="联系人手机不能为空")
+	@Digits(integer = 11, fraction = 0 ,message = "需要11位整数数字")
+	String linkman2Mobile="";
+
+	@Transient
+	boolean enableCache=true;
+	@Transient
+	boolean enableEducation=false;
+	
+	Integer noteCount=0;
+	
+	Date createAt;
+	
+	String area;
+	String sex;
+	String birth;
+	Integer age;
+	
+	String mobileCompany;
+	
+	@Lob
+	String analyseEducation;
+	
+	@Lob
+	String analyseIdCard;
+	
+	@Lob
+	String analyseCellphone;
+
+	@Lob
+	String analyseDishonestBlacklist;
+
+	@Lob
+	String analyseCriminal;
+	
+	@Lob
+	String analyseCourtJudgment;
+	
+	@Lob
+	String analyseMultipleHeadLend;
+
+	@Lob
+	String analyseAntifraud;
+	
+	@Lob
+	String analyseCellphoneLog;
+	
+	String analyseZhimaScore;
+	@Lob
+	String analyseWatchlist;
+	
+	public String getAnalyseWatchlist() {
+		return analyseWatchlist;
+	}
+
+	public void setAnalyseWatchlist(String analyseWatchlist) {
+		this.analyseWatchlist = analyseWatchlist;
+	}
+
+	String mojieTask;
+	
+	String status;
+	
+	boolean cache;
+	
+
+	public Integer getNoteCount() {
+		return noteCount;
+	}
+
+	public void setNoteCount(Integer noteCount) {
+		this.noteCount = noteCount;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Ab#getAnalyseEducation()
+	 */
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getAnalyseEducation()
+	 */
+	@Override
+	public String getAnalyseEducation() {
+		return analyseEducation;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setAnalyseEducation(java.lang.String)
+	 */
+	@Override
+	public void setAnalyseEducation(String analyseEducation) {
+		this.analyseEducation = analyseEducation;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#isEnableEducation()
+	 */
+	@Override
+	public boolean isEnableEducation() {
+		return enableEducation;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setEnableEducation(boolean)
+	 */
+	@Override
+	public void setEnableEducation(boolean enableEducation) {
+		this.enableEducation = enableEducation;
+	}
+
+	public Integer getSearch30days() {
+		return search30days;
+	}
+
+	public void setSearch30days(Integer search30days) {
+		this.search30days = search30days;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Ab#getAnalyseCourtJudgment()
+	 */
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getAnalyseCourtJudgment()
+	 */
+	@Override
+	public String getAnalyseCourtJudgment() {
+		return analyseCourtJudgment;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setAnalyseCourtJudgment(java.lang.String)
+	 */
+	@Override
+	public void setAnalyseCourtJudgment(String analyseCourtJudgment) {
+		this.analyseCourtJudgment = analyseCourtJudgment;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#isEnableCache()
+	 */
+	@Override
+	public boolean isEnableCache() {
+		return enableCache;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setEnableCache(boolean)
+	 */
+	@Override
+	public void setEnableCache(boolean enableCache) {
+		this.enableCache = enableCache;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#isCache()
+	 */
+	@Override
+	public boolean isCache() {
+		return cache;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setCache(boolean)
+	 */
+	@Override
+	public void setCache(boolean cache) {
+		this.cache = cache;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Ab#getAnalyseZhimaScore()
+	 */
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getAnalyseZhimaScore()
+	 */
+	@Override
+	public String getAnalyseZhimaScore() {
+		return analyseZhimaScore;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setAnalyseZhimaScore(java.lang.String)
+	 */
+	@Override
+	public void setAnalyseZhimaScore(String analyseZhimaScore) {
+		this.analyseZhimaScore = analyseZhimaScore;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getAnalyseCellphoneLog()
+	 */
+	public String getAnalyseCellphoneLog() {
+		return analyseCellphoneLog;
+	}
+
+	public void setAnalyseCellphoneLog(String analyseCellphoneLog) {
+		this.analyseCellphoneLog = analyseCellphoneLog;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getStatus()
+	 */
+	@Override
+	public String getStatus() {
+		return status;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setStatus(java.lang.String)
+	 */
+	@Override
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getMojieTask() {
+		return mojieTask;
+	}
+
+	public void setMojieTask(String mojieTaskId) {
+		this.mojieTask = mojieTaskId;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Ab#getAnalyseAntifraud()
+	 */
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getAnalyseAntifraud()
+	 */
+	@Override
+	public String getAnalyseAntifraud() {
+		return analyseAntifraud;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setAnalyseAntifraud(java.lang.String)
+	 */
+	@Override
+	public void setAnalyseAntifraud(String analyseAntifraud) {
+		this.analyseAntifraud = analyseAntifraud;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getArea()
+	 */
+	@Override
+	public String getArea() {
+		return area;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setArea(java.lang.String)
+	 */
+	@Override
+	public void setArea(String area) {
+		this.area = area;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getSex()
+	 */
+	@Override
+	public String getSex() {
+		return sex;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setSex(java.lang.String)
+	 */
+	@Override
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getBirth()
+	 */
+	@Override
+	public String getBirth() {
+		return birth;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setBirth(java.lang.String)
+	 */
+	@Override
+	public void setBirth(String birth) {
+		this.birth = birth;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getAge()
+	 */
+	@Override
+	public Integer getAge() {
+		return age;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setAge(java.lang.Integer)
+	 */
+	@Override
+	public void setAge(Integer age) {
+		this.age = age;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getMobileCompany()
+	 */
+	@Override
+	public String getMobileCompany() {
+		return mobileCompany;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setMobileCompany(java.lang.String)
+	 */
+	@Override
+	public void setMobileCompany(String mobileCompany) {
+		this.mobileCompany = mobileCompany;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Ab#getAnalyseIdCard()
+	 */
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getAnalyseIdCard()
+	 */
+	@Override
+	public String getAnalyseIdCard() {
+		return analyseIdCard;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setAnalyseIdCard(java.lang.String)
+	 */
+	@Override
+	public void setAnalyseIdCard(String analyseIdCard) {
+		this.analyseIdCard = analyseIdCard;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Ab#getAnalyseCellphone()
+	 */
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getAnalyseCellphone()
+	 */
+	@Override
+	public String getAnalyseCellphone() {
+		return analyseCellphone;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setAnalyseCellphone(java.lang.String)
+	 */
+	@Override
+	public void setAnalyseCellphone(String analyseCellphone) {
+		this.analyseCellphone = analyseCellphone;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Ab#getAnalyseDishonestBlacklist()
+	 */
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getAnalyseDishonestBlacklist()
+	 */
+	@Override
+	public String getAnalyseDishonestBlacklist() {
+		return analyseDishonestBlacklist;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setAnalyseDishonestBlacklist(java.lang.String)
+	 */
+	@Override
+	public void setAnalyseDishonestBlacklist(String analyseDishonestBlacklist) {
+		this.analyseDishonestBlacklist = analyseDishonestBlacklist;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Ab#getAnalyseCriminal()
+	 */
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getAnalyseCriminal()
+	 */
+	@Override
+	public String getAnalyseCriminal() {
+		return analyseCriminal;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setAnalyseCriminal(java.lang.String)
+	 */
+	@Override
+	public void setAnalyseCriminal(String analyseCriminal) {
+		this.analyseCriminal = analyseCriminal;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Ab#getAnalyseMultipleHeadLend()
+	 */
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getAnalyseMultipleHeadLend()
+	 */
+	@Override
+	public String getAnalyseMultipleHeadLend() {
+		return analyseMultipleHeadLend;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setAnalyseMultipleHeadLend(java.lang.String)
+	 */
+	@Override
+	public void setAnalyseMultipleHeadLend(String analyseMultipleHeadLend) {
+		this.analyseMultipleHeadLend = analyseMultipleHeadLend;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getUser()
+	 */
+	@Override
+	public User getUser() {
+		return user;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setUser(apifengkong.entity.User)
+	 */
+	@Override
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getCompany()
+	 */
+	@Override
+	public Company getCompany() {
+		return company;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setCompany(apifengkong.entity.Company)
+	 */
+	@Override
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getName()
+	 */
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setName(java.lang.String)
+	 */
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getMobile()
+	 */
+	@Override
+	public String getMobile() {
+		return mobile;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setMobile(java.lang.String)
+	 */
+	@Override
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getIdCard()
+	 */
+	@Override
+	public String getIdCard() {
+		return idCard;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setIdCard(java.lang.String)
+	 */
+	@Override
+	public void setIdCard(String idCard) {
+		this.idCard = idCard.toUpperCase();
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getBankCard()
+	 */
+	@Override
+	public String getBankCard() {
+		return bankCard;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setBankCard(java.lang.String)
+	 */
+	@Override
+	public void setBankCard(String bankCard) {
+		this.bankCard = bankCard;
+	}
+
+	public String getServicePassword() {
+		return servicePassword;
+	}
+
+	public void setServicePassword(String servicePassword) {
+		this.servicePassword = servicePassword;
+	}
+
+	public String getSms() {
+		return sms;
+	}
+
+	public void setSms(String sms) {
+		this.sms = sms;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getCommonAddress()
+	 */
+	@Override
+	public String getCommonAddress() {
+		return commonAddress;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setCommonAddress(java.lang.String)
+	 */
+	@Override
+	public void setCommonAddress(String commonAddress) {
+		this.commonAddress = commonAddress;
+	}
+
+	public String getLinkman1Name() {
+		return linkman1Name;
+	}
+
+	public void setLinkman1Name(String linkman1Name) {
+		this.linkman1Name = linkman1Name;
+	}
+
+	public String getLinkman1Relationship() {
+		return linkman1Relationship;
+	}
+
+	public void setLinkman1Relationship(String linkman1Relationship) {
+		this.linkman1Relationship = linkman1Relationship;
+	}
+
+	public String getLinkman1Mobile() {
+		return linkman1Mobile;
+	}
+
+	public void setLinkman1Mobile(String linkman1Mobile) {
+		this.linkman1Mobile = linkman1Mobile;
+	}
+
+	public String getLinkman2Name() {
+		return linkman2Name;
+	}
+
+	public void setLinkman2Name(String linkman2Name) {
+		this.linkman2Name = linkman2Name;
+	}
+
+	public String getLinkman2Relationship() {
+		return linkman2Relationship;
+	}
+
+	public void setLinkman2Relationship(String linkman2Relationship) {
+		this.linkman2Relationship = linkman2Relationship;
+	}
+
+	public String getLinkman2Mobile() {
+		return linkman2Mobile;
+	}
+
+	public void setLinkman2Mobile(String linkman2Mobile) {
+		this.linkman2Mobile = linkman2Mobile;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#getCreateAt()
+	 */
+	@Override
+	public Date getCreateAt() {
+		return createAt;
+	}
+
+	/* (non-Javadoc)
+	 * @see apifengkong.entity.Important#setCreateAt(java.util.Date)
+	 */
+	@Override
+	public void setCreateAt(Date createAt) {
+		this.createAt = createAt;
+	}
+
+	
+	
+
+
+}

@@ -1,0 +1,28 @@
+package apifengkong.service;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import apifengkong.entity.APISearchLog;
+import apifengkong.entity.APISearchLogRepository;
+import apifengkong.util.Common;
+import apifengkong.util.DateUtils;
+@Service
+public class APISearchLogService {
+	@Autowired
+	APISearchLogRepository apiSearchLogRepository;
+    public List<APISearchLog> getSelfConsum() {
+    	
+        int days=DateUtils.getDayOfMonth();
+        for (int i = 0; i < days; i++) {
+			
+		}
+		return null;
+		
+	}
+	
+}
+

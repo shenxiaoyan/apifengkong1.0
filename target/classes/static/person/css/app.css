@@ -1,0 +1,84 @@
+body{
+    font-size:12px;
+}
+
+.page_graybg {
+    background-color: #F6F6F6;
+}
+
+.logo_wrap {
+    text-align: center;
+}
+
+.login_wrap {
+    width: 480px;
+    height: 418px;
+    margin:80px auto 0 auto;
+    position: absolute;
+    left: 50%;
+    margin-left: -240px;
+    bottom: 0;
+    top: 0;
+    -webkit-transition: opacity 0.5s ease-in-out;
+    -moz-transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.login_box {
+    padding: 90px 92px 100px 92px;
+    background: #fff;
+    font-size: 14px;
+    border-radius: 2px;
+    box-shadow: 0 2px 3px rgba(213,213,213,0.7);
+}
+
+.login_input {
+    height: 44px;
+    line-height: 24px;
+    font-size: 14px;
+    background: #f5f5f5;
+    border-color:#f5f5f5;
+    outline: none;
+    padding: 9px 16px;
+    overflow: hidden;
+}
+
+.login_submit {
+    background-color: #41464B;
+    color:#fff;
+    border-color: #41464B;
+}
+
+
+.head_wrap {
+    box-shadow: 0 2px 3px 0 hsla(0,0%,39%,.15);
+    background-color: #fff;
+}
+
+.navbar-brand {
+    padding-top:10px;
+    padding-bottom:0;
+}
+
+.tool_box {
+    padding:15px 0 0 0;
+}
+
+.text-gray {
+    color:#888888;
+}
+
+.table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
+    border-top: 1px solid #f3f3f3;
+    padding-top:17px;
+    padding-bottom:17px;
+}
+
+
+
+.report.table td{
+    border:none;
+    padding:5px 10px;
+    font-size:13px;
+    line-height:22px;
+}

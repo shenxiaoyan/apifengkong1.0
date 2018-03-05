@@ -1,0 +1,15 @@
+package apifengkong.entity;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+public interface AccountRechargeLogRepository extends JpaRepository<AccountRechargeLog, Integer> {
+@Query(value="select a from #{#entityName} a where a.customer.id=?")
+List<AccountRechargeLog> getRechargeByCustomer(Integer customerId);
+//获取所有公司阶段内的充值积分
+@Query(value="select a.customer.companyName,SUM(a.integrate) from #{#entityName} a where rechargeTime between ?1 and ?2 group by a.customer.id")
+List<AccountRechargeLog> getAllRechargeByCustomer(Date startTime,Date endTime);
+}

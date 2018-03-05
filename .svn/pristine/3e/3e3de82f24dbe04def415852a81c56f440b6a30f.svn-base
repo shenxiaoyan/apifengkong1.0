@@ -1,0 +1,150 @@
+package apifengkong.service;
+
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.tomcat.util.buf.StringUtils;
+import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import apifengkong.entity.Company;
+import apifengkong.entity.CompanyRepository;
+import apifengkong.entity.SupplyAPI;
+import apifengkong.entity.SupplyAPIRepository;
+import apifengkong.util.FailResponse;
+
+@Service
+public class ParameterService {
+
+	private static Logger logger = Logger.getLogger(ParameterService.class);
+
+	@Autowired
+	CompanyRepository customerRepository;
+
+	@Autowired
+	SupplyAPIRepository supplyAPIRepository;
+
+	public Map<String, String> checkSignature(final Map<String, String> parameters) {
+
+		Map<String, String> p = new HashMap<String, String>(parameters);
+		String appCode = p.get("appCode");
+		String signature = p.get("signature");
+		Company customer = customerRepository.findByAppCode(appCode);
+		if (customer == null) {
+			throw new FailResponse(7543, "不存在这个appCode的用户");
+		}
+		p.remove("signature");
+		String md5 = getMD5(createSign(p, customer.getAppSecret()).getBytes(Charset.forName("utf-8")));
+		logger.info("md5:" + md5);
+		if (!signature.equals(md5)) {
+			throw new FailResponse(6678, "签名不一致");
+		}
+		p.remove("appCode");
+		return p;
+	}
+
+	public Map<String, String> smartInputParameterProcess(HttpServletRequest request) {
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		Set<Entry<String, String[]>> entrySet = request.getParameterMap().entrySet();
+		for (Entry<String, String[]> entry : entrySet) {
+			hashMap.put(entry.getKey(), entry.getValue()[0]);
+		}
+		if (hashMap.size() == 0) {
+			throw new FailResponse(1213, "参数不为空");
+		}
+		if (!hashMap.containsKey("signature")) {
+			throw new FailResponse(7661, "参数必须包含签名");
+		}
+		if (!hashMap.containsKey("appCode")) {
+			throw new FailResponse(1161, "参数必须包含appCode");
+		}
+		return hashMap;
+	}
+
+	public HashMap<String, String> normalInputParameterProcess(HttpServletRequest request) {
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		Set<Entry<String, String[]>> entrySet = request.getParameterMap().entrySet();
+		for (Entry<String, String[]> entry : entrySet) {
+			hashMap.put(entry.getKey(), entry.getValue()[0]);
+		}
+		if (hashMap.size() == 0) {
+			throw new FailResponse(1213, "参数不为空");
+		}
+		if (!hashMap.containsKey("apiId")) {
+			throw new FailResponse(1191, "参数必须包含apiId");
+		}
+		logger.info("输入参数"+ hashMap);
+		return hashMap;
+	}
+    
+
+	public Company getCustomer(Map<String, String> inputParameterConvert) {
+		String appCode = inputParameterConvert.get("appCode");
+		logger.info("appCode：" + appCode);
+		Company findByAppCode = customerRepository.findByAppCode(appCode);
+		if(findByAppCode == null){
+			throw new FailResponse(2877, "appCode不存在");
+		}
+		return findByAppCode;
+		
+		
+	}
+
+	public String createSign(Map<String, String> paramMap, String appSecret) {
+		List<String> keyList = new ArrayList<String>();// 用于排序的list
+		for (String key : paramMap.keySet()) {
+			if (paramMap.get(key) != null && !paramMap.get(key).equals("")) {
+				keyList.add(key);
+			}
+		}
+		Collections.sort(keyList);// 对list进行排序
+
+		List<String> parameterList = new ArrayList<String>();
+		for (String key : keyList) {// 将排序后的参数组成字符串
+			parameterList.add(key + "=" + paramMap.get(key));
+		}
+		String join = StringUtils.join(parameterList, '&');
+		join = join + appSecret;
+		return join;
+
+	}
+
+	public String getMD5(byte[] source) {
+		String s = null;
+		char hexDigits[] = { // 用来将字节转换成 16 进制表示的字符
+				'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+		try {
+			java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+			md.update(source);
+			byte tmp[] = md.digest(); // MD5 的计算结果是一个 128 位的长整数，
+										// 用字节表示就是 16 个字节
+			char str[] = new char[16 * 2]; // 每个字节用 16 进制表示的话，使用两个字符，
+											// 所以表示成 16 进制需要 32 个字符
+			int k = 0; // 表示转换结果中对应的字符位置
+			for (int i = 0; i < 16; i++) { // 从第一个字节开始，对 MD5 的每一个字节
+											// 转换成 16 进制字符的转换
+				byte byte0 = tmp[i]; // 取第 i 个字节
+				str[k++] = hexDigits[byte0 >>> 4 & 0xf]; // 取字节中高 4 位的数字转换,
+															// >>>
+															// 为逻辑右移，将符号位一起右移
+				str[k++] = hexDigits[byte0 & 0xf]; // 取字节中低 4 位的数字转换
+			}
+			s = new String(str); // 换后的结果转换为字符串
+
+		} catch (Exception e) {
+			throw new FailResponse(6751, "签名异常退出");
+		}
+		return s;
+	}
+
+
+}

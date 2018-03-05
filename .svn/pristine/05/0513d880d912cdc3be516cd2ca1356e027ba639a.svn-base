@@ -1,0 +1,418 @@
+package apifengkong.controller;
+
+import java.util.Date;
+import java.util.HashMap;
+
+import javax.transaction.Transactional;
+import javax.validation.Valid;
+import javax.validation.constraints.Digits;
+
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
+import org.jboss.logging.Logger;
+import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import apifengkong.entity.Company;
+import apifengkong.entity.CompanyRepository;
+import apifengkong.entity.PersonLoan;
+import apifengkong.entity.PersonLoanNote;
+import apifengkong.entity.PersonLoanNoteRepository;
+import apifengkong.entity.PersonLoanRepository;
+import apifengkong.entity.PersonWeb;
+import apifengkong.entity.User;
+import apifengkong.entity.UserRepository;
+import apifengkong.service.ParameterService;
+import apifengkong.service.PersonLoanSearchService;
+import apifengkong.service.PersonWebSearchService;
+import apifengkong.util.Common;
+import apifengkong.util.Common.UserDetailsImpl;
+import apifengkong.util.FailResponse;
+import apifengkong.util.Important;
+
+@Controller
+@RequestMapping(value = "/search")
+public class SearchController {
+
+	private static Logger logger = Logger.getLogger(SearchController.class);
+
+	@Autowired
+	PersonLoanSearchService personLoanSearchService;
+
+	@Autowired
+	PersonWebSearchService personWebSearchService;
+
+	@Autowired
+	ParameterService parameterService;
+
+	@Autowired
+	CompanyRepository companyRepository;
+
+	@Autowired
+	UserRepository userRepository;
+
+	@Autowired
+	PersonLoanRepository personLoanRepository;
+
+	@Autowired
+	PersonLoanNoteRepository personLoanNoteRepository;
+
+	@Value("${personLoan.price}")
+	private String personLoanbasePrice;
+
+	@Value("${personLoan.education.price}")
+	private String educationPrice;
+
+	@Value("${personWeb.price}")
+	private String personWebbasePrice;
+
+	@RequestMapping(value = "/personWeb", method = RequestMethod.POST)
+	@ResponseBody
+	public Object personWeb(@Valid @RequestBody PersonWeb personWeb, BindingResult result,
+			@RequestHeader(required = false) String appCode) {// 获取结果中的错误
+		if (result.getAllErrors().isEmpty()) {
+
+			Integer price;
+			if (personWeb.isEnableEducation() == false) {
+				price = Integer.valueOf(personWebbasePrice);
+			} else {
+				price = Integer.valueOf(personWebbasePrice) + Integer.valueOf(educationPrice);
+			}
+
+			SearchType searchType=null;
+			if (appCode != null) {
+				Company company = companyRepository.findByAppCode(appCode);
+				if(company==null){
+					throw new FailResponse(6323, "appCode不存在");
+				}else{
+					if (company.getRemainder().intValue() < price) {
+						throw new FailAmountResponse(8652, "公司账户余额不足", price);
+					}
+					searchType = SearchType.COMPANY;
+					personWeb.setCompany(company);
+				}
+			} else if(Common.getPrincipal()!=null){
+				User user = userRepository.findOne(Common.getPrincipal().getId());
+				personWeb.setUser(user);
+				if (Common.getPrincipal().getRole().getName().equals("ROLE_USER")) {
+					if (user.getRemainder() == null || user.getRemainder().intValue() < price) {
+						throw new FailAmountResponse(8651, "账户余额不足", price);
+					}
+					searchType = SearchType.USER;
+				} else {
+					Company company = companyRepository.findOne(Common.getPrincipal().getCompany().getId());
+					if (company.getRemainder().intValue() < price) {
+						throw new FailAmountResponse(8652, "公司账户余额不足", price);
+					}
+					personWeb.setCompany(company);
+					searchType = SearchType.COMPANY;
+				}
+			}else{
+				throw new FailResponse(7619, "用户才能查询");
+			}
+
+			personWeb.setCreateAt(new Date());
+
+			Integer id = personWebSearchService.search(personWeb, searchType);
+			HashMap<String, Object> hashMap = new HashMap<String, Object>();
+			hashMap.put("status", "success");
+			hashMap.put("code", 0);
+			hashMap.put("id", id);
+			return hashMap;
+		} else {// 查询失败，显示错误信息
+			System.out.println(result.getAllErrors().get(0));
+			String defaultMessage = result.getAllErrors().get(0).getDefaultMessage();
+			ObjectError objectError = result.getAllErrors().get(0);
+			BeanWrapperImpl beanWrapperImpl = new BeanWrapperImpl(objectError);
+			Object propertyValue = beanWrapperImpl.getPropertyValue("field");
+			String field = propertyValue.toString();
+			HashMap<String, Object> hashMap = new HashMap<String, Object>();
+			hashMap.put("status", "fail");
+			hashMap.put("code", field);
+			hashMap.put("message", defaultMessage);
+			return hashMap;
+		}
+	}
+
+	@RequestMapping(value = "/personLoan", method = RequestMethod.POST)
+	@ResponseBody
+	public Object personLoan(@Valid @RequestBody PersonLoan personLoan, BindingResult result,
+			@RequestHeader(required = false) String appCode) {// 获取结果中的错误
+		if (result.getAllErrors().isEmpty()) {
+
+			Integer price;
+			if (personLoan.isEnableEducation() == false) {
+				price = Integer.valueOf(personWebbasePrice);
+			} else {
+				price = Integer.valueOf(personWebbasePrice) + Integer.valueOf(educationPrice);
+			}
+
+			SearchType searchType=null;
+			if (appCode != null) {
+				Company company = companyRepository.findByAppCode(appCode);
+				if(company==null){
+					throw new FailResponse(6323, "appCode不存在");
+				}else{
+					if (company.getRemainder().intValue() < price) {
+						throw new FailAmountResponse(8652, "公司账户余额不足", price);
+					}
+					searchType = SearchType.COMPANY;
+					personLoan.setCompany(company);
+				}
+			} else if(Common.getPrincipal()!=null){
+				User user = userRepository.findOne(Common.getPrincipal().getId());
+				personLoan.setUser(user);
+				if (Common.getPrincipal().getRole().getName().equals("ROLE_USER")) {
+					if (user.getRemainder() == null || user.getRemainder().intValue() < price) {
+						throw new FailAmountResponse(8651, "账户余额不足", price);
+					}
+					searchType = SearchType.USER;
+				} else {
+					Company company = companyRepository.findOne(Common.getPrincipal().getCompany().getId());
+					if (company.getRemainder().intValue() < price) {
+						throw new FailAmountResponse(8652, "公司账户余额不足", price);
+					}
+					personLoan.setCompany(company);
+					searchType = SearchType.COMPANY;
+				}
+			}else{
+				throw new FailResponse(7619, "用户才能查询");
+			}
+
+			personLoan.setCreateAt(new Date());
+
+			Integer id = personLoanSearchService.search(personLoan, searchType);
+			HashMap<String, Object> hashMap = new HashMap<String, Object>();
+			hashMap.put("status", "success");
+			hashMap.put("code", 0);
+			hashMap.put("id", id);
+			return hashMap;
+		} else {// 查询失败，显示错误信息
+			System.out.println(result.getAllErrors().get(0));
+			String defaultMessage = result.getAllErrors().get(0).getDefaultMessage();
+			ObjectError objectError = result.getAllErrors().get(0);
+			BeanWrapperImpl beanWrapperImpl = new BeanWrapperImpl(objectError);
+			Object propertyValue = beanWrapperImpl.getPropertyValue("field");
+			String field = propertyValue.toString();
+			HashMap<String, Object> hashMap = new HashMap<String, Object>();
+			hashMap.put("status", "fail");
+			hashMap.put("code", field);
+			hashMap.put("message", defaultMessage);
+			return hashMap;
+		}
+	}
+
+	@RequestMapping(value = "/personLoan/carrierPasswordReset", method = RequestMethod.POST)
+	@ResponseBody
+	public Object carrierPasswordReset(@Valid @RequestBody PersonPasswordReset personPasswordReset,
+			BindingResult result) {// 密码重置
+		if (!result.getAllErrors().isEmpty()) {
+			System.out.println(result.getAllErrors().get(0));
+			String defaultMessage = result.getAllErrors().get(0).getDefaultMessage();
+			ObjectError objectError = result.getAllErrors().get(0);
+			BeanWrapperImpl beanWrapperImpl = new BeanWrapperImpl(objectError);
+			Object propertyValue = beanWrapperImpl.getPropertyValue("field");
+			String field = propertyValue.toString();
+			HashMap<String, Object> hashMap = new HashMap<String, Object>();
+			hashMap.put("status", "fail");
+			hashMap.put("code", field);
+			hashMap.put("message", defaultMessage);
+			return hashMap;
+		}
+		personLoanSearchService.personPasswordReset(personPasswordReset);
+		HashMap<String, Object> hashMap = new HashMap<String, Object>();
+		hashMap.put("status", "success");
+		hashMap.put("code", 0);
+		return hashMap;
+	}
+
+	@RequestMapping(value = "/personLoan/carrierPasswordSubmit", method = RequestMethod.POST)
+	@ResponseBody
+	public Object carrierPasswordSubmit(@Valid @RequestBody PersonPasswordReset personPasswordReset,
+			BindingResult result) {
+		if (!result.getAllErrors().isEmpty()) {
+			System.out.println(result.getAllErrors().get(0));
+			String defaultMessage = result.getAllErrors().get(0).getDefaultMessage();
+			ObjectError objectError = result.getAllErrors().get(0);
+			BeanWrapperImpl beanWrapperImpl = new BeanWrapperImpl(objectError);
+			Object propertyValue = beanWrapperImpl.getPropertyValue("field");
+			String field = propertyValue.toString();
+			HashMap<String, Object> hashMap = new HashMap<String, Object>();
+			hashMap.put("status", "fail");
+			hashMap.put("code", field);
+			hashMap.put("message", defaultMessage);
+			return hashMap;
+		}
+		personLoanSearchService.personPasswordSubmit(personPasswordReset);
+		HashMap<String, Object> hashMap = new HashMap<String, Object>();
+		hashMap.put("status", "success");
+		hashMap.put("code", 0);
+		return hashMap;
+	}
+
+	@RequestMapping(value = "/personLoan/carrierResendSms", method = RequestMethod.POST)
+	@ResponseBody
+	public Object carrierResendSms(@Valid @RequestBody PersonLoan personLoan, BindingResult result) {
+		if (!result.getAllErrors().isEmpty()) {
+			System.out.println(result.getAllErrors().get(0));
+			String defaultMessage = result.getAllErrors().get(0).getDefaultMessage();
+			ObjectError objectError = result.getAllErrors().get(0);
+			BeanWrapperImpl beanWrapperImpl = new BeanWrapperImpl(objectError);
+			Object propertyValue = beanWrapperImpl.getPropertyValue("field");
+			String field = propertyValue.toString();
+			HashMap<String, Object> hashMap = new HashMap<String, Object>();
+			hashMap.put("status", "fail");
+			hashMap.put("code", field);
+			hashMap.put("message", defaultMessage);
+			return hashMap;
+		}
+		personLoanSearchService.carrierResendSms(personLoan);
+		HashMap<String, Object> hashMap = new HashMap<String, Object>();
+		hashMap.put("status", "success");
+		hashMap.put("code", 0);
+		return hashMap;
+	}
+
+	// 根据用户id显示信息
+	@RequestMapping(value = "/personLoan/note", method = RequestMethod.POST)
+	@ResponseBody
+	@Transactional
+	@PostAuthorize("principal.id.equals(returnObject.user.id) or hasRole('ADMIN') or ((hasRole('MANAGER') or hasRole('EMPLOYEE')) and principal.company.id.equals(returnObject.company.id))")
+	public Important personCreditInfoUpdate(@RequestBody PersonLoanNote personLoanNote) {
+		Integer personLoanId = personLoanNote.getPersonLoanId();
+		UserDetailsImpl principal = Common.getPrincipal();
+		if (principal != null) {
+			personLoanNote.setUser(principal.getUser());
+		}
+		PersonLoan findOne = personLoanRepository.findOne(personLoanId);
+		if (findOne == null) {
+			throw new FailResponse(7601, "对象不存在");
+		}
+		findOne.setNoteCount(findOne.getNoteCount() + 1);
+		PersonLoan save = personLoanRepository.save(findOne);
+		personLoanNote.setCreateTime(new Date());
+		personLoanNote.setPersonLoan(save);
+		personLoanNoteRepository.save(personLoanNote);
+		return save;
+	}
+
+	// 根据用户id显示信息
+	@RequestMapping(value = "/personLoan/{id}/notes")
+	@ResponseBody
+	public Page<PersonLoanNote> personLoanNoteList(@PathVariable(name = "id") Integer id, Pageable page) {
+
+		UserDetailsImpl principal = Common.getPrincipal();
+
+		PersonLoan personLoan = personLoanRepository.findOne(id);
+		if (personLoan == null) {
+			throw new FailResponse(7601, "对象不存在");
+		}
+		if (principal.getRole().getName().equals("ROLE_USER")) {
+			if (!personLoan.getUser().getId().equals(principal.getUser().getId())) {
+				throw new FailResponse(1672, "只能查看自己的备注");
+			}
+		} else if (principal.getRole().getName().equals("ROLE_MANAGER")
+				|| principal.getRole().getName().equals("ROLE_EMPLOYEE")) {
+			if (!personLoan.getCompany().getId().equals(principal.getCompany().getId())) {
+				throw new FailResponse(1676, "只能查看自己公司的备注");
+			}
+		}
+
+		return personLoanNoteRepository.findByPersonLoan(personLoan, page);
+	}
+
+	public static class PersonPasswordReset {
+
+		@NotBlank(message = "姓名不能为空")
+		@Length(min = 2, max = 5, message = "2-5位中文姓名")
+		String name = "";
+		@NotBlank(message = "手机不能为空")
+		@Digits(integer = 11, fraction = 0, message = "手机需要11位数字")
+		String mobile = "";
+
+		@NotBlank(message = "身份证不能为空")
+		@Length(min = 18, max = 18, message = "身份证号码需要18位")
+		String IdCard = "";
+
+		String sms;
+		String ServicePassword;
+
+		public String getSms() {
+			return sms;
+		}
+
+		public void setSms(String sms) {
+			this.sms = sms;
+		}
+
+		public String getServicePassword() {
+			return ServicePassword;
+		}
+
+		public void setServicePassword(String servicePassword) {
+			ServicePassword = servicePassword;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getMobile() {
+			return mobile;
+		}
+
+		public void setMobile(String mobile) {
+			this.mobile = mobile;
+		}
+
+		public String getIdCard() {
+			return IdCard.toUpperCase();
+		}
+
+		public void setIdCard(String idCard) {
+			IdCard = idCard;
+		}
+
+	}
+
+	public static enum SearchType {
+		USER, COMPANY
+	}
+
+	public static class FailAmountResponse extends FailResponse {
+
+		private Integer amount;
+
+		public FailAmountResponse(int code, String message, Integer amount) {
+			super(code, message);
+			this.amount = amount;
+			// TODO Auto-generated constructor stub
+		}
+
+		public Integer getAmount() {
+			return amount;
+		}
+
+		public void setAmount(Integer amount) {
+			this.amount = amount;
+		}
+
+	}
+}

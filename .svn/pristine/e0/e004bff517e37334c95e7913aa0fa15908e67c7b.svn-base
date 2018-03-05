@@ -1,0 +1,211 @@
+<script>
+    "use strict";
+    /*
+     * 创建人：沈小艳
+     * 创建时间：2017/08/23
+     * 供应商
+     * */
+    app.controller('managementStaff', ['$scope', '$http', '$state','$filter', function ($scope, $http, $state,$filter) {
+
+
+        //双击事件改变CheckBox状态
+//        $scope.modifyTime = function (API) {
+//            API.showTime = true;
+//        };
+        //修改有效时间
+//        $scope.updateTime = function (API) {
+//            API.effectiveTime = Number(API.effectiveTime);
+//            if(isNaN(API.effectiveTime)){
+//                sweetAlert("格式错误", "请输入纯数字", "error");
+//                $scope.addedAPI();
+//                return
+//            }
+//            API.price = String(API.effectiveTime);
+//            $http({
+//                method: 'POST',
+//                url: '/supplyAPI/insertOrUpdate',
+//                data: API
+//            }).then(function successCallback(response) {
+//                $scope.addedAPI();
+//                API.showTime = false;
+//
+//            });
+//        };
+
+        //双击事件改变CheckBox状态
+//        $scope.modifyPrice = function (API) {
+//            API.showPrice = true;
+//        };
+        //修改卖价金额
+//        $scope.updatePrice = function (API) {
+//            API.price = Number(API.price);
+//            if(isNaN(API.price)){
+//                sweetAlert("格式错误", "请输入纯数字", "error");
+//                $scope.addedAPI();
+//                return
+//            }
+//            API.price = String(API.price);
+//            $http({
+//                method: 'POST',
+//                url: '/supplyAPI/insertOrUpdate',
+//                data: API
+//            }).then(function successCallback(response) {
+//                $scope.addedAPI();
+//                API.showPrice = false;
+//
+//            });
+//        };
+
+        //是否参与智能查询
+
+//        $scope.updateChangebox = function ($event,API) {
+//
+//            var isChecked = $(($event.delegateTarget)).prop("checked");
+//
+//            API.smart = isChecked;
+//            $http({
+//                method: 'POST',
+//                url: '/supplyAPI/insertOrUpdate',
+//                data: API
+//            }).then(function successCallback(response) {
+//            }, function errorCallback(response) {
+//                // 请求失败执行代码
+//                console.log('aaa')
+//            });
+//        };
+
+
+
+//        $scope.delectApi=true;
+        //删除API
+//        $scope.deleteAPI = function () {
+//            $http({
+//                method: 'POST',
+//                url: '/supplyAPI/deleteParameterCouple',
+//            }).then(function successCallback(response) {
+//                console.log(response)
+//                $scope.delectApi=false;
+//                $scope.addedAPI();
+//            }, function errorCallback(response) {
+//                // 请求失败执行代码
+//                console.log('aaa')
+//            });
+//        };
+
+
+        //添加API
+//        $scope.addParam = function () {
+//            //显示bootstrap中的模块窗口
+//            $('#modalAPI').modal('show');
+//        };
+        //添加API
+
+//        $scope.APIParam = {
+//            name: '',
+//            searchParameter:'',
+//            uniformParameter:''
+//        };
+
+        /*
+         添加
+         * */
+//        $scope.APIParams = function () {
+//
+//            var obj = {};
+//            obj.name = $scope.APIParam.name;
+//            obj.searchParameter = $scope.APIParam.searchParameter;
+//            obj.uniformParameter = $scope.APIParam.uniformParameter;
+//
+//            $http({
+//                method: 'POST',
+//                url: '/supplyAPI/addParameterCouple',
+//                data: obj
+//            }).then(function successCallback(response) {
+//                $scope.addedAPI();
+//                //关闭模块窗口
+//                $('#modalAPI').modal('hide');
+//
+//            });
+//        };
+
+
+
+        //        获取API
+        $scope.addedAPI = function () {
+            $http({
+                method: 'POST',
+                url: '/supplyAPI/list'
+
+            }).then(function successCallback(response) {
+
+                $scope.APIs = response.data;
+                console.log(response.data)
+            });
+        };
+        $scope.addedAPI();
+
+
+    }])
+</script>
+<div class="hbox hbox-auto-xs bg-light" ng-controller="managementStaff">
+    <div class="bg-light lter b-b wrapper-md">
+        <span class="m-n font-thin h3">API数量</span>
+        <button class="btn m-b-xs btn-info pull-right"  ng-click="addParam()">添加</button>
+    </div>
+    <div class="wrapper-md">
+        <table class="table table-hover table-condensed bg-white-only">
+            <tr style="font-weight: bold">
+                <td class="text-center">接口名称</td>
+                <td class="text-center">接口参数</td>
+                <td class="text-center">用户参数</td>
+            </tr>
+            <tbody ng-repeat="(index,API) in APIs" style="border: none;">
+            <tr ng-repeat="val in API.parameterCouples">
+                <td class="text-center">{{API.name}}</td>
+                <td class="text-center">{{val.searchParameter}}</td>
+                <td class="text-center">{{val.uniformParameter}}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- 添加信息 -->
+        <div class="modal" id="modalAPI">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                        <h3 class="modal-title">添加API参数信息</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">接口名称：</label>
+                                <div class="col-sm-7"><input ng-model="APIParam.name" class="form-control" type="text">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">接口参数：</label>
+                                <div class="col-sm-7"><input ng-model="APIParam.searchParameter" class="form-control" type="text"></div>
+                            </div>
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">用户参数：</label>
+                                <div class="col-sm-7"><input ng-model="APIParam.uniformParameter" class="form-control" type="text"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-sm btn-default" data-dismiss="modal">关闭</button>
+                        <button class="btn btn-sm btn-success" ng-click="APIParams()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+

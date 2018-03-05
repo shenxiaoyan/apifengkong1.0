@@ -1,0 +1,210 @@
+/*
+SQLyog Ultimate v12.09 (64 bit)
+MySQL - 5.5.53 : Database - apifengkong
+*********************************************************************
+*/
+
+/*!40101 SET NAMES utf8 */;
+
+/*!40101 SET SQL_MODE=''*/;
+
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`apifengkong` /*!40100 DEFAULT CHARACTER SET utf8 */;
+
+USE `apifengkong`;
+
+/*Table structure for table `account_recharge_log` */
+
+DROP TABLE IF EXISTS `account_recharge_log`;
+
+CREATE TABLE `account_recharge_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `integrate` int(11) DEFAULT NULL,
+  `recharge_time` datetime DEFAULT NULL,
+  `customer_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKn9e5nt71wvybs8yv93rqbd2nk` (`customer_id`),
+  KEY `FK7j36mocswafhngv53p8lyyljk` (`user_id`),
+  CONSTRAINT `FK7j36mocswafhngv53p8lyyljk` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
+  CONSTRAINT `FKn9e5nt71wvybs8yv93rqbd2nk` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+
+/*Data for the table `account_recharge_log` */
+
+insert  into `account_recharge_log`(`id`,`integrate`,`recharge_time`,`customer_id`,`user_id`) values (1,22222,'2017-09-28 10:44:45',2,2),(2,2333,'2017-09-27 09:34:56',2,3),(3,1111,'2017-08-29 09:35:43',4,2),(4,200,'2017-08-08 16:22:01',2,1);
+
+/*Table structure for table `api_parameter_couple` */
+
+DROP TABLE IF EXISTS `api_parameter_couple`;
+
+CREATE TABLE `api_parameter_couple` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `search_parameter` varchar(255) DEFAULT NULL,
+  `uniform_parameter` varchar(255) DEFAULT NULL,
+  `default_value` varchar(255) DEFAULT NULL,
+  `param_desc` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8;
+
+/*Data for the table `api_parameter_couple` */
+
+insert  into `api_parameter_couple`(`id`,`search_parameter`,`uniform_parameter`,`default_value`,`param_desc`) values (5,'shouji','cellphone',NULL,'ali手机号'),(6,'name','name',NULL,'youfen姓名'),(8,'idcard','idCard',NULL,'youfen身份证'),(9,'cellphone','cellphone',NULL,'youfen手机号'),(13,'account',NULL,NULL,'youfen账户开立时分配，每个接入方的唯一标识'),(14,'name','companyName',NULL,'youfen准确的商户名称'),(15,'merchantNo','merchantNum',NULL,'youfen商户编号或商户编号识别码'),(16,'regNo','registeredNum',NULL,'youfen营业执照注册编号'),(17,'legalName','merchantName',NULL,'youfen商户负责人姓名 '),(18,'vin','vin',NULL,'youfen车架号'),(19,'engineNo','engineNum',NULL,'youfen发动机号'),(20,'licensePlateType','plateType',NULL,'youfen号牌类型'),(21,'licensePlateNo','plateNum',NULL,'youfen车牌号'),(22,'cycle','timePeriod',NULL,'youfen时间段(1,3,6,9,12,24)单位:月'),(23,'type','type',NULL,'youfen查询标签，多个标签以逗号分隔'),(24,'startTime','tradeStartTime',NULL,'youfen开始时间，当查询S013时使用'),(25,'endTime','tradeEndTime',NULL,'youfen截止时间，当查询S013时使用'),(26,'feature','feature',NULL,NULL),(27,'account','account','123',NULL),(28,'name','merchantName',NULL,NULL),(29,'account','merchantAccount',NULL,NULL),(30,'merchantNo','registeredNum',NULL,NULL),(31,'docId','docId',NULL,NULL),(32,'bankcard','bankCard',NULL,NULL),(33,'beginDate','tradeStartTime',NULL,NULL),(34,'endDate','tradeEndTime',NULL,NULL),(35,'city','city',NULL,NULL),(36,'mobile','cellphone',NULL,NULL),(37,'address','address',NULL,NULL),(38,'certNo','idCard',NULL,NULL),(39,'certType','certType','IDENTITY_CARD',NULL),(40,'q','q',NULL,NULL),(41,'sign','sign',NULL,NULL),(42,'cardno','idCard',NULL,NULL),(43,'a','a',NULL,NULL),(44,'type','roleType','person',NULL),(45,'phone','cellphone',NULL,NULL),(46,'entInfo','uniformCreditCode',NULL,NULL);
+
+/*Table structure for table `api_search_log` */
+
+DROP TABLE IF EXISTS `api_search_log`;
+
+CREATE TABLE `api_search_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cache` bit(1) NOT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `parameters` varchar(1000) DEFAULT NULL,
+  `price` int(11) DEFAULT NULL,
+  `result` longtext,
+  `api_id` int(11) DEFAULT NULL,
+  `customer_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `IDXg8d2b1q7b6o4fxk0k44e2sjwe` (`parameters`(255)),
+  KEY `FK6q683uc6w6egpiovb8mr590s9` (`api_id`),
+  KEY `FKkifo8r32vlm6toibavju0qqes` (`customer_id`),
+  KEY `FK845g7x8650w891o5isomc1vxa` (`user_id`),
+  CONSTRAINT `FK6q683uc6w6egpiovb8mr590s9` FOREIGN KEY (`api_id`) REFERENCES `supply_api` (`id`),
+  CONSTRAINT `FK845g7x8650w891o5isomc1vxa` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
+  CONSTRAINT `FKkifo8r32vlm6toibavju0qqes` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+
+/*Data for the table `api_search_log` */
+
+insert  into `api_search_log`(`id`,`cache`,`create_time`,`parameters`,`price`,`result`,`api_id`,`customer_id`,`user_id`) values (1,'','2017-09-27 11:14:07','2',11,'手机号码归属地查询',8001,2,2),(2,'','2017-09-26 13:33:48','2',10,NULL,8001,2,1),(3,'','2017-09-26 13:34:42','2',20,NULL,8002,2,2),(4,'','2017-09-20 12:54:53','UIUI',9,NULL,8002,2,2),(5,'','2017-08-18 12:56:28','44',4,NULL,8001,2,2),(6,'','2017-08-28 16:01:35','idcard=36242119970925172X',80,'null',8008,1,2),(7,'\0','2017-10-09 14:03:31','',114,'null',8002,1,3),(8,'','2017-10-09 14:16:54','',114,'null',8002,1,3);
+
+/*Table structure for table `customer` */
+
+DROP TABLE IF EXISTS `customer`;
+
+CREATE TABLE `customer` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `app_code` varchar(255) DEFAULT NULL,
+  `app_secret` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `remainder` int(11) DEFAULT NULL,
+  `cellphone` varchar(255) DEFAULT NULL,
+  `company_name` varchar(255) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `enabled` bit(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+
+/*Data for the table `customer` */
+
+insert  into `customer`(`id`,`app_code`,`app_secret`,`name`,`remainder`,`cellphone`,`company_name`,`create_time`,`enabled`) values (1,'code1','@@@@@@@@@','admin',224994154,NULL,NULL,NULL,'\0'),(2,'code2','$$$$$$$$$$','聂',99381,NULL,'哈哈','2017-09-28 17:16:19',''),(3,'code3','111111','沈',666666,NULL,NULL,'2017-09-28 17:16:00',''),(4,'&&&&&',NULL,'哈哈',9999999,'13777490343','嘻嘻','2017-09-28 09:33:51','\0');
+
+/*Table structure for table `role` */
+
+DROP TABLE IF EXISTS `role`;
+
+CREATE TABLE `role` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+/*Data for the table `role` */
+
+insert  into `role`(`id`,`name`) values (1,'ROLE_ADMIN'),(2,'ROLE_USER'),(3,'ROLE_MANAGER');
+
+/*Table structure for table `supplier` */
+
+DROP TABLE IF EXISTS `supplier`;
+
+CREATE TABLE `supplier` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `app_code` varchar(255) DEFAULT NULL,
+  `app_secret` varchar(255) DEFAULT NULL,
+  `code` varchar(255) DEFAULT NULL,
+  `linkman` varchar(255) DEFAULT NULL,
+  `linkman_mobile` varchar(255) DEFAULT NULL,
+  `supply_name` varchar(255) DEFAULT NULL,
+  `weburl` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+/*Data for the table `supplier` */
+
+insert  into `supplier`(`id`,`app_code`,`app_secret`,`code`,`linkman`,`linkman_mobile`,`supply_name`,`weburl`) values (1,'41022859e7f84583b81d1fc355130af5',NULL,'aliyun',NULL,NULL,'阿里云','www.aliyun.com'),(2,'shangdao041','$$$$$$$$$$','youfen',NULL,NULL,'优分',NULL),(3,'code3','111111',NULL,NULL,NULL,NULL,NULL);
+
+/*Table structure for table `supply_api` */
+
+DROP TABLE IF EXISTS `supply_api`;
+
+CREATE TABLE `supply_api` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `description` varchar(255) DEFAULT NULL,
+  `effective_time` int(11) DEFAULT NULL,
+  `host` varchar(255) DEFAULT NULL,
+  `method` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `parameter_number` int(11) DEFAULT NULL,
+  `path` varchar(255) DEFAULT NULL,
+  `price` int(11) DEFAULT NULL,
+  `supplier_id` int(11) DEFAULT NULL,
+  `smart` bit(1) NOT NULL,
+  `sort` int(11) DEFAULT NULL,
+  `api_type` int(11) DEFAULT NULL,
+  `root` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKe1b6enatjdmgc0n0sgwq3b7rn` (`supplier_id`),
+  CONSTRAINT `FKe1b6enatjdmgc0n0sgwq3b7rn` FOREIGN KEY (`supplier_id`) REFERENCES `supplier` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8039 DEFAULT CHARSET=utf8;
+
+/*Data for the table `supply_api` */
+
+insert  into `supply_api`(`id`,`description`,`effective_time`,`host`,`method`,`name`,`parameter_number`,`path`,`price`,`supplier_id`,`smart`,`sort`,`api_type`,`root`) values (8001,'手机号码归属地查询',3600,'http://mobileas.market.alicloudapi.com','GET','ali手机号码归属地',1,'/mobile',10,1,'',NULL,1,'personalReal.page({view_type:\'phone_attribution\'})'),(8002,'手机号码状态查询',3600,'https://api.acedata.com.cn:2443','GET','youfen手机状态查询',1,'/oreo/personal/mobile/netStatus',114,2,'',NULL,1,'personalReal.page({view_type:\'phone_status\'})'),(8003,'POS交易账动',3600,'https://api.acedata.com.cn:2443','GET','youfenPOS交易账动',7,'/oreo/merchant/midReport',1740,2,'\0',NULL,7,'enterpriseAssets.page({view_type:\'business_POS\'})'),(8004,'车辆违章查询',3600,'https://api.acedata.com.cn:2443','GET','youfen车辆违章查询',2,'/oreo/vehicle/violation/query',60,2,'',NULL,3,'personalAssets.page({view_type:\'car_peccancy\'})'),(8005,'单商户银联流水画像',3600,'https://api.acedata.com.cn:2443','GET','youfen单商户银联流水画像',1,'/oreo/merchant/midPortrait',1000,2,'\0',NULL,7,'enterpriseAssets.page({view_type:\'business_flowing\'})'),(8006,'多头借贷全量核查',3600,'https://api.acedata.com.cn:2443','GET','youfen多头借贷全量核查',1,'/oreo/personal/creditInfoAll',280,2,'',NULL,2,'personalCredit.page({view_type:\'personal_whole\'})'),(8007,'多头借贷信息核查',3600,'https://api.acedata.com.cn:2443','GET','youfen多头借贷信息核查',4,'/oreo/personal/creditInfo',114,2,'',NULL,2,'personalCredit.page({view_type:\'personal_info\'})'),(8008,'二要素姓名身份证查询',3600,'https://api.acedata.com.cn:2443','GET','youfen二要素姓名身份证查询',3,'/oreo/personal/validation2',80,2,'',NULL,1,'personalReal.page({view_type:\'intellegence1\'})'),(8009,'二要素姓名手机号查询',3600,'https://api.acedata.com.cn:2443','GET','youfen二要素姓名手机号查询',2,'/oreo/personal/validation2/nameAndCellphone',220,2,'',NULL,1,'personalReal.page({view_type:\'intellegence2\'})'),(8010,'个人判决文书详情',3600,'https://api.acedata.com.cn:2443','GET','youfen个人判决文书详情',1,'/oreo/courtJudgment/detail/query',200,2,'',NULL,2,'personalCredit.page({view_type:\'sentence_detail\'})'),(8011,'个人对外投资查询',3600,'https://api.acedata.com.cn:2443','GET','youfen个人对外投资查询',1,'/oreo/personal/investment',1140,2,'\0',NULL,1,'personalReal.page({view_type:\'individual_investment\'})'),(8012,'个人法院判决简项',3600,'https://api.acedata.com.cn:2443','GET','youfen个人法院判决简项',2,'/oreo/personal/courtJudgment/simple/query',72,2,'',NULL,2,'personalCredit.page({view_type:\'sentence_simple\'})'),(8013,'个人法院失信简项',3600,'https://api.acedata.com.cn:2443','GET','youfen个人法院失信简项',2,'/oreo/personal/courtDishonesty/simple/query',86,2,'',NULL,2,'personalCredit.page({view_type:\'promise_simple\'})'),(8014,'个人银联账单真伪验证',3600,'https://api.acedata.com.cn:2443','GET','youfen个人银联账单真伪验证',4,'/oreo/personal/bill/verification',170,2,'',NULL,2,'personalCredit.page({view_type:\'personal_unionPay\'})'),(8015,'航旅信息统计查询',3600,'https://api.acedata.com.cn:2443','GET','youfen航旅信息统计查询',2,'/oreo/personal/airTravel/query',858,2,'\0',NULL,4,'personalEconomics.page({view_type:\'air_info\'})'),(8016,'企业法院失信简项',3600,'https://api.acedata.com.cn:2443','GET','youfen企业法院失信简项',1,'/oreo/enterprise/courtDishonesty/simple/query',86,2,'',NULL,6,'enterpriseCredit.page({view_type:\'business_simple\'})'),(8017,'企业法院判决简项',3600,'https://api.acedata.com.cn:2443','GET','youfen企业法院判决简项',1,'/oreo/enterprise/courtJudgment/simple/query',72,2,'',NULL,6,'enterpriseCredit.page({view_type:\'business_sentence\'})'),(8018,'商户账单真伪验证查询',3600,'https://api.acedata.com.cn:2443','GET','youfen商户账单真伪验证查询',4,'/oreo/merchant/bill/verification',170,2,'',NULL,6,'enterpriseCredit.page({view_type:\'business_authenticity\'})'),(8019,'手机号入网时长核查',3600,'https://api.acedata.com.cn:2443','GET','youfen手机号入网时长核查',1,'/oreo/personal/mobile/netTimeLength',128,2,'',NULL,1,'personalReal.page({view_type:\'phone_online\'})'),(8021,'肖像核查',3600,'https://api.acedata.com.cn:2443','GET','youfen肖像核查',2,'/oreo/personal/portraitCheck',114,2,'',NULL,1,'personalReal.page({view_type:\'man_verification\'})'),(8022,'刑事案底核查',3600,'https://api.acedata.com.cn:2443','GET','youfen刑事案底核查',2,'/oreo/personal/crimeInfo',260,2,'',NULL,2,'personalCredit.page({view_type:\'personal_criminal\'})'),(8023,'三要素姓名手机身份证查询',3600,'https://api.acedata.com.cn:2443','GET','youfen三要素姓名手机身份证查询',4,'/oreo/personal/validation3',186,2,'',NULL,1,'personalReal.page({view_type:\'intellegence3\'})'),(8024,'学历学籍信息查询',3600,'https://api.acedata.com.cn:2443','GET','youfen学历学籍信息查询',2,'/oreo/personal/education/detail',460,2,'',NULL,1,'personalReal.page({view_type:\'academic_info\'})'),(8025,'银联消费报告',3600,'https://api.acedata.com.cn:2443','GET','youfen银联消费报告',4,'/oreo/personal/cardReport',430,2,'',NULL,1,'personalReal.page({view_type:\'card_presentation\'})'),(8026,'借贷中介机构查询',3600,'https://api.acedata.com.cn:2443','GET','youfen借贷中介机构查询',3,'/oreo/personal/loan/agencyInstitution/check',100,2,'',NULL,2,'personalCredit.page({view_type:\'lending_intermediary\'})'),(8027,'综合风险验证',3600,'https://api.acedata.com.cn:2443','GET','youfen综合风险验证',3,'/oreo/personal/comprehensive/risk/check',100,2,'',NULL,2,'personalCredit.page({view_type:\'comprehensive_risk\'})'),(8028,'失信黑名单',3600,'https://blacklist.market.alicloudapi.com','GET','ali失信黑名单',3,'/apixcredit/blacklist/dishonest',98,1,'',NULL,2,'personalCredit.page({view_type:\'black_list\'})'),(8029,'银行卡四要素查询',3600,'http://jisubank4.market.alicloudapi.com','GET','ali银行卡四要素查询',NULL,'/bankcardverify4/verify',250,1,'',NULL,1,'personalReal.page({view_type:\'card_query2\'})'),(8031,'银行卡三要素查询',3600,'http://jisubank3.market.alicloudapi.com','GET','ali银行卡三要素查询',NULL,'/bankcardverify3/verify',250,1,'',NULL,1,'personalReal.page({view_type:\'card_query1\'})'),(8032,'企业工商信息查询',3600,'http://jisuqygsxx.market.alicloudapi.com','GET','ali企业工商信息查询',NULL,'/enterprise/query',300,1,'',NULL,5,'enterpriseReal.page({view_type:\'registration_info\'})'),(8034,'身份证分析',3600,'http://jisuidcard.market.alicloudapi.com','GET','ali身份证分析',1,'/idcard/query',NULL,1,'',NULL,NULL,NULL),(8035,'欺诈信息验证',3600,'https://dm-101.data.aliyun.com','POST','ali欺诈信息验证',6,'/rest/161225/zmxy/api/zhima.credit.antifraud.verify.json',NULL,1,'',NULL,NULL,NULL),(8036,'人行征信报告授权',3600,'http://credit.market.alicloudapi.com','GET','ali人行征信报告授权',NULL,'/apixanalysis/pbccrc/grant/credit/pbc/page',NULL,1,'\0',NULL,NULL,NULL),(8037,'法院涉诉综合查询',3600,'http://xinshujud.market.alicloudapi.com','POST','ali法院数据综合查询_检索',2,'/ws/court/query',NULL,1,'\0',NULL,NULL,NULL),(8038,'贷款平台号码通',3600,'http://phoneblack.market.alicloudapi.com','POST','ali贷款平台号码通',2,'/ws/phone/phoneBlack',NULL,1,'',NULL,NULL,NULL);
+
+/*Table structure for table `supply_api_parameter_couples` */
+
+DROP TABLE IF EXISTS `supply_api_parameter_couples`;
+
+CREATE TABLE `supply_api_parameter_couples` (
+  `api_id` int(11) NOT NULL,
+  `parameter_couple_id` int(11) NOT NULL,
+  PRIMARY KEY (`api_id`,`parameter_couple_id`),
+  KEY `FKq001p5urp2klixhhb98at3cc8` (`parameter_couple_id`),
+  CONSTRAINT `FKq001p5urp2klixhhb98at3cc8` FOREIGN KEY (`parameter_couple_id`) REFERENCES `api_parameter_couple` (`id`),
+  CONSTRAINT `FKs5s7ww2hkufkbhtvyhhlcyt08` FOREIGN KEY (`api_id`) REFERENCES `supply_api` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*Data for the table `supply_api_parameter_couples` */
+
+insert  into `supply_api_parameter_couples`(`api_id`,`parameter_couple_id`) values (8003,6),(8008,6),(8009,6),(8012,6),(8013,6),(8014,6),(8015,6),(8021,6),(8022,6),(8023,6),(8024,6),(8025,6),(8026,6),(8027,6),(8028,6),(8035,6),(8003,8),(8008,8),(8011,8),(8012,8),(8013,8),(8015,8),(8021,8),(8022,8),(8023,8),(8024,8),(8025,8),(8026,8),(8027,8),(8034,8),(8002,9),(8003,9),(8006,9),(8007,9),(8009,9),(8019,9),(8023,9),(8025,9),(8026,9),(8027,9),(8003,15),(8018,15),(8003,16),(8003,17),(8004,18),(8004,19),(8004,20),(8004,21),(8006,22),(8007,22),(8007,24),(8007,25),(8008,26),(8023,26),(8018,28),(8003,29),(8005,30),(8010,31),(8014,32),(8025,32),(8035,32),(8014,33),(8018,33),(8014,34),(8018,34),(8001,36),(8035,36),(8035,37),(8035,38),(8035,39),(8037,40),(8037,41),(8038,41),(8028,42),(8028,44),(8038,45),(8016,46),(8017,46);
+
+/*Table structure for table `user` */
+
+DROP TABLE IF EXISTS `user`;
+
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `enabled` bit(1) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `username` varchar(255) DEFAULT NULL,
+  `role_id` int(11) DEFAULT NULL,
+  `customer_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKn82ha3ccdebhokx3a8fgdqeyy` (`role_id`),
+  KEY `FKdptx0i3ky01svofwjytq5iry0` (`customer_id`),
+  CONSTRAINT `FKdptx0i3ky01svofwjytq5iry0` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`),
+  CONSTRAINT `FKn82ha3ccdebhokx3a8fgdqeyy` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+/*Data for the table `user` */
+
+insert  into `user`(`id`,`enabled`,`password`,`username`,`role_id`,`customer_id`) values (1,'','liyang','liyang',2,2),(2,'','nlj','nlj',3,2),(3,'','shen','shen',1,1);
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;

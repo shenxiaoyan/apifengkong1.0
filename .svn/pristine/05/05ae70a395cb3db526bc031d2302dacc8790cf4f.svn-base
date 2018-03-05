@@ -1,0 +1,275 @@
+<script>
+
+    "use strict";
+    app.controller("personalAllInfoCtrl", [
+            "$scope", "$http", "$rootScope", '$state', '$stateParams',
+            function ($scope, $http, $rootScope, $state, $stateParams) {
+
+            $scope.id = $stateParams.id;
+                    $scope.creditInfo = {};
+                    $scope.getInfo = function(){
+                    $http.get('/personCredit/info/' + $scope.id).then(function(resRult){
+
+
+                    $scope.person = resRult.data;
+                            console.log(resRult.data);
+                            $scope.creditInfo = resRult.data.personCreditOverview;
+                            if ($scope.creditInfo.analyseIdCard){
+                              $scope.creditInfo.analyseIdCard = JSON.parse($scope.creditInfo.analyseIdCard);
+                            }
+                    if ($scope.creditInfo.analyseCellphone){
+                         $scope.creditInfo.analyseCellphone = JSON.parse($scope.creditInfo.analyseCellphone);
+                    }
+                    if ($scope.creditInfo.analyseDishonestBlacklist){
+                    $scope.creditInfo.analyseDishonestBlacklist = JSON.parse($scope.creditInfo.analyseDishonestBlacklist);
+                    }
+                    if ($scope.creditInfo.analyseMultipleHeadLend){
+                    $scope.creditInfo.analyseMultipleHeadLend = JSON.parse($scope.creditInfo.analyseMultipleHeadLend);
+                    }
+                    
+                       if ($scope.creditInfo.analyseCriminal){
+                    $scope.creditInfo.analyseCriminal = JSON.parse($scope.creditInfo.analyseCriminal);
+                    }
+                    
+                    
+                    
+                    if ($scope.creditInfo.analyseAntifraud){
+                    $scope.creditInfo.analyseAntifraud = JSON.parse($scope.creditInfo.analyseAntifraud);
+                    }
+                    if ($scope.creditInfo.analyseIdCard){
+                    $scope.creditInfo.analyseCellphoneLog = JSON.parse($scope.creditInfo.analyseCellphoneLog);
+                    }
+                    if ($scope.creditInfo.analyseZhimaScore){
+                    $scope.creditInfo.analyseCellphoneLog = JSON.parse($scope.creditInfo.analyseZhimaScore);
+                    }
+                    
+                    
+
+                    console.log($scope.creditInfo);
+                    });
+                    };
+                    $scope.getInfo();
+            }
+    ]);</script>
+
+<div class="hbox hbox-auto-xs hbox-auto-sm" ng-controller="personalAllInfoCtrl">
+    <div class="wrapper-md b-b bg-light">
+        <div class="font-thin h4">
+
+            <h1 class="m-n font-thin h3 text-black">
+                <a ui-sref="personalAllList" class="btn btn-danger pull-right">返回列表</a>
+                个人综合查询</h1>
+        </div>
+    </div>
+    <div class="wrapper-md">
+        档案编号：{{person.id}}
+        <div class="pull-right">
+        查询日期：{{person.createAt| date:'yyyy-MM-dd HH:mm:ss'}}
+        </div>
+        <br />
+        <br />
+        <div class="panel panel-default">
+            <div class="panel-heading font-bold">                  
+                基本信息
+            </div>
+            <div class="panel-body">
+
+
+                <form class="form-horizontal ng-pristine ng-valid ng-valid-date ng-valid-required ng-valid-date-disabled">
+
+
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">姓名</label>
+                        <div class="col-lg-8">
+                            <p class="form-control-static">{{person.name}}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">性别</label>
+                        <div class="col-lg-8">
+                            <p class="form-control-static">{{person.sex}}</p>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">生日</label>
+                        <div class="col-lg-8">
+                            <p class="form-control-static">{{person.birth}}<span ng-show="person.age">（{{person.age}}岁）</span></p>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">出生地</label>
+                        <div class="col-lg-8">
+                            <p class="form-control-static">{{person.area}}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">手机号</label>
+                        <div class="col-lg-8">
+                            <p class="form-control-static">{{person.mobile}}<span ng-show="person.mobileCompany">（{{person.mobileCompany}}）</span></p>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">身份证</label>
+                        <div class="col-lg-8">
+                            <p class="form-control-static">{{person.idCard}}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">银行卡</label>
+                        <div class="col-lg-8">
+                            <p class="form-control-static">{{person.bankCard}}</p>
+                        </div>
+                    </div>
+
+     
+                    
+                      <div class="form-group">
+                        <label class="col-lg-4 control-label">地址</label>
+                        <div class="col-lg-8">
+                            <p class="form-control-static">{{person.commonAddress}}</p>
+                        </div>
+                    </div>   
+                    
+                    
+                              <div class="form-group">
+                        <label class="col-lg-4 control-label">{{person.linkman1Relationship}}</label>
+                        <div class="col-lg-8">
+                            <p class="form-control-static">{{person.linkman1Name}} {{person.linkman1Mobile}}</p>
+                        </div>
+                    </div>          
+                      
+                               <div class="form-group">
+                        <label class="col-lg-4 control-label">{{person.linkman2Relationship}}</label>
+                        <div class="col-lg-8">
+                            <p class="form-control-static">{{person.linkman2Name}} {{person.linkman2Mobile}}</p>
+                        </div>
+                    </div>      
+
+
+                </form>
+            </div>
+        </div>
+        
+        <div class="panel panel-default">
+            <div class="panel-heading font-bold"  style="background-color:{{creditInfo.analyseIdCard.color}}">                       
+                身份识别与分析
+            </div>
+             <div class="panel-body"  ng-if="!creditInfo.analyseIdCard">
+                 无
+            </div>
+        </div>
+        
+
+        <div class="panel panel-default">
+            <div class="panel-heading font-bold"  style="background-color:{{creditInfo.analyseCellphone.color}}">                        
+                通信分析
+            </div>
+             <div class="panel-body"  ng-if="!creditInfo.analyseCellphone">
+                 无
+            </div>
+        </div>
+        
+
+        <div class="panel panel-default">
+            <div class="panel-heading font-bold"  style="background-color:{{creditInfo.analyseMultipleHeadLend.color}}">                               
+                多头借贷信息 
+            </div>
+            <div class="panel-body"  ng-if="creditInfo.analyseMultipleHeadLend">
+
+                <form class="form-horizontal ng-pristine ng-valid ng-valid-date ng-valid-required ng-valid-date-disabled">
+                    <div class="form-group" ng-repeat="(key,value) in creditInfo.analyseMultipleHeadLend.description">
+                        <label class="col-lg-4 control-label">{{key}}</label>
+                        <div class="col-lg-8">
+                            <p class="form-control-static">{{value}}</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="panel-body"  ng-if="!creditInfo.analyseMultipleHeadLend">
+                 无
+            </div>
+        </div>
+
+
+        <div class="panel panel-default">
+            <div class="panel-heading font-bold" style="background-color:{{creditInfo.analyseCriminal.color}}">                  
+                犯罪 
+            </div>
+            <div class="panel-body"  ng-if="creditInfo.analyseCriminal">
+
+                <form class="form-horizontal ng-pristine ng-valid ng-valid-date ng-valid-required ng-valid-date-disabled">
+                    <div class="form-group" ng-repeat="(key,value) in creditInfo.analyseCriminal.result.result">
+                        <label class="col-lg-4 control-label">{{key}}</label>
+                        <div class="col-lg-8">
+                            <div class="form-control-static">
+                                <div ng-repeat="(k,v) in value">
+                                    {{k}}：{{v}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="panel-body"  ng-if="!creditInfo.analyseCriminal">
+                 无
+            </div>
+            
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading font-bold" style="background-color:{{creditInfo.analyseDishonestBlacklist.color}}">                  
+                失信黑名单 
+            </div>
+            <div class="panel-body"  ng-if="creditInfo.analyseDishonestBlacklist">
+                <form class="form-horizontal ng-pristine ng-valid ng-valid-date ng-valid-required ng-valid-date-disabled">
+                    <div class="form-group" ng-repeat="(key,value) in creditInfo.analyseDishonestBlacklist.result">
+                        <label class="col-lg-4 control-label">{{key}}</label>
+                        <div class="col-lg-8">
+                            <div class="form-control-static">
+                                <div ng-repeat="(k,v) in value">
+                                    {{k}}：{{v}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+             <div class="panel-body"  ng-if="!creditInfo.analyseDishonestBlacklist">
+                 无
+            </div>
+        </div>
+        
+
+        <div class="panel panel-default">
+            <div class="panel-heading font-bold"  style="background-color:{{creditInfo.analyseZhimaScore.color}}">                     
+                芝麻信用体系分析 
+            </div>
+             <div class="panel-body"  ng-if="!creditInfo.analyseZhimaScore">
+                 无
+            </div>
+        </div>        
+      
+
+        <div class="panel panel-default">
+            <div class="panel-heading font-bold">                     
+                央行征信报告（简版/临柜版） 
+            </div>
+             <div class="panel-body">
+                 暂无
+            </div>
+        </div>           
+        
+        
+    </div>
+</div>

@@ -1,0 +1,478 @@
+<script>
+    "use strict";
+    /*
+     * 创建人：沈小艳
+     * 创建时间：2017/08/23
+     * 供应商
+     * */
+    app.controller('managementStaff', ['$scope', '$http', '$state', function ($scope, $http, $state) {
+
+        $scope.suppliers = [];
+        $scope.supplier = {};
+        $scope.addParam = {};
+        $scope.isAddParamOpen = false;
+
+        $http({
+            method: 'POST',
+            url: '/supplier/list',
+
+        }).then(function successCallback(response) {
+
+            console.log(response)
+            $scope.suppliers = response.data;
+
+            $scope.supplier = $scope.suppliers[0];
+
+        });
+
+        //是否参与智能查询
+        $scope.updateChangebox = function ($event,API) {
+
+            var isChecked = $(($event.delegateTarget)).prop("checked");
+
+            API.smart = isChecked;
+            $http({
+                method: 'POST',
+                url: '/supplyAPI/insertOrUpdate',
+                data: API
+            }).then(function successCallback(response) {
+            }, function errorCallback(response) {
+                // 请求失败执行代码
+            });
+        };
+
+
+
+        $scope.delectApi=true;
+        //删除API
+        $scope.deleteAPI = function () {
+            $http({
+                method: 'POST',
+                url: '/supplyAPI/deleteParameterCouple',
+            }).then(function successCallback(response) {
+                $scope.delectApi=false;
+                $scope.addedAPI();
+            }, function errorCallback(response) {
+                // 请求失败执行代码
+
+            });
+        };
+
+
+        //添加API
+        $scope.addAPI = function () {
+            //显示bootstrap中的模块窗口
+            $('#modalAPI').modal('show');
+        };
+        //添加API
+
+        $scope.addAPIs = {};
+
+        /*
+         添加
+         * */
+        $scope.addAPIS = function () {
+
+            //canshu
+//            var obj = {};
+            $scope.addAPIs.smart = true;
+            $scope.addAPIs.supplier = $scope.supplier;
+//            obj.smart = $scope.addAPIs.smart;
+//            obj.name = $scope.addAPIs.name;
+//            obj.effectiveTime = $scope.addAPIs.effectiveTime;
+//            obj.path = $scope.addAPIs.path;
+//            obj.parameterNumber = $scope.addAPIs.parameterNumber;
+//            obj.price = $scope.addAPIs.price;
+
+            $http({
+                method: 'POST',
+                url: '/supplyAPI/insertOrUpdate',
+                data: $scope.addAPIs
+            }).then(function successCallback(response) {
+                $state.reload(true);
+                //关闭模块窗口
+                $('#modalAPI').modal('hide');
+
+            });
+        };
+
+
+
+        //        获取API
+        $scope.addedAPI = function () {
+            $http({
+                method: 'POST',
+                url: '/supplyAPI/list'
+
+            }).then(function successCallback(response) {
+
+                $scope.APIs = response.data;
+                console.log($scope.APIs)
+
+            });
+        };
+        $scope.addedAPI();
+
+        /*
+        * 点击弹出修改模态框函数
+        * @author  金杭
+        * @param   {object}  API  修改的API
+        * @return  无
+        * */
+        $scope.updateApi = function (API) {
+            $("#api_update_model").modal("show");
+
+            $scope.updateAPI = API;
+        };
+
+        /*
+         * 修改API函数
+         * @author  金杭
+         * @param   无
+         * @return  无
+         * */
+        $scope.updateApiSave = function () {
+
+            $http({
+                url:"/supplyAPI/insertOrUpdate",
+                method:"POST",
+                data:$scope.updateAPI
+            }).success(function(resResult){
+                $("#api_update_model").modal("hide");
+                $state.reload(true);
+            });
+
+        };
+
+
+        $scope.toggleParamOpen = function(){
+            $scope.isAddParamOpen = !$scope.isAddParamOpen;
+        };
+
+        /*
+         * 新增API参数函数
+         * @author  金杭
+         * @param   无
+         * @return  无
+         * */
+        $scope.addApiParamSave = function () {
+
+            $scope.addParam.apiId = $scope.updateAPI.id;
+
+            $http({
+                url:"/supplyAPI/addParameterCouple",
+                method:"POST",
+                data:$scope.addParam
+            }).success(function(resResult){
+                $("#api_update_model").modal("hide");
+                $state.reload(true);
+            });
+
+        };
+
+        /*
+         * 删除API参数函数
+         * @author  金杭
+         * @param   ？？？
+         * @return  无
+         * */
+        $scope.deleteApiParamSave = function (param) {
+
+            $http({
+                url:"/supplyAPI/deleteParameterCouple",
+                method:"POST",
+                data:{
+                    apiId:$scope.updateAPI.id,
+                    parameterCoupleId:param.id
+                }
+            }).success(function(resResult){
+                $("#api_update_model").modal("hide");
+                $state.reload(true);
+            });
+        };
+
+    }])
+</script>
+<div class="hbox hbox-auto-xs bg-light" ng-controller="managementStaff">
+    <div class="bg-light lter b-b wrapper-md">
+        <span class="m-n font-thin h3">API数量</span>
+        <button class="btn m-b-xs btn-info pull-right"  ng-click="addAPI()">添加</button>
+    </div>
+    <div class="wrapper-md">
+        <table class="table table-hover table-condensed bg-white-only">
+            <tr style="font-weight: bold">
+                <td class="text-center">序号</td>
+                <td class="text-center">供应商名称</td>
+                <td class="text-center">API名称</td>
+                <td class="text-center">API有效时间（秒）</td>
+                <td class="text-center">API接口</td>
+                <td class="text-center">API提交方式</td>
+                <td class="text-center">API参数数量</td>
+                <td class="text-center">API卖价</td>
+                <td class="text-center">API是否参与智能查询</td>
+                <td class="text-center">操作</td>
+            </tr>
+            <tbody ng-repeat="(index,API) in APIs" style="border: none;">
+            <tr ng-class="{'disabledStyle':!API.smart}">
+                <td class="v-middle text-center">{{API.id}}</td>
+                <td class="v-middle text-center">{{API.supplier.supplyName}}</td>
+                <td class="v-middle text-center">{{API.name}}</td>
+                <td class="v-middle text-center">{{API.effectiveTime}}</td>
+                <td class="v-middle text-center">{{API.path}}</td>
+                <td class="v-middle text-center">{{API.method}}</td>
+                <td class="v-middle text-center">{{API.parameterNumber}}</td>
+                <td class="v-middle text-center">{{API.price}}</td>
+                <td class="v-middle">
+                    <label class="i-switch m-t-xs" style="margin: auto;display: block">
+                        <input type="checkbox" ng-modal="API.smart" ng-checked="API.smart"
+                               ng-click="updateChangebox($event,API)">
+                        <i></i>
+                    </label>
+                </td>
+                <td class="v-middle text-center clearfix">
+                    <button class="btn btn-info btn-sm" ng-click="updateApi(API)">修改</button>
+                </td>
+
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- 添加信息 -->
+        <div class="modal" id="modalAPI">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                        <h3 class="modal-title">添加API信息</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right"><span style="color: #ff0000">*</span>供应商名称:</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control" ng-model="supplier" ng-options="supplier.supplyName for supplier in suppliers" >
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">API名称：</label>
+                                <div class="col-sm-7"><input ng-model="addAPIs.name" class="form-control" type="text"></div>
+                            </div>
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">API描述：</label>
+                                <div class="col-sm-7"><input ng-model="addAPIs.description" class="form-control" type="text"></div>
+                            </div>
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">API类型：</label>
+                                <div class="col-sm-7"><input ng-model="addAPIs.apiType" class="form-control" type="text"></div>
+                            </div>
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">API有效时间（秒）：</label>
+                                <div class="col-sm-7"><input ng-model="addAPIs.effectiveTime" class="form-control" type="text"></div>
+                            </div>
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">API接口：</label>
+                                <div class="col-sm-7"><input ng-model="addAPIs.path" class="form-control" type="text"></div>
+                            </div>
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">API单价：</label>
+                                <div class="col-sm-7"><input ng-model="addAPIs.price" class="form-control" type="text"></div>
+                            </div>
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">API供应商主机名：</label>
+                                <div class="col-sm-7"><input ng-model="addAPIs.host" class="form-control" type="text"></div>
+                            </div>
+                            <div class="col-sm-12 m-t">
+                                <label class="col-sm-3 m-t-sm text-right">API排序：</label>
+                                <div class="col-sm-7"><input ng-model="addAPIs.sort" class="form-control" type="text"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-sm btn-default" data-dismiss="modal">关闭</button>
+                        <button class="btn btn-sm btn-success" ng-click="addAPIS()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--修改-->
+        <div class="modal" id="api_update_model">
+            <div class="modal-dialog" style="width:1300px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button class="close" data-dismiss="modal">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                        <h3 class="modal-title">API修改</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                API修改
+                            </div>
+                            <div class="panel-body">
+                                <form class="form-horizontal">
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">APIId</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" ng-model="updateAPI.id">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">API名称</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" ng-model="updateAPI.name">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">API描述</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" ng-model="updateAPI.description">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">API有效时间（秒）</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" ng-model="updateAPI.effectiveTime">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">API类型</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" ng-model="updateAPI.apiType">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">API参数数量</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" ng-model="updateAPI.parameterNumber">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">API接口</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" ng-model="updateAPI.path">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">API单次请求价格</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" ng-model="updateAPI.price">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">API是否智能</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" ng-model="updateAPI.smart">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">API供应商主机名</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" ng-model="updateAPI.host">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">API排序</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" ng-model="updateAPI.sort">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">API请求路由</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" disabled class="form-control" ng-model="updateAPI.root">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">供应商名称</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" disabled class="form-control" ng-model="updateAPI.supplier.supplyName">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">供应商code</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" disabled class="form-control" ng-model="updateAPI.supplier.code">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">供应商联系人</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" disabled class="form-control" ng-model="updateAPI.supplier.linkman">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">供应商联系人电话</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" disabled class="form-control" ng-model="updateAPI.supplier.linkmanMobile">
+                                        </div>
+                                    </div>
+
+                                </form>
+                            </div>
+                            <div class="panel-footer clearfix">
+                                <button class="pull-right btn btn-sm btn-success" ng-click="updateApiSave()">保存</button>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading clearfix">
+                                <span class="v-middle">
+                                    修改参数列表
+                                </span>
+                                <button class="pull-right btn btn-success btn-sm" ng-click="toggleParamOpen()" ng-if="!isAddParamOpen">新增参数</button>
+                            </div>
+                            <table class="table table-striped m-b-none">
+                                <tbody>
+                                <tr ng-if="isAddParamOpen">
+
+                                    <td class="text-right b-r v-middle">统一参数名</td>
+                                    <td class="b-r v-middle">
+                                        <input type="text" class="form-control" ng-model="addParam.uniformParameter">
+                                    </td>
+                                    <td class="text-right b-r v-middle">供应商参数名</td>
+                                    <td class="b-r v-middle">
+                                        <input type="text" class="form-control" ng-model="addParam.searchParameter">
+                                    </td>
+                                    <td class="text-right b-r v-middle">默认值</td>
+                                    <td class="b-r v-middle">
+                                        <input type="text" class="form-control" ng-model="addParam.defaultValue">
+                                    </td>
+                                    <td>
+                                        <button class="pull-left m-r btn btn-danger btn-sm" ng-click="addApiParamSave()">保存参数</button>
+                                        <button class="pull-left m-r btn btn-success btn-sm" ng-click="toggleParamOpen()" ng-if="isAddParamOpen">取消</button>
+                                    </td>
+                                </tr>
+                                <tr ng-repeat="param in updateAPI.parameterCouples">
+                                    <td class="text-center b-r v-middle">统一参数名</td>
+                                    <td class="b-r text-center v-middle">
+                                        {{ param.uniformParameter }}
+                                    </td>
+                                    <td class="text-center b-r v-middle">供应商参数名</td>
+                                    <td class="b-r text-center v-middle">
+                                        {{ param.searchParameter }}
+                                    </td>
+                                    <td class="text-center b-r v-middle">默认值</td>
+                                    <td class="b-r text-center v-middle">
+                                        {{ param.defaultValue }}
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm" ng-click="deleteApiParamSave(param)">删除参数</button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

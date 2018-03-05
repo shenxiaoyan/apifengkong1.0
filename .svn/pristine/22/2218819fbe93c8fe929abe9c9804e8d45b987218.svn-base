@@ -1,0 +1,165 @@
+package apifengkong.service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache.ValueWrapper;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.request.AlipayTradePagePayRequest;
+import com.alipay.api.request.ZhimaCreditScoreBriefGetRequest;
+import com.alipay.api.response.ZhimaCreditScoreBriefGetResponse;
+
+import apifengkong.controller.UserController.PaymentChannel;
+import apifengkong.controller.UserController.Platform;
+import apifengkong.entity.Company;
+import apifengkong.entity.CompanyRemainderLog;
+import apifengkong.entity.User;
+import apifengkong.entity.UserRemainderLog;
+import apifengkong.entity.UserRepository;
+import apifengkong.entity.UserRemainderLog.ChargeStatus;
+import apifengkong.entity.UserRemainderLog.ChargeType;
+import apifengkong.entity.UserRemainderLogRepository;
+import apifengkong.util.Common;
+import apifengkong.util.FailResponse;
+
+@Service
+public class UserService implements UserDetailsService {
+	@Autowired
+	UserRepository userRepository;
+	@Autowired
+	UserRemainderLogRepository userRemainderLogRepository;
+	@Value("${alipay.url}")
+	private String url;
+	@Value("${alipay.appId}")
+	private String appId;
+	@Value("${alipay.appPrivateKey}")
+	private String appPrivateKey;
+	@Value("${alipay.format}")
+	private String format;
+	@Value("${alipay.charset}")
+	private String charset;
+	@Value("${alipay.alipayPublicKey}")
+	private String alipayPublicKey;
+	@Value("${alipay.signType}")
+	private String signType;
+	@Value("${alipay.returnUrl}")
+	private String returnUrl;
+	@Value("${alipay.notifyUrl}")
+	private String notifyUrl;
+
+	@Autowired
+	SmsService smsService;
+
+	@Autowired
+	private RedisCacheManager cacheManager;
+
+
+	@Override
+	public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+		User user = userRepository.findByUsername(s);
+		if (user == null) {
+			throw new UsernameNotFoundException("用户名不存在");
+		}
+		System.out.println("username:" + user.getUsername() + ";password:" + user.getPassword());
+		return new Common.UserDetailsImpl(user);
+	}
+
+	public void consume(User user, Integer value, PaymentChannel channel, Integer id) {
+		user.withdraw(value);
+		userRepository.save(user);
+		UserRemainderLog userRemainderLog = new UserRemainderLog();
+		userRemainderLog.setByUser(Common.getPrincipal().getUser());
+		userRemainderLog.setUser(user);
+		userRemainderLog.setChannel(channel);
+		userRemainderLog.setCreateTime(new Date());
+		userRemainderLog.setType(ChargeType.WITHDRAW);
+		userRemainderLog.setValue(value);
+		userRemainderLog.setEntityId(id);
+		userRemainderLogRepository.save(userRemainderLog);
+
+	}
+
+	@Transactional
+	public String taobaoDeposit(Integer amount) {
+
+		User user = Common.getPrincipal().getUser();
+		DefaultAlipayClient alipayClient = new DefaultAlipayClient(url, appId, appPrivateKey, format, charset,
+				alipayPublicKey, signType);
+		AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();// 创建API对应的request
+		Integer id = indirectDeposit(user, amount, PaymentChannel.FRONTEND, Platform.ALIPAY);
+
+		alipayRequest.setReturnUrl(returnUrl);
+		alipayRequest.setNotifyUrl(notifyUrl);// 在公共参数中设置回跳和通知地址
+		alipayRequest.setBizContent("{" + "    \"out_trade_no\":\"user_" + id + "\","
+				+ "    \"product_code\":\"FAST_INSTANT_TRADE_PAY\"," + "    \"total_amount\":" + amount + ","
+				+ "    \"subject\":\"deposit\"," + "    \"body\":\"user deposit\""
+
+				+ "  }");// 填充业务参数
+		String form = "";
+		try {
+			form = alipayClient.pageExecute(alipayRequest).getBody(); // 调用SDK生成表单
+
+			return form;
+		} catch (AlipayApiException e) {
+			e.printStackTrace();
+		}
+		throw new FailResponse(6511, "生成支付宝支付页错误");
+	}
+
+	@Transactional
+	public Integer indirectDeposit(User user, Integer amount, PaymentChannel channel, Platform platform) {
+		if (amount == null) {
+			throw new FailResponse(9111, "充值金额不能空");
+		}
+
+		UserRemainderLog userRemainderLog = new UserRemainderLog();
+		userRemainderLog.setByUser(Common.getPrincipal().getUser());
+		userRemainderLog.setUser(user);
+		userRemainderLog.setChannel(channel);
+		userRemainderLog.setCreateTime(new Date());
+		userRemainderLog.setType(ChargeType.DEPOSIT);
+		userRemainderLog.setRealValue(amount);
+		userRemainderLog.setValue(amount);
+		userRemainderLog.setPlatform(platform);
+		userRemainderLog.setStatus(ChargeStatus.WAIT_BUYER_PAY);
+		UserRemainderLog save = userRemainderLogRepository.save(userRemainderLog);
+		return save.getId();
+	}
+
+	public void sendSms(String ipAddress, String username) {
+		if("".equals(username.trim())){
+			throw new FailResponse(3713, "手机没有填写");
+		}
+		smsService.controlRate(ipAddress);
+		Integer rd = 100000 + new Random().nextInt(899999);
+		cacheManager.getCache("sms").put(username, rd);
+		cacheManager.getCache("smsControl").put(ipAddress, 1);
+		smsService.send(username,rd);
+		System.out.println("发送验证码:" + rd);
+
+	}
+
+	public boolean checkSms(String username, String sms) {
+		Integer cacheSms = cacheManager.getCache("sms").get(username, Integer.class);
+		if (cacheSms!=null && cacheSms.equals(Integer.valueOf(sms))) {
+			return true;
+		}
+		return false;
+	}
+}

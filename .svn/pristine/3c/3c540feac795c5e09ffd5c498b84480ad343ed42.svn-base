@@ -1,0 +1,188 @@
+<script>
+    "use strict";
+    app.controller('managementFinanceCheck', ['$scope','$http', function ($scope,$http) {
+        $scope.accountManger=[];
+        $scope.accountList=[];
+        $scope.accountPart=[];
+
+
+
+
+
+
+        //老板
+//        $scope.MangerOne=function () {
+//            $http({
+//                method: 'POST',
+//                url: '/stuffConsum',
+//            }).then(function successCallback(response) {
+//                console.log(response)
+//                $scope.totalResult=response.data;
+
+                // 余额
+//                $scope.totalStuff=$scope.totalResult.user;
+//                angular.forEach($scope.totalStuff,function (totalStuff) {
+//                    $scope.accountManger.push(totalStuff)
+//                })
+
+                //消费金额
+//                $scope.remainMoney=$scope.totalResult.reportConsume
+                //充值金额
+//                $scope.rechargeMoney=$scope.totalResult.reportRecharge
+//            });
+//        }
+//        $scope.MangerOne();
+
+        //员工
+//        $scope.MangerTwo=function () {
+//            $http({
+//                method: 'POST',
+//                url: '/manger/accountMangerPer',
+//            }).then(function successCallback(response) {
+//                console.log(response)
+//
+//                $scope.partResult=response.data;
+//
+//                $scope.consumeMoney=$scope.partResult.reportConsume;
+//            });
+//        }
+//        $scope.MangerTwo();
+
+    }])
+</script>
+
+<div class="hbox hbox-auto-xs dk-light" ng-controller="managementFinanceCheck">
+    <div class="col lter ng-scope">
+        <div class="vbox bg-white ng-scope">
+            <div class="wrapper-md b-b b-light bg-light">
+                <span class="h4">财务管理</span>
+                <button class="h4 pull-right wrapper-xs m-r-xxl btn-info padder" ui-sref="recharge" style="border: none;"><span>充值 <sup class="supCol">dev</sup></span></button>
+            </div>
+            <div class="row-row">
+                <div class="cell scrollable">
+                    <div class="cell-inner">
+                        <!--ng-if="myinfo.rolename === '老板'"-->
+                        <div  class="wrapper-sm" >
+                            <div class="wrapper-md bg-white-only">
+                                <div class="row text-center">
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div>已充值金额 <i class="fa fa-fw fa-caret-down text-info text-sm"></i></div>
+                                        <div class="h2 m-b-sm">{{totalResult.recharge}}</div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div>已消费笔数 <i class="fa fa-fw fa-caret-down text-info text-sm"></i></div>
+                                        <div class="h2 m-b-sm">{{totalResult.consumetimes}}</div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div>已消费金额 <i class="fa fa-fw fa-caret-down text-info text-sm"></i></div>
+                                        <div class="h2 m-b-sm">{{totalResult.consumeAll}}</div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div>余额<i class="fa fa-fw fa-caret-down text-info text-sm"></i></div>
+                                        <div class="h2 m-b-sm">{{accountManger[0].company.account}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="progress progress-sm progress-striped active m-t-xs m-b-none">
+                                <div class="progress-bar progress-bar-info" data-toggle="tooltip" data-original-title="100%" style="width: 100%"></div>
+                            </div>
+                            <br>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    财务充值状态列表
+                                </div>
+                                <table class="table table-striped m-b-none text-center">
+                                    <tr class="fontWeight">
+                                        <td>姓名</td>
+                                        <td>充值</td>
+                                        <td>时间</td>
+                                    </tr>
+                                    <tbody ng-repeat="x in rechargeMoney" style="border: none">
+                                    <tr>
+                                        <td>{{x.user.nickname}}</td>
+                                        <td>{{x.account}}</td>
+                                        <td>{{x.createTime}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    财务消费状态列表
+                                </div>
+                                <table class="table table-striped m-b-none text-center">
+                                    <tr class="fontWeight">
+                                        <td>姓名</td>
+                                        <td>消费</td>
+                                        <td>时间</td>
+                                    </tr>
+                                    <tbody ng-repeat="x in remainMoney" style="border: none">
+                                    <tr>
+                                        <td>{{x.user.nickname}}</td>
+                                        <td>{{x.account}}</td>
+                                        <td>{{x.createTime}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+
+                        <!--ng-if="myinfo.rolename === '员工'"-->
+                        <div ng-if="myinfo.rolename === '员工'" class="wrapper-sm">
+                            <div class="wrapper-md bg-white-only">
+                                <div class="row text-center">
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div>已充值金额 <i class="fa fa-fw fa-caret-down text-info text-sm"></i></div>
+                                        <div class="h2 m-b-sm">{{partResult.recharge}}</div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div>已消费笔数 <i class="fa fa-fw fa-caret-down text-info text-sm"></i></div>
+                                        <div class="h2 m-b-sm">{{partResult.consumetimes}}</div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div>已消费金额 <i class="fa fa-fw fa-caret-down text-info text-sm"></i></div>
+                                        <div class="h2 m-b-sm">{{partResult.consumeAll}}</div>
+                                    </div>
+                                    <div class="col-sm-3 col-xs-6">
+                                        <div>余额<i class="fa fa-fw fa-caret-down text-info text-sm"></i></div>
+                                        <div class="h2 m-b-sm">{{partResult.company.account}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="progress progress-sm progress-striped active m-t-xs m-b-none">
+                                <div class="progress-bar progress-bar-info" data-toggle="tooltip" data-original-title="100%" style="width: 100%"></div>
+                            </div>
+                            <br>
+                            <div  class="panel panel-default">
+                                <div class="panel-heading">
+                                    财务状态列表
+                                </div>
+                                <table class="table table-striped m-b-none text-center">
+                                    <tr class="fontWeight">
+                                        <td>姓名</td>
+                                        <td>消费</td>
+                                        <td>时间</td>
+                                    </tr>
+                                    <tbody ng-repeat="y in consumeMoney" style="border: none">
+                                    <tr>
+                                        <td>{{y.user.nickname}}</td>
+                                        <td>{{y.account}}</td>
+                                        <td>{{y.createTime}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

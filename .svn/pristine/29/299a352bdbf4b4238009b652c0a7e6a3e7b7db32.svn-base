@@ -1,0 +1,69 @@
+package apifengkong.util;
+
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import apifengkong.entity.SupplyAPI;
+
+public class YoufenCallable implements Callable<Map> {
+	private SupplyAPI supplyAPI;
+	private String method;
+	private Map<String,String> headers;
+	private Map<String, String> querys;
+	private Map<String, String> bodys;
+	private String host;
+	private String path;
+	private String appcode;
+
+	public YoufenCallable(SupplyAPI supplyAPI,  HashMap<String, String> headers , final HashMap<String, String> querys , HashMap<String, String> bodys) {
+		super();
+		this.supplyAPI = supplyAPI;
+		this.method = supplyAPI.getMethod().toString().toUpperCase();
+		this.headers = new HashMap<String,String>(headers);
+		this.querys = new HashMap<String,String>(querys);
+		this.bodys = new HashMap<String,String>(bodys);
+		this.host = supplyAPI.getHost();
+		this.path = supplyAPI.getPath();
+		this.appcode = supplyAPI.getSupplier().getAppCode();
+		
+	}
+
+	@Override
+	public Map call() {
+		
+		querys.put("account", appcode);
+
+		Map<String, String> headers = new HashMap<String, String>();
+		// 最后在header中的格式(中间是英文空格)为Authorization:APPCODE
+		// 83359fd73fe94948385f570e3c139105
+		// headers.put("Accept-Charset", "utf-8;q=0.7,*;q=0.7");
+
+		try {
+
+			HttpResponse response = HttpUtils.doGet(host, path, method, headers, querys);
+
+			// return response.toString();
+			// 获取response的body
+
+			ObjectMapper mapper = new ObjectMapper();
+
+			// System.out.println(response.getEntity().get);
+
+//			String string = new String(
+//					EntityUtils.toString(response.getEntity(), Charset.forName("utf-8")).getBytes("ISO-8859-1"),
+//					"UTF-8");
+			Map bean = mapper.readValue(EntityUtils.toString(response.getEntity(), Charset.forName("utf-8")), Map.class);
+			return bean;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+}

@@ -1,0 +1,700 @@
+package apifengkong.service;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.annotation.PostConstruct;
+import javax.swing.plaf.synth.SynthSeparatorUI;
+import javax.transaction.Transactional;
+
+import org.apache.http.HttpStatus;
+import org.jboss.logging.Logger;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache.ValueWrapper;
+import org.springframework.cache.CacheManager;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.ser.impl.FailingSerializer;
+import com.moxie.api.DefaultMoxieClient;
+import com.moxie.api.MoxieClient;
+import com.moxie.api.MoxieRequest;
+import com.moxie.api.MoxieResponse;
+import com.moxie.api.domain.Authorization;
+import com.moxie.api.domain.MoxieApiException;
+import com.moxie.api.http.HttpClient;
+import com.moxie.api.http.HttpClientConfig;
+import com.moxie.api.http.HttpMethod;
+
+import apifengkong.controller.SearchController.PersonPasswordReset;
+import apifengkong.controller.SearchController.SearchType;
+import apifengkong.controller.UserController.PaymentChannel;
+import apifengkong.entity.PersonLoan;
+import apifengkong.entity.PersonLoanRepository;
+import apifengkong.entity.SupplyAPIRepository;
+import apifengkong.util.Common;
+import apifengkong.util.FailResponse;
+import apifengkong.util.Important;
+
+@Service
+public class PersonLoanSearchService {
+
+	private static Logger logger = Logger.getLogger(PersonLoanSearchService.class);
+
+	@Autowired
+	SupplyAPIRepository supplyAPIRepository;
+
+	@Autowired
+	AnalysisService analysisService;
+
+	@Autowired
+	FetchService fetchService;
+
+	@Autowired
+	PersonLoanRepository personLoanRepository;
+
+	@Autowired
+	private CacheManager cacheManager;
+
+	@Autowired
+	private CompanyService companySerivce;
+
+	@Autowired
+	private UserService userSerivce;
+
+	@Value("${personLoan.price}")
+	private String basePrice;
+
+	@Value("${personLoan.education.price}")
+	private String educationPrice;
+
+	@Value("${personLoan.cache.time}")
+	private String cacheTime;
+
+	private static HttpClient httpClient;
+	private static Authorization authorization;
+
+	@Value("${mojie.api.key}")
+	private String apiKey;
+	@Value("${mojie.api.token}")
+	private String token;
+
+	@PostConstruct
+	public void initHttpClient() {
+		HttpClientConfig httpClientConfig = HttpClientConfig.custom().setMaxTotal(100).setDefaultMaxPerRoute(2)
+				.setConnectTimeout(30 * 100).setConnectionRequestTimeout(30 * 100).setSocketTimeout(30 * 100).build();
+		httpClient = new HttpClient(httpClientConfig.getRequestConfig(), httpClientConfig.getPool());
+		authorization = Authorization.AuthorizationBuilder.newBuilder().withApiKey(apiKey).withToken(token).build();
+	}
+
+	// 重置服务商密码申请
+	public void personPasswordReset(PersonPasswordReset personPasswordReset) {
+
+		String account = personPasswordReset.getMobile();
+		String userId = "0";
+		if (Common.getPrincipal() != null) {
+			userId = Common.getPrincipal().getId().toString();
+		}
+		String realName = personPasswordReset.getName();
+		String idCard = personPasswordReset.getIdCard();
+
+		String taskId = resetPassword(personPasswordReset);
+		cacheManager.getCache("mojiePasswordReset").put(account + userId + realName + idCard, taskId);
+
+	}
+
+	// 重置服务商密码后，提交新密码
+	public void personPasswordSubmit(PersonPasswordReset personPasswordReset) {
+
+		String account = personPasswordReset.getMobile();
+		String userId = "0";
+		if (Common.getPrincipal() != null) {
+			userId = Common.getPrincipal().getId().toString();
+		}
+		String realName = personPasswordReset.getName();
+		String idCard = personPasswordReset.getIdCard();
+		String sms = personPasswordReset.getSms();
+		String pwd = personPasswordReset.getServicePassword();
+		String taskId = null;
+		ValueWrapper valueWrapper = cacheManager.getCache("mojiePasswordReset")
+				.get(account + userId + realName + idCard);
+		if (valueWrapper == null) {
+			throw new FailResponse(6759, "缓存过期，重新重置服务密码");
+		} else {
+			taskId = cacheManager.getCache("mojiePasswordReset").get(account + userId + realName + idCard,
+					String.class);
+		}
+		resetPasswordSubmit(taskId, sms, pwd);
+	}
+
+	// 发送短信验证码
+	public void carrierResendSms(PersonLoan personLoan) {
+		// TODO Auto-generated method stub
+		String mojieTaskIdFromCache = getMojieTaskIdFromCache(personLoan);
+		sendSms(mojieTaskIdFromCache, "sms", personLoan);
+	}
+
+	// 开始搜索入口
+	public Integer search(PersonLoan personLoan, SearchType searchType) {
+
+		if (personLoan.isEnableCache()) {
+			PersonLoan cacheData = personLoanCache(personLoan);
+			if (cacheData != null) {
+				PersonLoan target = new PersonLoan();
+				BeanUtils.copyProperties(cacheData, target);
+				target.setCreateAt(new Date());
+				target.setCache(true);
+				if (searchType.equals(SearchType.COMPANY)) {
+					target.setCompany(personLoan.getCompany());
+				}
+				target.setUser(personLoan.getUser());
+				target.setId(null);
+				PersonLoan save = personLoanRepository.save(target);
+				return save.getId();
+			} else {
+				return dispatchSearch(personLoan, searchType);
+			}
+		} else {
+			return dispatchSearch(personLoan, searchType);
+		}
+	}
+
+	// ------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * 提交验证信息
+	 * 
+	 * @param taskId
+	 */
+	private void resetPasswordSubmit(String taskId, String sms, String pwd) {
+
+		String url = "https://api.51datakey.com/carrier/v3/tasks/reset/" + taskId + "/input";
+		String bizContent = "{\"type\":\"SUBMIT\",\"inputs\":[{\"type\":\"sms\",\"value\":\"" + sms
+				+ "\"},{\"type\":\"pwd\",\"value\":\"" + pwd + "\"}]}";
+
+		System.out.println(String.format(">>> 调用魔蝎URL: %s, 请求参数: %s", url, bizContent));
+		MoxieRequest moxieRequest = MoxieRequest.custom().setBizContent(bizContent)
+				.setResponseClass(MoxieResponse.class).build();
+		MoxieClient moxieClient = new DefaultMoxieClient(httpClient, url, authorization.getApiKey());
+		MoxieResponse response;
+		try {
+			response = moxieClient.execute(moxieRequest, HttpMethod.POST);
+		} catch (Exception e) {
+			// TODO 接口调用异常, 解析异常信息
+			MoxieApiException moxieApiException = new MoxieApiException(e);
+			System.out.println("调用魔蝎接口异常: " + moxieApiException.getMessage());
+			return;
+		}
+
+		System.out.println("调用魔蝎接口, 响应码: " + response.getResponseCode() + ", 响应结果: " + response.getResponseData());
+		JSONObject object = JSON.parseObject(response.getResponseData());
+		if (!response.isSuccess()) {
+			String errorDesc = object.getString("detail"); // 获取异常信息
+			throw new FailResponse(6666, errorDesc);
+		}
+
+		Boolean finished = object.getBoolean("finished");
+		String description = object.getString("description");
+		// 接口服务调用正常，获取响应报文体，转换正常模型
+		if (finished) {
+			// TODO 获取“description”描述信息，提示用户服务密码重置结果
+			if (description.indexOf("重置服务密码成功") != -1) {
+				System.out.println("重置密码提交结果:" + description);
+			} else {
+				throw new FailResponse(1345, description);
+			}
+		} else {
+			throw new FailResponse(7655, description);
+		}
+	}
+
+	private String resetPassword(PersonPasswordReset personPasswordReset) {
+
+		String account = personPasswordReset.getMobile();
+		String userId = "0";
+		if (Common.getPrincipal() != null) {
+			userId = Common.getPrincipal().getId().toString();
+		}
+		String realName = personPasswordReset.getName();
+		String idCard = personPasswordReset.getIdCard();
+
+		String url = "https://api.51datakey.com/carrier/v3/tasks/reset";
+		String bizContent = "{\"account\":\"" + account + "\"," + "\"user_id\":\"" + userId + "\"," + "\"real_name\":\""
+				+ realName + "\"," + "\"id_card\":\"" + idCard + "\"}";
+
+		System.out.println(String.format(">>> 调用魔蝎URL: %s, 请求参数: %s", url, bizContent));
+		MoxieRequest moxieRequest = MoxieRequest.custom().setBizContent(bizContent)
+				.setResponseClass(MoxieResponse.class).build();
+		MoxieClient moxieClient = new DefaultMoxieClient(httpClient, url, authorization.getApiKey());
+		MoxieResponse response;
+		try {
+			response = moxieClient.execute(moxieRequest, HttpMethod.POST);
+		} catch (Exception e) {
+			// TODO 接口调用异常, 解析异常信息
+			MoxieApiException moxieApiException = new MoxieApiException(e);
+			System.out.println("调用魔蝎接口异常: " + moxieApiException.getMessage());
+			throw new FailResponse(8351, moxieApiException.getMessage());
+		}
+
+		System.out.println("调用魔蝎接口, 响应码: " + response.getResponseCode() + ", 响应结果: " + response.getResponseData());
+		JSONObject object = JSON.parseObject(response.getResponseData());
+		if (!response.isSuccess()) {
+			String errorDesc = object.getString("detail"); // 获取异常信息
+			System.out.println("调用魔蝎接口:" + errorDesc);
+			throw new FailResponse(6351, errorDesc);
+		}
+
+		String description = object.getString("description");
+		Boolean finished = object.getBoolean("finished");
+		String errorCode = object.getString("error_code");
+		// 接口服务调用正常，获取响应报文体，转换正常模型
+		if (finished && !errorCode.equalsIgnoreCase("0")) {
+			// TODO 异常情况，退出重置服务密码逻辑，获取“description”描述信息，重新引导用户重置服务密码
+			throw new FailResponse(6311, description);
+		} else if (!finished) {
+			if (description.indexOf("验证码已发送") != -1) {
+			} else {
+				throw new FailResponse(6312, description);
+			}
+		} else {
+			// TODO 正常情况，不需要用户再次输入任何信息，获取“description”描述信息，重置服务密码直接成功
+			// （此种情况，暂未出现）
+		}
+		String taskId = object.getString("task_id");
+		System.out.println("String taskId = " + taskId);
+		return taskId;
+	}
+
+	private void pollTaskStatus(String taskId, PersonLoan personLoan) {
+		long pollEndTime = System.currentTimeMillis() + 180 * 1000; // 轮询最多3分钟；可根据实际业务情况调整
+		String url = "https://api.51datakey.com/carrier/v3/tasks/" + taskId + "/status-ex";
+		MoxieRequest moxieRequest = MoxieRequest.custom().setResponseClass(MoxieResponse.class).build();
+
+		while (true) {
+			System.out.println(String.format(">>> 查看任务状态，调用魔蝎URL: %s", url));
+			MoxieClient moxieClient = new DefaultMoxieClient(httpClient, url, authorization.getApiKey());
+			MoxieResponse response = null;
+			try {
+				response = moxieClient.execute(moxieRequest, HttpMethod.GET);
+			} catch (Exception e) {
+				// TODO 调用接口异常, 打印异常日志并记录异常信息, 此异常逻辑忽略
+				MoxieApiException moxieApiException = new MoxieApiException(e);
+				System.out.println("调用魔蝎接口异常: " + moxieApiException.getMessage());
+			}
+
+			if (response == null)
+				continue;
+
+			System.out.println("调用魔蝎接口, 响应码: " + response.getResponseCode() + ", 响应结果: " + response.getResponseData());
+
+			JSONObject object = JSON.parseObject(response.getResponseData());
+
+			if (response.isSuccess()) {
+				String description = object.getString("description");
+				String phaseType = object.getString("phase_type");
+				String phaseStatus = object.getString("phase_status");
+				boolean finished = object.getBoolean("can_leave");
+				String errorCode = object.getString("error_code");
+
+				// 任务正在执行
+				if (phaseStatus.equals("DOING")) {
+
+				}
+				// 任务已完成
+				if (phaseStatus.equals("DONE_SUCC") && finished) {
+					break;
+				}
+				// 任务失败/超时
+				if (phaseStatus.equals("DONE_FAIL") || phaseStatus.equals("DONE_TIMEOUT")) {
+					if (description.indexOf("验证码输入超时") != -1) {
+						// sendSms(taskId, "sms", personLoan);
+						throw new FailResponse(7795, "验证码超时，请输入新验证码");
+					} else {
+						throw new FailResponse(8642, description);
+					}
+				}
+				// 等待用户输入验证码或独立密码
+				if (phaseStatus.equals("WAIT_CODE")) {
+					
+					throw new FailResponse(4641, description);
+					
+					// if (description.indexOf("验证码不正确") != -1) {
+					// throw new FailResponse(8791, description);
+					// }
+					//
+					// if (description.indexOf("验证码输入错误") != -1 &&
+					// phaseType.equals("2")) {
+					// throw new FailResponse(8792, "请输入详单查询验证码");
+					// }else if(description.indexOf("验证码输入错误") != -1){
+					// throw new FailResponse(7651, description);
+					// }
+
+				}
+			} else {
+				String errorDesc = object.getString("detail"); // 获取异常信息
+				System.out.println("调用魔蝎接口:" + errorDesc);
+				if (HttpStatus.SC_NOT_FOUND == response.getResponseCode()) {
+					// TODO 轮询任务状态返回结果不存在, 引导用户重新申请
+					String account = personLoan.getMobile();
+					String password = personLoan.getServicePassword();
+					String userId = "0";
+					if (Common.getPrincipal() != null) {
+						userId = Common.getPrincipal().getId().toString();
+					}
+					String realName = personLoan.getName();
+					String idCard = personLoan.getIdCard();
+
+					cacheManager.getCache("mojieTask").evict(account + password + userId + realName + idCard);
+					throw new FailResponse(7511, "任务超时，请重试");
+				}
+				// TODO 轮询任务状态返回结果异常, 打印异常信息, 继续轮询
+				continue;
+			}
+			try {
+				// 等待2秒
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			if (System.currentTimeMillis() > pollEndTime) {
+				throw new FailResponse(7599, "任务超时，请重试");
+			}
+		}
+
+	}
+
+	public void sendSms(String taskId, String type, PersonLoan personLoan) {
+
+		String account = personLoan.getMobile();
+		String password = personLoan.getServicePassword();
+		String userId = "0";
+		if (Common.getPrincipal() != null) {
+			userId = Common.getPrincipal().getId().toString();
+		}
+		String realName = personLoan.getName();
+		String idCard = personLoan.getIdCard();
+
+		String url = "https://api.51datakey.com/carrier/v3/tasks/" + taskId + "/verifycode";
+		String bizContent = "{\"type\":\"" + type + "\"}";
+
+		System.out.println(String.format(">>> 申请短信验证码，调用魔蝎URL: %s, 请求参数: %s", url, bizContent));
+		MoxieRequest moxieRequest = MoxieRequest.custom().setBizContent(bizContent)
+				.setResponseClass(MoxieResponse.class).build();
+		MoxieClient moxieClient = new DefaultMoxieClient(httpClient, url, authorization.getApiKey());
+		MoxieResponse response;
+		try {
+			response = moxieClient.execute(moxieRequest, HttpMethod.POST);
+		} catch (Exception e) {
+			// TODO 接口调用异常, 解析异常信息
+			MoxieApiException moxieApiException = new MoxieApiException(e);
+			System.out.println("调用魔蝎接口异常: " + moxieApiException.getMessage());
+			e.printStackTrace();
+			throw new FailResponse(3491, moxieApiException.getMessage());
+		}
+
+		System.out.println("调用魔蝎接口, 响应码: " + response.getResponseCode() + ", 响应结果: " + response.getResponseData());
+
+		JSONObject object = JSON.parseObject(response.getResponseData());
+		if (!response.isSuccess()) {
+			String errorDesc = object.getString("detail"); // 获取异常信息
+			System.out.println("调用魔蝎接口:" + errorDesc);
+			throw new FailResponse(5111, errorDesc);
+		}
+
+		String description = object.getString("description"); // 描述
+		String phaseType = object.getString("phase_type"); // 阶段类型
+		Boolean canLeave = object.getBoolean("can_leave"); // 授权登录退出标识
+		String phaseStatus = object.getString("phase_status"); // 阶段状态
+		String errorCode = object.getString("error_code"); // 错误码
+
+		if (phaseStatus.equalsIgnoreCase("WAIT_CODE") && errorCode.equalsIgnoreCase("0")) {
+			// TODO: 解析响应报文，判断"input"元素，显示"description"和倒计时,引导用户输入验证码或超时重新获取
+			JSONObject inputObject = object.getJSONObject("input");
+			String value = inputObject.getString("value");
+			throw new FailResponse(6755, "验证码已发送，有效时长" + inputObject.getString("wait_seconds") + "秒");
+
+		} else if (phaseStatus.equalsIgnoreCase("WAIT_CODE") && !errorCode.equalsIgnoreCase("0")) {
+			// TODO: 解析响应报文，判断"input"元素，显示"description",引导用户重新获取
+			JSONObject inputObject = object.getJSONObject("input");
+			String value = inputObject.getString("value");
+			throw new FailResponse(6757, description);
+		} else if (phaseStatus.equalsIgnoreCase("DONE_FAIL")) {
+			System.out.println("发送验证码任务失败");
+			cacheManager.getCache("mojieTask").evict(account + password + userId + realName + idCard);
+			throw new FailResponse(7676, "验证超时，请退出重新授权");
+		} else {
+			throw new FailResponse(6751, description);
+		}
+
+	}
+
+	private void inputSms(String taskId, String sms) {
+		String url = "https://api.51datakey.com/carrier/v3/tasks/" + taskId + "/input";
+		String bizContent = "{\"input\":\"" + sms + "\"}";
+
+		System.out.println(String.format(">>> 输入验证码，调用魔蝎URL: %s, 请求参数: %s", url, bizContent));
+		MoxieRequest moxieRequest = MoxieRequest.custom().setBizContent(bizContent)
+				.setResponseClass(MoxieResponse.class).build();
+		MoxieClient moxieClient = new DefaultMoxieClient(httpClient, url, authorization.getApiKey());
+		MoxieResponse response;
+		try {
+			response = moxieClient.execute(moxieRequest, HttpMethod.POST);
+			System.out.println("调用魔蝎接口, 响应码: " + response.getResponseCode() + ", 响应结果: " + response.getResponseData());
+			if (!response.isSuccess()) {
+				JSONObject object = JSON.parseObject(response.getResponseData());
+				String errorDesc = object.getString("detail"); // 获取异常信息
+				System.out.println("输入验证码接口错误:" + errorDesc);
+				throw new FailResponse(5521, errorDesc);
+			}
+
+		} catch (Exception e) {
+			// TODO 接口调用异常, 解析异常信息
+			MoxieApiException moxieApiException = new MoxieApiException(e);
+			System.out.println("调用魔蝎接口异常: " + moxieApiException.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	private String createMojieTask(String account, String password, String userId, String realName, String idCard) {
+		String url = "https://api.51datakey.com/carrier/v3/tasks";
+
+		String bizContent = "" + "{\"account\":\"" + account + "\"," + "\"password\":\"" + password + "\","
+				+ "\"user_id\":\"" + userId + "\"," + "\"origin\":\"2\"," + "\"real_name\":\"" + realName + "\","
+				+ "\"id_card\":\"" + idCard + "\"}";
+
+		System.out.println("创建摩羯任务");
+		System.out.println(String.format(">>> 调用魔蝎URL: %s, 请求参数: %s", url, bizContent));
+		MoxieRequest moxieRequest = MoxieRequest.custom().setBizContent(bizContent)
+				.setResponseClass(MoxieResponse.class).build();
+		MoxieClient moxieClient = new DefaultMoxieClient(httpClient, url, authorization.getApiKey());
+		MoxieResponse response;
+		try {
+			response = moxieClient.execute(moxieRequest, HttpMethod.POST);
+		} catch (Exception e) {
+			// TODO 接口调用异常, 解析异常信息
+			MoxieApiException moxieApiException = new MoxieApiException(e);
+			System.out.println("调用魔蝎接口异常: " + moxieApiException.getMessage());
+			e.printStackTrace();
+			throw new FailResponse(7356, "创建摩羯任务失败");
+		}
+
+		System.out.println("调用魔蝎接口, 响应码: " + response.getResponseCode() + ", 响应结果: " + response.getResponseData());
+		JSONObject object = JSON.parseObject(response.getResponseData());
+		if (response.isSuccess()) {
+			// TODO 接口调用正常,解析结果响应参数
+			String taskId = object.getString("task_id");
+			System.out.println("String taskId = " + taskId);
+			return taskId;
+		} else {
+			throw new FailResponse(7666, object.getString("detail"));
+		}
+	}
+
+	private String syncLoginCarrierAndGetPhoneRecord(PersonLoan personLoan) {
+		String mojieTaskIdFromCache = getMojieTaskIdFromCache(personLoan);
+		
+		if (personLoan.getSms() != null && !personLoan.getSms().trim().equals("")) {
+			inputSms(mojieTaskIdFromCache, personLoan.getSms().trim());
+		}
+		pollTaskStatus(mojieTaskIdFromCache, personLoan);
+		// executor.submit(new BackgroundCellphoneLogAnalysis(account, taskId,
+		// personCreditOverviewRepository));
+		return mojieTaskIdFromCache;
+
+	}
+
+	private String getMojieTaskIdFromCache(PersonLoan personLoan) {
+		String account = personLoan.getMobile();
+		String password = personLoan.getServicePassword();
+		String userId = "0";
+		if (Common.getPrincipal() != null) {
+			userId = Common.getPrincipal().getId().toString();
+		}
+		String realName = personLoan.getName();
+		String idCard = personLoan.getIdCard();
+
+		String taskId = null;
+		ValueWrapper valueWrapper = cacheManager.getCache("mojieTask")
+				.get(account + password + userId + realName + idCard);
+		if (valueWrapper == null) {
+			taskId = createMojieTask(account, password, userId, realName, idCard);
+			cacheManager.getCache("mojieTask").put(account + password + userId + realName + idCard, taskId);
+
+		} else {
+			taskId = cacheManager.getCache("mojieTask").get(account + password + userId + realName + idCard,
+					String.class);
+		}
+		return taskId;
+	}
+
+	// 是否personloan使用缓存数据
+	private PersonLoan personLoanCache(Important personLoan) {
+		String name = personLoan.getName();
+		String mobile = personLoan.getMobile();
+		String idCard = personLoan.getIdCard();
+
+		PersonLoan findOne = personLoanRepository.findFirstByNameAndMobileAndIdCardAndCacheAndStatusOrderByIdDesc(name,
+				mobile, idCard, false, "处理完成");
+		if (findOne != null) {
+			Calendar c1 = Calendar.getInstance();// 取当前日期。
+			Integer i = Integer.valueOf(cacheTime);
+			c1.add(Calendar.DATE, -i);
+
+			Calendar c2 = Calendar.getInstance();
+			c2.setTime(findOne.getCreateAt());
+			if (c2.before(c1)) {
+				return null;
+			} else {
+				return findOne;
+			}
+		} else {
+			return null;
+		}
+	}
+
+	// 具体的各项任务分发
+	@Transactional
+	private Integer dispatchSearch(PersonLoan personLoan, SearchType searchType) {
+		personLoan.setCache(false);
+		personLoan.setCreateAt(new Date());
+		personLoan.setStatus("处理中");
+		String taskId = null;
+		try {
+			taskId = syncLoginCarrierAndGetPhoneRecord(personLoan);
+		} catch (FailResponse e) {
+			if (e.getCode() == 7511) {
+				System.out.println("任务超时，重试");
+				taskId = syncLoginCarrierAndGetPhoneRecord(personLoan);
+			} else {
+				throw e;
+			}
+		}
+		personLoan.setMojieTask(taskId);
+		PersonLoan savedPersonLoan = personLoanRepository.save(personLoan);
+
+		// 异步获取数据
+		fetchService.asyncCellphoneRecord(taskId, savedPersonLoan);
+		Future<Map> fetchIdCard = fetchService.asyncFetchIdCard(savedPersonLoan);
+		Future<Map> fetchCellphone = fetchService.asyncFetchCellphone(savedPersonLoan);
+		Future<Map> fetchDishonestBlacklist = fetchService.asyncFetchDishonestBlacklist(savedPersonLoan);
+		Future<Map> fetchCriminal = fetchService.asyncFetchCriminal(savedPersonLoan);
+		Future<Map> courtJudgment = fetchService.asyncCourtJudgment(savedPersonLoan);
+		Future<Map> fetchMultipleHeadLend = fetchService.asyncFetchMultipleHeadLend(savedPersonLoan);
+		Future<Map> fetchEducation = fetchService.asyncFetchEducation(savedPersonLoan);
+		Future<Map> fetchZhimaScore = fetchService.asyncFetchZhimaScore(savedPersonLoan);
+		Future<Map> fetchAntifraud = fetchService.asyncFetchAntifraud(savedPersonLoan);
+		Future<Map> fetchWatchlist = fetchService.asyncFetchWatchlist(savedPersonLoan);
+
+		// 得到所有结果
+		Map idCardResult = null;
+		try {
+			idCardResult = fetchIdCard.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Map cellPhoneResult = null;
+		try {
+			cellPhoneResult = fetchCellphone.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Map dishonestBlacklistResult = null;
+		try {
+			dishonestBlacklistResult = fetchDishonestBlacklist.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Map criminalResult = null;
+		try {
+			criminalResult = fetchCriminal.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Map courtJudgmentResult = null;
+		try {
+			courtJudgmentResult = courtJudgment.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Map multipleHeadLendResult = null;
+		try {
+			multipleHeadLendResult = fetchMultipleHeadLend.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Map antifraudResult = null;
+		try {
+			antifraudResult = fetchAntifraud.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Map educationResult = null;
+		try {
+			educationResult = fetchEducation.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Map zhimaScoreResult = null;
+		try {
+			zhimaScoreResult = fetchZhimaScore.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Map watchlistResult = null;
+		try {
+			watchlistResult = fetchWatchlist.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		analysisService.handleIdCard(savedPersonLoan, idCardResult);
+		analysisService.handleCellphone(savedPersonLoan, cellPhoneResult);
+		analysisService.handleDishonestBlacklist(savedPersonLoan, dishonestBlacklistResult);
+		analysisService.handleCriminal(savedPersonLoan, criminalResult);
+		analysisService.handleCourtJudgment(savedPersonLoan, courtJudgmentResult);
+		analysisService.handleMultipleHeadLend(savedPersonLoan, multipleHeadLendResult);
+		analysisService.handleAntifraud(savedPersonLoan, antifraudResult);
+		analysisService.handleEducation(savedPersonLoan, educationResult);
+		analysisService.handleZhimaScore(savedPersonLoan, zhimaScoreResult);
+		analysisService.handleWatchlist(savedPersonLoan, watchlistResult);
+		personLoanRepository.save(savedPersonLoan);
+
+		Integer price;
+		if (educationResult == null) {
+			price = Integer.valueOf(basePrice);
+		} else {
+			price = Integer.valueOf(basePrice) + Integer.valueOf(educationPrice);
+			;
+		}
+		if (searchType.equals(SearchType.COMPANY)) {
+			companySerivce.consume(personLoan.getCompany(), price, PaymentChannel.PERSON_LOAN, savedPersonLoan.getId());
+		} else {
+			userSerivce.consume(personLoan.getUser(), price, PaymentChannel.PERSON_LOAN, savedPersonLoan.getId());
+		}
+
+		return savedPersonLoan.getId();
+
+	}
+
+}

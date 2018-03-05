@@ -1,0 +1,203 @@
+package apifengkong.service;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.http.util.EntityUtils;
+import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import apifengkong.controller.SupplyAPIController;
+import apifengkong.entity.APISearchLog;
+import apifengkong.entity.APISearchLogRepository;
+import apifengkong.entity.Customer;
+import apifengkong.entity.CustomerRepository;
+import apifengkong.entity.SupplyAPI;
+import apifengkong.util.AliyunCallable;
+import apifengkong.util.Common;
+import apifengkong.util.FailResponse;
+import apifengkong.util.YoufenCallable;
+
+@Service
+public class BaseSearchService {
+
+	private static Logger logger = Logger.getLogger(BaseSearchService.class);
+
+	private ExecutorService executor;
+	@Autowired
+	private APISearchLogRepository apiSearchLogRepository;
+	@Autowired
+	private CustomerRepository customerRepository;
+
+	@Autowired
+	private ParameterService parameterService;
+
+	@PostConstruct
+	public void init() {
+		this.executor = Executors.newCachedThreadPool();
+		logger.info("线程池启动");
+	}
+
+	public HashMap<String, Map> search(HashMap<SupplyAPI, HashMap<String, String>> apis, Customer customer) {
+
+		// 异步去取
+
+		HashMap<SupplyAPI, Future> results = new HashMap<SupplyAPI, Future>();
+
+		Set<Entry<SupplyAPI, HashMap<String, String>>> entrySet = apis.entrySet();
+		for (Entry<SupplyAPI, HashMap<String, String>> entry : entrySet) {
+			String parameters = parametersToString(entry.getValue());
+			entry.getKey().setParameters(parameters);
+
+			logger.info("参数：" + entry.getValue());
+
+			if (cached(entry.getKey(), entry.getValue())) {
+				logger.info("走緩存");
+				entry.getKey().setCache(true);
+				Map fromCache = getFromCache(entry.getKey(), entry.getValue());
+				Future<Map> submit = executor.submit(new Callable() {
+					@Override
+					public Map call() throws Exception {
+						// TODO Auto-generated method stub
+						return fromCache;
+					}
+
+				});
+				results.put(entry.getKey(), submit);
+
+			} else {
+				logger.info("即时查询");
+				entry.getKey().setCache(false);
+				if ("aliyun".equals(entry.getKey().getSupplier().getCode())) {
+					Future<Map> submit = executor.submit(new AliyunCallable(entry.getKey(), entry.getValue()));
+					results.put(entry.getKey(), submit);
+
+				} else if ("youfen".equals(entry.getKey().getSupplier().getCode())) {
+					Future<Map> submit = executor.submit(new YoufenCallable(entry.getKey(), entry.getValue()));
+					results.put(entry.getKey(), submit);
+				} else {
+					throw new FailResponse(7652, "供应商code没有代码配套");
+				}
+			}
+		}
+
+		HashMap<String, Map> ret = new HashMap<String, Map>();
+
+		Set<Entry<SupplyAPI, Future>> entrySet2 = results.entrySet();
+		for (Entry<SupplyAPI, Future> entry : entrySet2) {
+			try {
+				Map map = (Map) entry.getValue().get(5, TimeUnit.SECONDS);
+				if (!entry.getKey().isCache()) {
+					logger.info("请求：" + entry.getKey().getHost() + entry.getKey().getPath());
+					logger.info("返回：" + map);
+				}
+				ret.put(entry.getKey().getName(), map);
+				searchLog(entry.getKey(), map, customer);
+
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TimeoutException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		return ret;
+	}
+
+	private Map getFromCache(SupplyAPI key, HashMap<String, String> value) {
+		String parameters = parametersToString(value);
+		APISearchLog ret = apiSearchLogRepository.findFirstByApiAndParametersOrderByCreateTimeDesc(key, parameters);
+		ObjectMapper mapper = new ObjectMapper();
+		Map bean = null;
+		try {
+			bean = mapper.readValue(ret.getResult(), Map.class);
+		} catch (JsonParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return bean;
+	}
+
+	private boolean cached(SupplyAPI key, HashMap<String, String> value) {
+		String parameters = parametersToString(value);
+		APISearchLog ret = apiSearchLogRepository.findFirstByApiAndParametersOrderByCreateTimeDesc(key, parameters);
+		if (ret == null) {
+			return false;
+		} else {
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(ret.getCreateTime());
+			calendar.add(Calendar.SECOND, ret.getApi().getEffectiveTime());
+			Calendar calendarNow = Calendar.getInstance();
+			if (calendar.compareTo(calendarNow) < 0) {
+				return false;
+			}
+			return true;
+		}
+	}
+
+	private String parametersToString(HashMap<String, String> value) {
+		return parameterService.createSign(value, "");
+	}
+
+	private void searchLog(SupplyAPI key, Map map, Customer customer) {
+		APISearchLog apiSearchLog = new APISearchLog();
+		apiSearchLog.setApi(key);
+		apiSearchLog.setCreateTime(new Date());
+		apiSearchLog.setPrice(key.getPrice());
+		apiSearchLog.setCustomer(customer);
+		apiSearchLog.setParameters(key.getParameters());
+		apiSearchLog.setCache(key.isCache());
+
+		if (Common.getPrincipal() != null) {
+			apiSearchLog.setUser(Common.getPrincipal());
+		}
+
+		ObjectMapper mapper = new ObjectMapper();
+		String writeValueAsString;
+		try {
+			writeValueAsString = mapper.writeValueAsString(map);
+			apiSearchLog.setResult(writeValueAsString);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		int remainder = customer.getRemainder() - key.getPrice();
+		customer.setRemainder(remainder);
+		customerRepository.save(customer);
+		apiSearchLogRepository.save(apiSearchLog);
+
+	}
+}

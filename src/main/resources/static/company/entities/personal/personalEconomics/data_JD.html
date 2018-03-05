@@ -1,0 +1,259 @@
+<script>
+    "use strict";
+    /*
+     *创建人：沈小艳
+     *创建时间：2017/08/02
+     *学航旅信息核查信息
+     * */
+    app.controller('fundCheck', ['$scope','$http', function ($scope,$http) {
+        //数据初始化
+        $scope.info = {
+            name: '',
+            cellphone:'',
+            idcard:''
+        };
+
+        //结果与样例的切换初始化
+        $scope.resultSwitch = false;
+
+        //重置数据
+        $scope.resetInfo = function () {
+            $scope.info.name = '';
+            $scope.info.idcard = '';
+            $scope.resultSwitch = false;
+        };
+
+        //提交
+        $scope.submitInfo = function (myForm) {
+
+            //数据信息格式错误时阻止表单提交
+            if (myForm.name) {
+                myForm.name.$dirty = true
+            }
+            if (myForm.cellphone) {
+                myForm.cellphone.$dirty = true
+            }
+            if (myForm.idcard) {
+                myForm.idcard.$dirty = true
+            }
+            if (!myForm.$valid) {
+                $scope.resultSwitch = false;
+                return
+            }
+
+            $http({
+                method: 'POST',
+                url: '/economic/airTravel',
+                data:$scope.info
+            }).then(function successCallback(response) {
+                if(response){
+                    if(response.data.statusCode===822){
+                        $scope.sweetResult=response.data.msg;
+                        $scope.resultSwitch = false;
+                        sweetAlert("",$scope.sweetResult, "error");
+                        return;
+                    }
+                    if(response.data.statusCode===811){
+                        $scope.sweetResult=response.data.resMsg;
+                        $scope.resultSwitch = false;
+                        sweetAlert("",$scope.sweetResult, "error");
+                        return;
+                    }
+                    if(response.data.data.statusCode === '2012'){
+                        $scope.dataMsg=true;//查询成功
+                        $scope.otherMsg=false;
+                        console.log(response)
+                        $scope.resultMsg = response.data.data.result;
+                        console.log($scope.resultMsg)
+                    }
+                    else {
+                        $scope.dataMsg=false;
+                        $scope.otherMsg=true;//查询无数据
+                        $scope.resultMsg = response.data.data.statusMsg
+                    }
+                    $scope.resultSwitch = true;
+                }
+
+            });
+        };
+
+        //下载
+        $scope.createPdf=function () {
+            if($scope.resultSwitch ===true){
+                var html = $("#business_flowing_pdf").html();
+                var today = new Date();
+                var year = today.getFullYear();
+                var month = today.getMonth() + 1;
+                var day = today.getDay();
+                var hour = today.getHours();
+                var minute = today.getMinutes();
+
+                //使用form来生成下载所需的数据
+                var form = $("<form>");
+                form.attr("style", "display:none");
+                form.attr("target", "");
+                form.attr("method", "post");
+                form.attr("action", "/createpdf");
+
+                var input1 = $("<input>");
+                input1.attr("type", "hidden");
+                input1.attr("name", "html");
+                input1.attr("value", html);
+                form.append(input1);
+
+                var input2 = $("<input>");
+                input2.attr("type", "hidden");
+                input2.attr("name", "filename");
+                input2.attr("value", "【小金风控8013】航旅信息核查 " + year + "." + month + "." + day + "_" + hour + "." + minute);
+                form.append(input2);
+
+                //将表单放置在web中
+                $("body").append(form);
+                form.submit();
+            }
+            else{
+                sweetAlert("", "请先查询再下载", "error");
+            }
+        }
+        //接口单价
+        $http({
+            url:"/getSupplyPrice?id=" + 8013,
+            method:"POST"
+        }).then(function successCallback(response) {
+            $scope.priceResult=response.data.supply.price;
+        })
+
+
+    }]);
+</script>
+<div class="vbox" ng-controller="fundCheck">
+    <div class="wrapper b-b">
+        <div class="font-thin h4">经济状态查询</div>
+    </div>
+    <div class="row-row">
+        <div class="cell scrollable">
+            <div class="cell-inner">
+                <div class="wrapper-md">
+                    <div class="panel panel-info input-panel" style="margin-bottom: 0">
+                        <div class="panel-heading overflow" style="font-size: 16px">
+                            <span class="pull-left text-left">公积金数据分析</span>
+                            <span ng-if="uuu" class="pull-right text-right supCol">{{priceResult}}积分/次</span>
+                        </div>
+                        <div class="panel-body">
+                            <form name="myForm" action="" method="post" class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>姓名：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.name" name="name" class="form-control" ng-required="true" pattern="[\u4E00-\u9FA5]{2,5}(?:·[\u4E00-\u9FA5]{2,5})*">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label" style="text-align:left" ng-show="myForm.name.$dirty&&myForm.name.$invalid">
+                                        <span style="color: #ff0000" ng-show="myForm.name.$error.required">姓名不能为空</span>
+                                        <span style="color: #ff0000" ng-show="myForm.name.$error.pattern">姓名格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>手机号：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.cellphone" name="cellphone" class="form-control" ng-required="true" pattern="^1[3|4|5|7|8][0-9]{9}$">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label" style="text-align:left" ng-show="myForm.cellphone.$dirty&&myForm.cellphone.$invalid">
+                                        <span style="color: #ff0000" ng-show="myForm.cellphone.$error.required">手机号不能为空</span>
+                                        <span style="color: #ff0000" ng-show="myForm.cellphone.$error.pattern">手机号格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>身份证号：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.idcard" name="idcard" class="form-control" ng-required="true" pattern="(^\d{15}$)|(^\d{17}([0-9]|X)$)">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label" style="text-align: left" ng-show="myForm.idcard.$dirty && myForm.idcard.$invalid">
+                                        <span style="color: #ff0000" ng-show="myForm.idcard.$error.required">身份证号不能为空</span>
+                                        <span style="color: #ff0000" ng-show="myForm.idcard.$error.pattern">身份证号格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-offset-4 col-md-offset-2 col-sm-8" style="padding-left: 20px">
+                                        <button type="button"  class="btn btn-info" ng-click="submitInfo(myForm)">提交</button>
+                                        <button type="button"  class="btn btn-info" ng-click="resetInfo()">重置</button>
+                                        <button type="button" class="btn btn-danger" ng-click="createPdf()"><i class="fa fa-file-pdf-o"></i> 生成PDF</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrapper-md" ng-show="!resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                            <span style="color: red;">样例</span>
+                        </div>
+                        <div>
+                            <table class="table-border-style">
+                                <tr><th colspan="4" class="tableBg">朋友圈</th></tr>
+                                <tr><th>数据变量</th><th>近3月</th><th>近六月</th><th>备注</th></tr>
+                                <tr><td>朋友圈大小</td><td>107</td><td>217</td><td>近3/6月联系号码数</td></tr>
+                                <tr><td>朋友圈亲密度</td><td>6</td><td>8</td><td>近3/6月联系十次以上的号码数量</td></tr>
+                                <tr><td>朋友圈中心地</td><td>全国</td><td>全国</td><td>近3/6月联系次数最多的归属地</td></tr>
+                                <tr><td>朋友圈是否在本地</td><td>否</td><td>否</td><td>近3/6月朋友圈中心地是否与手机归属地一致</td></tr>
+                                <tr><td>互通电话的号码数目</td><td>19</td><td>27</td><td></td></tr>
+                            </table>
+                            <table class="table-border-style">
+                                <tr><th colspan="6" class="tableBg">联系人Top3（近3月通话次数降序）</th></tr>
+                                <tr><th>号码</th><th>归属地</th><th>通话次数</th><th>通话时长（秒）</th><th>主叫次数</th><th>被叫次数</th></tr>
+                                <tr><td>662</td><td>全国</td><td>149</td><td>11906</td><td>56</td><td>96</td></tr>
+                                <tr><td>18860469557</td><td>北京</td><td>43</td><td>5363</td><td>56</td><td>96</td></tr>
+                                <tr><td>643</td><td>全国</td><td>22</td><td>6890</td><td>56</td><td>96</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="business_flowing_pdf" class="wrapper-md" ng-show="resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                        </div>
+                        <div>
+                            <table ng-if="otherMsg" class="table-border-style grid_table">
+                                <tr><td width="80%">{{resultMsg}}</td></tr>
+                            </table>
+                            <table ng-if="dataMsg" class="table-border-style grid_table">
+                                <tr><td width="40%">姓名</td><td width="40%">{{resultMsg.name}}</td></tr>
+                                <tr><td>身份证号</td><td>{{resultMsg.idcard}}</td></tr>
+                                <tr><td>出生日期</td><td>{{resultMsg.birthday}}</td></tr>
+                                <tr><td>出生地</td><td>{{resultMsg.birthplace}}</td></tr>
+                                <tr><td>乘机次数</td><td>{{resultMsg.flightInfo.flightCount}}</td></tr>
+                                <tr><td>国内次数</td><td>{{resultMsg.flightInfo.flightDomesticCount}}</td></tr>
+                                <tr><td>平均国内票价</td><td>{{resultMsg.flightInfo.avgDomesticPrice}}</td></tr>
+                                <tr><td>平均国内折扣</td><td>{{resultMsg.flightInfo.avgDomesticDiscount}}</td></tr>
+                                <tr><td>国际次数</td><td>{{resultMsg.flightInfo.flightInterCount}}</td></tr>
+                                <tr><td>平均国际票价</td><td>{{resultMsg.flightInfo.avgInterPrice}}</td></tr>
+                                <tr><td>最爱司航前三名</td><td>{{resultMsg.flightInfo.favouriteAirline}}</td></tr>
+                                <tr><td>最爱航司次数1-3</td><td>{{resultMsg.flightInfo.favouriteAirlineCount}}</td></tr>
+                                <tr><td>最爱目的地1-3</td><td>{{resultMsg.flightInfo.favouriteDest}}</td></tr>
+                                <tr><td>最爱目的地次数1-3</td><td>{{resultMsg.flightInfo.favouriteDestCount}}</td></tr>
+                                <tr><td>国内头等次数</td><td>{{resultMsg.flightInfo.domesticFirstCount}}</td></tr>
+                                <tr><td>国内商务次数</td><td>{{resultMsg.flightInfo.domesticBusCount}}</td></tr>
+                                <tr><td>国内经济次数</td><td>{{resultMsg.flightInfo.domesticEcoCount}}</td></tr>
+                                <tr><td>国际头等次数</td><td>{{resultMsg.flightInfo.interFirstCount}}</td></tr>
+                                <tr><td>国际商务次数</td><td>{{resultMsg.flightInfo.interBusCount}}</td></tr>
+                                <tr><td>国际经济次数</td><td>{{resultMsg.flightInfo.interEcoCount}}</td></tr>
+                                <tr><td>商务出行次数</td><td>{{resultMsg.flightInfo.busOutCount}}</td></tr>
+                                <tr><td>旅游出行次数</td><td>{{resultMsg.flightInfo.travelOutCount}}</td></tr>
+                                <tr><td>探亲出行次数</td><td>{{resultMsg.flightInfo.visitOutCount}}</td></tr>
+                                <tr><td>平均延误分钟数</td><td>{{resultMsg.flightInfo.avgDelayTime}}</td></tr>
+                                <tr><td>延误次数（大于30分钟）</td><td>{{resultMsg.flightInfo.delayCount}}</td></tr>
+                                <tr><td>大飞机次数</td><td>{{resultMsg.flightInfo.bigPlaneCount}}</td></tr>
+                                <tr><td>小飞机次数</td><td>{{resultMsg.flightInfo.smallPlaneCount}}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,700 @@
+<script>
+
+    "use strict";
+    app.controller("personloan_formCtrl", [
+            "$scope", "$http", "$rootScope",'$modal', '$state', '$interval', '$timeout', "$stateParams",
+            function ($scope, $http, $rootScope,$modal, $state, $interval, $timeout, $stateParams) {
+                
+                $scope.resendSMSSeconds = 60;
+                $scope.resendSMSText = '获取验证码';
+                $scope.resendSMSPending = false;//验证码发送中的状态，60秒后可重发
+
+        
+            $rootScope.preData = {
+                    name: '',
+                    mobile: '',
+                    idCard: '',
+                    bankCard: '',
+                    servicePassword: '',
+                    commonAddress: '',
+                    linkman1Relationship: '配偶',
+                    linkman1Name: '',
+                    linkman1Mobile: '',
+                    linkman2Relationship: '朋友',
+                    linkman2Name: '',
+                    linkman2Mobile: '',
+                    enableEducation: false,
+            };    
+
+
+  
+            if ($stateParams.data.id){
+                $rootScope.preData = {
+                        name: $stateParams.data.name,
+                        mobile: $stateParams.data.mobile,
+                        idCard: $stateParams.data.idCard,
+                        bankCard: $stateParams.data.bankCard,
+                        servicePassword:$stateParams.data.servicePassword,
+                        commonAddress: $stateParams.data.commonAddress,
+                        linkman1Relationship: $stateParams.data.linkman1Relationship,
+                        linkman1Name: $stateParams.data.linkman1Name,
+                        linkman1Mobile: $stateParams.data.linkman1Mobile,
+                        linkman2Relationship: $stateParams.data.linkman2Relationship,
+                        linkman2Name: $stateParams.data.linkman2Name,
+                        linkman2Mobile: $stateParams.data.linkman2Mobile,
+                        enableCache:false,
+                        enableEducation: $stateParams.data.enableEducation
+                };
+            }
+
+            //调试时用的
+//            $rootScope.preData = {
+//                    name: '杨为乾',
+//                    mobile: '13758130149',
+//                    idCard: '352225197911241051',
+//                    bankCard: '1234567890123456789',
+//                    servicePassword: '199800',
+//                    commonAddress: '滨江区银丰大厦',
+//                    linkman1Relationship: '配偶',
+//                    linkman1Name: '金中岚',
+//                    linkman1Mobile: '13615816059',
+//                    linkman2Relationship: '朋友',
+//                    linkman2Name: '李扬',
+//                    linkman2Mobile: '15869001094',
+//                    enableCache:false,                    
+//                    enableEducation: false
+//                    };
+            
+
+            //如果返回错误，则显示出需要输验证码的框
+            $scope.reponse_error = false;
+            
+            $scope.progress =  {
+                percent:0
+            };
+            
+            $scope.progress_messages = {};
+            
+            $scope.processDemo = function(){
+               $scope.progress_flow.start();
+            }
+            
+           
+            window.check_timer =null;
+            window.mining_timer =null;
+            window.report_timer = null;
+            
+            
+            
+            $scope.progress_flow = {
+                    start:function(){
+                        $scope.progress_messages = {
+                            prepare:{
+                                title:"数据准备"
+                            }
+                        };
+                        $scope.progress = {
+                                percent:5,
+                                type:"warning",
+                                current_message:'输入信息'
+                        };
+                                                
+                        $scope.progress_flow.check();
+                    },
+                    check:function(){
+                        $scope.progress.type ="info";
+                        $scope.progress_messages.check = {
+                                      'title':'正在检测待查数据...',
+                                      'items':[]
+                                  };                        
+                        
+                        var check_timer_index = 0;
+                        window.check_timer = setInterval(function(){
+                            $scope.progress.percent++;
+                            check_timer_index++;
+                            switch(check_timer_index)
+                            {
+                                case 1:
+                                  $scope.progress.current_message = '姓名，身份证' + check_timer_index;
+                                  break;
+                                case 2:
+                                  $scope.progress.current_message = '手机号' + check_timer_index;
+                                  break;
+                                case 3:
+                                  $scope.progress.current_message = '手运号运营商服务密码' + check_timer_index;
+                                  break;
+                                case 4:
+                                  $scope.progress.current_message = '银行卡' + check_timer_index;
+                                  break;
+                                case 5:
+                                  $scope.progress.current_message = '常用地址' + check_timer_index;
+                                  break;
+                                case 6:
+                                  $scope.progress.current_message = '联系人1姓名' + check_timer_index;
+                                  break;
+                                case 7:
+                                  $scope.progress.current_message = '联系人1手机号' + check_timer_index;
+                                  break;
+                                case 8:
+                                  $scope.progress.current_message = '联系人2姓名' + check_timer_index;
+                                  break;
+                                case 9:
+                                  $scope.progress.current_message = '联系人2手机号' + check_timer_index;
+                                  break;
+                                case 10:
+                                  $scope.progress.current_message = '学历选项' + check_timer_index;
+                                  break;
+                                default:
+                                   clearInterval(window.check_timer)
+                                ;
+                            }
+                            if(check_timer_index < 11){
+                                $scope.progress_messages.check.items.push($scope.progress.current_message);
+                                $scope.$digest();
+                            } else{
+                                $scope.progress_flow.mining();
+                            }
+                        },300);
+                    },
+                    check_error:function(){
+                            $scope.progress.percent=30;
+                            $scope.progress.type="danger";
+                            $scope.progress.current_message='本地数据有误...';
+                    },
+                    mining:function(){
+                        $scope.progress_messages.mining = {
+                                      'title':'正在搜集网络数据',
+                                      'items':[]
+                                  };
+                                  
+                        var mining_interval_index = 0;
+
+                        window.mining_timer = setInterval(function(){
+                            $scope.progress.percent = $scope.progress.percent+2;
+                            
+                            mining_interval_index++;
+                            switch(mining_interval_index)
+                            {
+                                case 1:
+                                  $scope.progress.current_message = '搜集网络数据 第' + mining_interval_index + '项';
+                                  break;
+                                case 2:
+                                  $scope.progress.current_message = '搜集网络数据 第' + mining_interval_index + '项';
+                                  break;
+                                case 3:
+                                  $scope.progress.current_message = '搜集网络数据 第' + mining_interval_index + '项';
+                                  break;
+                                case 4:
+                                  $scope.progress.current_message =  '搜集网络数据 第' + mining_interval_index + '项';
+                                  break;
+                                case 5:
+                                  $scope.progress.current_message =  '搜集网络数据 第' + mining_interval_index + '项';
+                                  break;
+                                case 6:
+                                  $scope.progress.current_message =  '搜集网络数据 第' + mining_interval_index + '项';
+                                  break;
+                                case 7:
+                                  $scope.progress.current_message =  '搜集网络数据 第' + mining_interval_index + '项';
+                                  break;
+                                case 8:
+                                  $scope.progress.current_message = '搜集网络数据 第' + mining_interval_index + '项';
+                                  break;
+                                case 9:
+                                  $scope.progress.current_message = '搜集网络数据 第' + mining_interval_index + '项';
+                                  break;
+                                case 10:
+                                  $scope.progress.current_message =  '搜集网络数据 第' + mining_interval_index + '项';
+                                  break;
+                                default:
+                                     clearInterval(window.mining_timer);
+                                ;
+                            }
+                            if(mining_interval_index < 11){
+                                $scope.progress_messages.mining.items.push($scope.progress.current_message);
+                                $scope.$digest();
+                            } else{
+                                $scope.progress_flow.report();
+                            }
+                        },500);
+                    },
+                    
+                    mining_response:function(){
+                       clearInterval(window.check_timer); 
+                        clearInterval(window.mining_timer); 
+                         $scope.progress.type="warning";
+                         $scope.progress.current_message='需要您反馈...';
+                         $scope.progress_messages = {
+                            prepare:{
+                                title:"数据准备"
+                            }
+                        };
+                            
+                    },
+                    mining_error:function(){
+                        clearInterval(window.check_timer); 
+                        clearInterval(window.mining_timer); 
+                        $scope.progress.type="warning";
+                        $scope.progress.current_message='收集数据发生错误...';
+                        $scope.progress_messages = {
+                            prepare:{
+                                title:"数据准备"
+                            }
+                        };
+                    },
+                    report:function(){
+                        clearInterval(window.check_timer); 
+                        clearInterval(window.mining_timer); 
+                      
+                        $scope.progress.type='success';
+                        $scope.progress_messages.report = {
+                                      'title':'生成报告中..',
+                                      'items':[]
+                                  };
+                                  
+                        var report_interval_index = 0;
+
+                        window.report_timer = setInterval(function(){
+                            $scope.progress.percent = $scope.progress.percent+2;
+                            
+                            report_interval_index++;
+                            switch(report_interval_index)
+                            {
+                                case 1:
+                                  $scope.progress.current_message = '生成报告 第' + report_interval_index + '项';
+                                  break;
+                                case 2:
+                                  $scope.progress.current_message = '生成报告 第' + report_interval_index+ '项';
+                                  break;
+                                case 3:
+                                  $scope.progress.current_message = '生成报告 第' + report_interval_index + '项';
+                                  break;
+                                case 4:
+                                  $scope.progress.current_message =  '生成报告 第' + report_interval_index + '项';
+                                  break;
+                                case 5:
+                                  $scope.progress.current_message =  '生成报告 第' + report_interval_index + '项';
+                                  break;
+                                case 6:
+                                  $scope.progress.current_message =  '生成报告 第' + report_interval_index + '项';
+                                  break;
+                                case 7:
+                                  $scope.progress.current_message =  '生成报告 第' + report_interval_index + '项';
+                                  break;
+                                case 8:
+                                  $scope.progress.current_message = '生成报告 第' + report_interval_index + '项';
+                                  break;
+                                case 9:
+                                  $scope.progress.current_message = '生成报告 第' + report_interval_index + '项';
+                                  break;
+                                case 10:
+                                  $scope.progress.current_message =  '生成报告 第' + report_interval_index + '项';
+                                  break;
+                                default:
+                                    clearInterval(window.report_timer)
+                                ;
+                            }
+                            if(report_interval_index < 11){
+                                $scope.progress_messages.report.items.push($scope.progress.current_message);
+                                $scope.$digest();
+                            } else{
+                                clearInterval(window.report_timer);
+                            }
+                            
+                        },500);
+                        
+                    },
+                    error:function(){
+                        clearInterval(window.check_timer); 
+                        clearInterval(window.mining_timer);  
+                        clearInterval(window.report_timer);  
+                        $scope.progress.percent =50;
+                        $scope.progress.type='danger';
+                        $scope.progress.current_message='检测出错，再说^_^';
+                    }
+            };
+                     
+            $scope.getDetail = function(id){
+                $http.get('/user/personLoan/info/' + id).then(function (resRult) {
+                        if(resRult.data.status === '处理完成'){
+                            clearInterval(window.check_status_timer);
+                             $state.go('personloan_detail',resRult.data);
+                        }
+                });
+            }
+
+            $scope.submitClick = function () {
+                var isError = 0;
+                angular.forEach($rootScope.preData, function (value, key) {
+                    if (value == '' && 　key　 != "enableEducation" && key　 != "enableCache" && key　 != "sms") {
+                        alert(key + '必填');
+                        isError = 1;
+                    }
+                });
+                if (isError === 1) {
+                    $scope.progress_flow.check_error();
+                } else{
+                    $scope.submitData();
+                }
+                
+            };
+
+
+
+            $scope.submitData = function () {
+                $scope.progress_flow.start();
+
+                $http({method: "post", url: '/search/personLoan', data: $rootScope.preData}).then(function (response) {
+                    
+                    var resResult = response.data;
+                    if (resResult.status == 'fail') {
+                            
+                        $scope.progress_flow.mining_response();
+                        $scope.reponse_error = true;
+                        alert(resResult.message +'，错误代码'+ resResult.code + '，请重新输入后提交。');
+
+                    } else {
+
+                        clearInterval(window.check_timer); 
+                        clearInterval(window.mining_timer);  
+                        clearInterval(window.report_timer);  
+
+                         $scope.progress.percent =100;
+                         $scope.progress.type='success';
+
+                         var check_interval_index = 0;
+                          $scope.getDetail(resResult.id);
+                         window.check_status_timer = setInterval(function(){
+                                check_interval_index ++;
+                                $scope.getDetail(resResult.id);
+
+                                //如果10次都没有完成，先跳到列表页
+                                if(check_interval_index == 10){
+                                   clearInterval(window.check_status_timer);
+                                   $state.go('personloan_list');
+                                }
+                         },10000);
+                    }
+
+                }, function(){
+
+                });
+            };
+            
+            
+            $scope.servicePasswordMessage  = '';
+            $scope.servicePasswordColor  = '';
+            $scope.resetServicePassword = function () {
+                $http({method: "post",
+                        url: '/search/personLoan/carrierPasswordReset',
+                        data: $rootScope.preData
+                }).then(function (response) {
+                    var resResult = response.data;
+                    if(resResult.status && resResult.status == 'success'){
+                        $scope.servicePasswordMessage = '已发送请求，请输入新密码和验证码后提交！';
+                        $scope.servicePasswordColor  = 'success';
+                    }else {
+                        $scope.servicePasswordMessage = resResult.message;
+                        $scope.servicePasswordColor = 'danger';
+                    }
+                }, function () {
+
+                });
+            };
+            
+
+            
+            
+            
+            
+            $scope.carrierResendSms  = function(){
+                $http({method: "post", url: '/search/personLoan/carrierResendSms'}).then(function (response) {
+                   var resResult = response.data;
+                   if (resResult.status == 'fail') {
+
+                   } else {
+
+                   }
+               }, function(){
+
+               });
+               
+               $scope.resendSMSPending =true;
+               $interval(function(){
+                    $scope.resendSMSSeconds --;
+                    $scope.resendSMSText = $scope.resendSMSSeconds + '秒后可重新发送';
+                },1000,60).then(function(){
+                    $scope.resendSMSPending = false;
+                    $scope.resendSMSText = '获取验证码';
+                    $scope.resendSMSSeconds = 60;
+                });
+            }
+            
+            
+            $scope.submitServicePassword = function () {
+                $http({
+                         method: "post",
+                        url: '/search/personLoan/carrierPasswordSubmit',
+                        data: $rootScope.preData
+                }).then(function (response) {
+                    var resResult = response.data;
+                    if(resResult.status && resResult.status == 'success'){
+                        $scope.servicePasswordMessage = '修改成功';
+                        $scope.servicePasswordColor = 'success';
+                    }else {
+                        $scope.servicePasswordMessage = resResult.message;
+                        $scope.servicePasswordColor = 'danger';
+                    }
+                }, function () {
+
+                });
+            }
+            
+
+
+            }]);</script>
+<div class="body_wrap list_page" ng-controller="personloan_formCtrl">
+    <div class="title_wrap">
+        <div class="page_title">
+            <a ui-sref="personloan_list" class="btn btn-success pull-right">历史查询</a>
+            个人征信通讯版  &nbsp;            <span class="text-muted text-sm">通过手机号码和身份证，查询通话记录、多头借贷、失信黑名单、法院判决、刑事案件等反应一个人的事实信用！</span>
+        </div>
+    </div>
+    <progressbar class="progress-striped progress-xs" value="progress.percent" type="{{progress.type}}" ng-show="progress.percent > 0" style="margin:0;"></progressbar>
+    <div style="height:6px;" ng-hide="progress.percent > 0" ></div>
+    <div class="app-content-body" style="height:518px;">
+            <div class="hbox hbox-auto-xs bg-white">
+                <div class="col" style="width:65%">
+                    <div class="vbox">
+                        <div class="row-row">
+                            <div class="cell scrollable hover">
+                                <div class="cell-inner wrapper-md">
+                                    <form class="form-horizontal ng-pristine ng-valid ng-valid-date ng-valid-required ng-valid-date-disabled" id='personloan_form'>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">姓名</label>
+                                            <div class="col-sm-5">
+                                                <input class="form-control" type="text" ng-model="preData.name" placeholder="2~5位真实姓名"/>
+                                            </div>
+                                             <div class="col-sm-4" style="margin-left: -25px;">
+                                                <span class="text-danger" ng-show="(preData.name.length >4 || preData.name.length <2) && preData.name.length > 0"><i class="fa fa-ban"></i> 姓名为2~4个字</span>
+                                                <span class="text-success" ng-show="preData.name.length < 5 && preData.name.length >1"><i class="fa fa-check"></i> 格式正确</span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">身份证号码</label>
+                                            <div class="col-sm-5">
+                                                <input class="form-control" type="text" ng-model="preData.idCard" placeholder="18位身份证号"/>
+                                            </div>
+                                            <div class="col-sm-4" style="margin-left: -25px;">
+                                                <span class="text-danger" ng-show="preData.idCard.length != 18 && preData.idCard.length > 0"><i class="fa fa-ban"></i> 18位身份证号</span>
+                                                <span class="text-success" ng-show="preData.idCard.length == 18"><i class="fa fa-check"></i> 格式正确</span>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">手机</label>
+                                            <div class="col-sm-5">
+                                                <input class="form-control" type="text" ng-model="preData.mobile" placeholder="11位手机号"/>
+                                            </div>
+                                            <div class="col-sm-4" style="margin-left: -25px;">
+                                               <span class="text-danger" ng-show="preData.mobile.length != 11 && preData.mobile.length > 0"><i class="fa fa-ban"></i> 11位手机号</span>
+                                               <span class="text-success" ng-show="preData.mobile.length == 11"><i class="fa fa-check"></i> 11位手机号</span>
+                                           </div>                                            
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">手机运营商服务密码</label>
+                                            <div class="col-sm-3">
+                                                <input class="form-control" type="text" ng-model="preData.servicePassword" placeholder="服务密码"/>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <button class="btn btn-default" ng-click="resetServicePassword()"  data-toggle="modal" data-target="#servicePasswordModal">重置密码</button>
+                                                <!-- 模态框（Modal） -->
+                                                <div class="modal fade" id="servicePasswordModal" tabindex="-1" role="dialog" aria-labelledby="servicePasswordModal" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                                <h4 class="modal-title" id="myModalLabel">修改手机服务密码</h4>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="alert alert-{{servicePasswordColor}}" ng-show="servicePasswordMessage">{{servicePasswordMessage}}</div>
+                                                                 <div class="form-group">
+                                                                    <label class="col-sm-3 control-label">手机</label>
+                                                                    <div class="col-sm-5">
+                                                                        <input class="form-control" type="text" ng-model="preData.mobile" placeholder="11位手机号"/>
+                                                                    </div>
+                                                                    <div class="col-sm-4" style="margin-left: -25px;">
+                                                                       <span class="text-danger" ng-show="preData.mobile.length != 11 && preData.mobile.length > 0"><i class="fa fa-ban"></i> 11位手机号</span>
+                                                                       <span class="text-success" ng-show="preData.mobile.length == 11"><i class="fa fa-check"></i> 11位手机号</span>
+                                                                   </div>                                            
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label class="col-sm-3 control-label">新密码</label>
+                                                                    <div class="col-sm-3">
+                                                                        <input class="form-control" type="text" ng-model="preData.servicePassword" placeholder="服务密码"/>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label class="col-sm-3 control-label">验证码</label>
+                                                                    <div class="col-sm-3">
+                                                                        <input class="form-control" type="text" ng-model="preData.sms" placeholder="验证码"/>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-success" ng-click="submitServicePassword()">提交更改</button>
+                                                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                                            </div>
+                                                        </div><!-- /.modal-content -->
+                                                    </div><!-- /.modal -->
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4" style="margin-left: -25px;">
+                                               <span class="text-danger" ng-show="(preData.servicePassword.length > 6 || preData.servicePassword.length < 4) && preData.servicePassword.length > 0"><i class="fa fa-ban"></i> 验证码4~6位</span>
+                                               <span class="text-success" ng-show="preData.servicePassword.length < 7 && preData.servicePassword.length > 3"><i class="fa fa-check"></i> 格式正确</span>
+                                           </div> 
+                                        </div>
+                                        <div class="form-group" ng-if="reponse_error">
+                                            <label class="col-sm-3 control-label">手机验证码</label>
+                                            <div class="col-sm-3">
+                                                <input class="form-control" type="text" ng-model="preData.sms" placeholder="6位验证码"/>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <button ng-click="carrierResendSms()" class="btn form-control  btn-default btn-sm" ng-hide="resendSMSpending">重发验证码</button>
+                                                <button  class="btn btn-default disabled" ng-show="resendSMSpending">{{resendSMSpendingText}}</button>
+                                            </div>
+                                            <div class="col-sm-4" style="margin-left: -20px;">
+                                                 
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">常用银行卡号</label>
+                                            <div class="col-sm-5">
+                                                <input class="form-control" type="text" ng-model="preData.bankCard" placeholder="支持各种银联卡"/>
+                                            </div>
+                                             <div class="col-sm-4" style="margin-left: -25px;">
+                                               <span class="text-danger" ng-show="(preData.bankCard.length > 19 || preData.bankCard.length < 16) && preData.bankCard.length>0"><i class="fa fa-ban"></i> 银行卡号16~19位</span>
+                                               <span class="text-success" ng-show="preData.bankCard.length < 20 && preData.bankCard.length > 15"><i class="fa fa-check"></i> 格式正确</span>
+                                           </div> 
+                                        </div>
+
+
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">常用地址</label>
+                                            <div class="col-sm-5">
+                                                <input class="form-control" type="text" ng-model="preData.commonAddress" placeholder="家庭址或工作地址"/>
+                                            </div>
+                                            <div class="col-sm-4" style="margin-left: -25px;">
+                                               <span class="text-danger" ng-show="preData.commonAddress.length < 5 && preData.commonAddress.length > 0"><i class="fa fa-ban"></i> 地址至少5个字符</span>
+                                               <span class="text-success" ng-show="preData.commonAddress.length > 4"><i class="fa fa-check"></i> 格式正确</span>
+                                           </div> 
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">联系人1</label>
+                                            <div class="col-sm-2">
+                                                <select ng-model="preData.linkman1Relationship" class="form-control">
+                                                    <option value="配偶" selected="selected">配偶</option>
+                                                    <option value="父母">父母</option>
+                                                    <option value="兄妹">兄妹</option>
+                                                    <option value="子女">子女</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-sm-2">
+                                                <input class="form-control" type="text" ng-model="preData.linkman1Name" placeholder="姓名"/>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input class="form-control" type="text" ng-model="preData.linkman1Mobile" placeholder="手机"/>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">联系人2</label>
+                                            <div class="col-sm-2">
+                                                <select ng-model="preData.linkman2Relationship" class="form-control">
+                                                    <option value="朋友" selected="selected">朋友</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <input class="form-control" type="text" ng-model="preData.linkman2Name" placeholder="姓名"/>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input class="form-control" type="text" ng-model="preData.linkman2Mobile" placeholder="手机"/>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">
+                                                高等学历查询
+                                            </label>
+                                            <div class="col-sm-5">
+                                                 <label class="checkbox i-checks m-l-md m-b-md" style="padding-left: 0">
+                                                     <input type="checkbox" ng-model="preData.enableEducation"><i></i>
+                                                   是（增加4元查询费）
+                                                  </label>
+                                            </div>
+                                        </div>
+
+
+
+
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label"></label>
+                                            <div class="col-sm-4">
+                                                <button class="btn btn-primary" ng-click="submitClick()">提交</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col" ng-show="progress.percent > 0">
+                    <div class="vbox">
+                        <h4 class="alert alert-info" style="margin:10px 10px 10px 0;"> {{progress.current_message}}</h4>
+                        <div class="row-row">
+                            <div class="cell scrollable hover">
+                                <div class="cell-inner wrapper-md">
+                                    <div ng-repeat="(key,value) in progress_messages">
+                                        <h4>{{value.title}}</h4>                                        
+                                        <ul>
+                                            <li ng-repeat="v in value.items">{{v}}</li>
+                                        </ul>
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col" ng-show="progress.percent == 0">
+                    <div class="vbox">
+                        <div class="row-row">
+                            <div class="cell scrollable hover">
+                                <div class="cell-inner wrapper-md">
+                                    <h5><b>查询说明</b></h5>
+                                    <ul>
+                                        <li>每项必填</li>
+                                        <li>移动服务密码功能正常可用，电信、联通未知</li>
+                                        <li>每项均需输入标准格式，如字数长短</li>
+                                        <li>手机验证码和运营商服务密码按实际获得的填入</li>
+                                        <li>学历查询为可选项</li>
+                                    </ul>
+                                    <br />
+                                    <h5><b>数据与功能说明</b></h5>
+                                    <ul>
+                                        <li>多头借贷为互联网数据，不精确，但可以参考</li>
+                                        <li>在报告页输入备注和好坏分级，可以做为简易管理小工具</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>

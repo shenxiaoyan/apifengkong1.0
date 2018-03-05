@@ -1,0 +1,112 @@
+<script>
+    "use strict";
+    /*
+     *创建人：沈小艳
+     *创建时间：2017/08/11
+     *利用假数据验证身份信息
+     * */
+    app.controller('recharge',['$scope',function ($scope) {
+
+        $scope.otherMoney=false;
+        $scope.money='0';
+
+
+
+
+        $scope.btn1=function () {
+            $scope.money='10';
+        }
+        $scope.btn2=function () {
+            $scope.money='100';
+        }
+        $scope.btn3=function () {
+            $scope.money='1000';
+        }
+
+        $scope.otherPay=function () {
+            $scope.money='';
+            $scope.otherMoney=true;
+            console.log('hh')
+        }
+
+
+
+    }])
+</script>
+
+<div class="hbox hbox-auto-xs bg-light" ng-controller="recharge">
+    <!-- column -->
+    <div class="col col-sm-9" style="padding: 0">
+        <div class="vbox">
+            <div class="wrapper-md bg-light lter b-b clearfix">
+                <div class="font-thin h4">充值中心 <sup class="supCol">dev</sup></div>
+            </div>
+            <div class="row-row">
+                <div class="cell">
+                    <div class="cell-inner">
+                        <div class="wrapper-md">
+                            <div class="row" >
+                                <div class="col-sm-offset-2 col-sm-8">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <div class="thumb-xl m-sm">
+                                                <h5 class="text-ellipsis">充值账户：沈小艳</h5>
+                                            </div>
+                                            <div class="pull-right m-sm">
+                                                <a href="#" class="list-group-item">
+                                                    <i class="fa fa-cny text-warning-dker m-r-xs"></i>
+                                                    当前积分：<span class="text-success-dker">300</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div>
+                                                <button class="btn m-b-xs w-xs btn-default wrapper-sm m-sm m-t-lg" ng-click="btn1()">￥10</button>
+                                                <button class="btn m-b-xs w-xs btn-default wrapper-sm m-sm m-t-lg" ng-click="btn2()">￥100</button>
+                                                <button class="btn m-b-xs w-xs btn-default wrapper-sm m-sm m-t-lg" ng-click="btn3()">￥1000</button>
+                                                <button class="btn m-b-xs w-xs btn-default wrapper-sm m-sm m-t-lg" ng-click="otherPay()">其他金额</button>
+                                            </div>
+                                            <div class="m-sm m-t-lg" ng-show="otherMoney">
+                                                <div style="display: inline-block">其他充值：</div>
+                                                    <div style="display: inline-block">
+                                                        <input type="text" ng-model="money"  class="form-control">
+                                                    </div>
+                                            </div>
+                                            <div class="m-sm m-t-lg">
+                                                <div style="display: inline-block">充值方式：</div>
+                                                <div class="m-l-xs" style="display: inline-block">
+                                                    <!--<div style="display: inline-block">-->
+                                                        <!--<input type="radio" name="radio" checked>-->
+                                                        <!--<div class="wrapper-sm" style="display: inline-block;border:1px solid #e8e8e8;">微信支付</div>-->
+                                                    <!--</div>-->
+                                                    <div class="m-l" style="display: inline-block">
+                                                        <input type="radio" name="radio">
+                                                        <div class="wrapper-sm" style="display: inline-block;border:1px solid #e8e8e8;">支付宝支付</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="m-sm m-t-lg">
+                                                <div style="display: inline-block">应付金额：{{money}}</div>
+                                            </div>
+                                            <div class="m-sm m-t-lg">
+                                                <div style="display: inline-block">应获积分：{{10*money}}</div>
+                                            </div>
+                                            <div class="line line-dashed b-b m-t-md"></div>
+                                            <div>
+                                                <button class="btn m-b-xs w-xs btn-info wrapper-sm m-sm m-t-lg">确认支付</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+

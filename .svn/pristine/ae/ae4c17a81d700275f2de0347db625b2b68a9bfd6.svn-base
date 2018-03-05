@@ -1,0 +1,407 @@
+<script>
+    'use strict';
+    /*
+     * 创建人：沈小艳
+     * 创建时间：2017/08/10
+     * 员工管理
+     * */
+
+    app.controller('reportDownload',['$scope','$http',function ($scope,$http) {
+
+        $scope.conditions=[
+            {
+                id:1,
+                condition:'姓名',
+                active:false
+            },
+            {
+
+                id:2,
+                condition:'手机号',
+                active:false
+            },
+            {
+                id:3,
+                condition:'身份证号',
+                active:false
+            },
+            {
+                id:4,
+                condition:'银行卡号',
+                active:false
+            },
+            {
+                id:5,
+                condition:'姓名+手机号',
+                active:false
+            },
+            {
+                id:'6',
+                condition:'姓名+身份证',
+                active:false
+            },
+            {
+                id:'7',
+                condition:'姓名+手机号+身份证',
+                active:false
+            },
+            {
+                id:'8',
+                condition:'姓名+银行卡',
+                active:false
+            },
+            {
+                id:'9',
+                condition:'姓名+身份证+银行卡',
+                active:false
+            },
+            {
+                id:'10',
+                condition:'姓名+手机号+身份证+银行卡',
+                active:false
+            },
+            {
+                id:'11',
+                condition:'姓名+手机号+身份证',
+                active:false
+            }
+
+        ];
+
+
+
+
+        $scope.info={
+            realname:''
+        }
+
+        $scope.conditionsArr='';
+        $scope.eleState1=true;
+        $scope.select1=function () {
+            $scope.eleState1=!$scope.eleState1
+
+        }
+        $scope.select2=function () {
+            $scope.eleState2=!$scope.eleState2
+
+        }
+        $scope.select3=function () {
+            $scope.eleState3=!$scope.eleState3
+
+        }
+        $scope.select4=function () {
+            $scope.eleState4=!$scope.eleState4
+
+        }
+        $scope.select5=function () {
+            $scope.eleState5=!$scope.eleState5
+
+        }
+        $scope.select6=function () {
+            $scope.eleState6=!$scope.eleState6
+
+        }
+        $scope.select7=function () {
+            $scope.eleState7=!$scope.eleState7
+
+        }
+        $scope.select8=function () {
+            $scope.eleState8=!$scope.eleState8
+
+        }
+        $scope.select9=function () {
+            $scope.eleState9=!$scope.eleState9
+
+        }
+        $scope.select10=function () {
+            $scope.eleState10=!$scope.eleState10
+
+        }
+
+
+        $scope.submitInfo = function (myForm) {
+            if($scope.eleState1===true){
+                //数据信息格式错误时阻止表单提交
+                if (myForm.realname) {
+                    myForm.realname.$dirty = true
+                }
+                if (!myForm.$valid) {
+                    $scope.resultSwitch = false;
+                    return
+                }
+                $http({
+                    method: 'POST',
+                    url: '/personcredit/creditblacklist',
+                    data:$scope.info
+                }).then(function successCallback(response) {
+                    if(response.data.statusCode===822){
+                        $scope.sweetResult=response.data.msg;
+                        $scope.resultSwitch = false;
+                        sweetAlert("",$scope.sweetResult, "error");
+                        return;
+                    }
+                    if(response.data.statusCode===811){
+                        $scope.sweetResult=response.data.resMsg;
+                        $scope.resultSwitch = false;
+                        sweetAlert("",$scope.sweetResult, "error");
+                        return;
+                    }
+                    if(response.data.status === '0'  && response.data.result.list){
+
+                        $scope.dataMsg=true;//查询成功
+                        $scope.otherMsg=false;
+                        $scope.resultMsg = response.data.result;
+                    }
+                    else {
+                        $scope.dataMsg=false;
+                        $scope.otherMsg=true;//查询无数据
+                        $scope.resultMsg = '本数据库中未查得'
+                    }
+                    $scope.resultSwitch = true;
+                        console.log(response)
+                });
+            }
+
+        }
+
+
+
+
+    }])
+</script>
+<div class="hbox hbox-auto-xs bg-light" ng-controller="reportDownload">
+    <div class="col col-sm-9" style="padding: 0">
+        <div class="vbox">
+            <div class="wrapper b-b">
+                <div class="font-thin h4">个人搜索查询</div>
+            </div>
+
+            <div class="row-row">
+                <div class="cell">
+                    <div class="cell-inner">
+                        <div class="wrapper-md">
+                            <div class="panel panel-info input-panel" style="margin-bottom: 20px">
+                                <div class="panel-heading wrapper" style="font-size: 16px">查询</div>
+                                <div class="panel-body">
+                                    <!--<div class="wrapper panel-body col-sm-4">-->
+                                        <!--<div class="font-thin">查询条件</div>-->
+
+                                        <!--<div class="checkbox" ng-click="select1()">-->
+                                            <!--<label class="i-checks i-checks-sm">-->
+                                                <!--<input type="checkbox" value="" ng-model="eleState1">-->
+                                                <!--<i></i>-->
+                                                <!--姓名-->
+                                            <!--</label>-->
+                                        <!--</div>-->
+                                        <!--<div class="checkbox" ng-click="select2()">-->
+                                            <!--<label class="i-checks i-checks-sm">-->
+                                                <!--<input type="checkbox" value="" ng-model="eleState2">-->
+                                                <!--<i></i>-->
+                                                <!--手机号-->
+                                            <!--</label>-->
+                                        <!--</div>-->
+                                        <!--<div class="checkbox" ng-click="select3()">-->
+                                            <!--<label class="i-checks i-checks-sm">-->
+                                                <!--<input type="checkbox" value="" ng-model="eleState3">-->
+                                                <!--<i></i>-->
+                                                <!--身份证-->
+                                            <!--</label>-->
+                                        <!--</div>-->
+                                        <!--<div class="checkbox" ng-click="select4()">-->
+                                            <!--<label class="i-checks i-checks-sm">-->
+                                                <!--<input type="checkbox" value="" ng-model="eleState4">-->
+                                                <!--<i></i>-->
+                                                <!--银行卡-->
+                                            <!--</label>-->
+                                        <!--</div>-->
+                                        <!--<div class="checkbox" ng-click="select5()">-->
+                                            <!--<label class="i-checks i-checks-sm">-->
+                                                <!--<input type="checkbox" value="" ng-model="eleState5">-->
+                                                <!--<i></i>-->
+                                                <!--姓名+手机号-->
+                                            <!--</label>-->
+                                        <!--</div>-->
+                                        <!--<div class="checkbox" ng-click="select6()">-->
+                                            <!--<label class="i-checks i-checks-sm">-->
+                                                <!--<input type="checkbox" value="" ng-model="eleState6">-->
+                                                <!--<i></i>-->
+                                                <!--姓名+身份证-->
+                                            <!--</label>-->
+                                        <!--</div>-->
+                                        <!--<div class="checkbox" ng-click="select7()">-->
+                                            <!--<label class="i-checks i-checks-sm">-->
+                                                <!--<input type="checkbox" value="" ng-model="eleState7">-->
+                                                <!--<i></i>-->
+                                                <!--姓名+手机+身份证-->
+                                            <!--</label>-->
+                                        <!--</div>-->
+                                        <!--<div class="checkbox" ng-click="select8()">-->
+                                            <!--<label class="i-checks i-checks-sm">-->
+                                                <!--<input type="checkbox" value="" ng-model="eleState8">-->
+                                                <!--<i></i>-->
+                                                <!--姓名+银行卡-->
+                                            <!--</label>-->
+                                        <!--</div>-->
+                                        <!--<div class="checkbox" ng-click="select9()">-->
+                                            <!--<label class="i-checks i-checks-sm">-->
+                                                <!--<input type="checkbox" value="" ng-model="eleState9">-->
+                                                <!--<i></i>-->
+                                                <!--姓名+身份证+银行卡-->
+                                            <!--</label>-->
+                                        <!--</div>-->
+                                        <!--<div class="checkbox" ng-click="select10()">-->
+                                            <!--<label class="i-checks i-checks-sm">-->
+                                                <!--<input type="checkbox" value="" ng-model="eleState10">-->
+                                                <!--<i></i>-->
+                                                <!--姓名+手机号+身份证+银行卡-->
+                                            <!--</label>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+
+                                    <div class="wrapper panel-body col-sm-12">
+                                        <div class="row">
+                                            <div>
+                                                <div class="font-thin">查询参数</div>
+                                                <div class="panel-body">
+                                                    <form name="myForm" class="form-horizontal">
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">姓名：</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" ng-model="info.realname" name="name" class="form-control" ng-required="true" pattern="[\u4E00-\u9FA5]{2,5}(?:·[\u4E00-\u9FA5]{2,5})*">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.name.$dirty&&myForm.name.$invalid">
+                                                                <span class="supCol" ng-show="myForm.name.$error.required">姓名不能为空</span>
+                                                                <span class="supCol" ng-show="myForm.name.$error.pattern">姓名格式错误</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">手机号：</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" ng-model="info.shouji" name="shouji" class="form-control" ng-required="true">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.shouji.$dirty && myForm.shouji.$invalid">
+                                                                <span class="supCol" ng-show="myForm.shouji.$error.required">手机号不能为空</span>
+                                                                <span class="supCol" ng-show="myForm.shouji.$error.pattern">手机号格式错误</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">身份证：</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" ng-model="info.idcard" name="idcard" class="form-control" ng-required="true" pattern="(^\d{15}$)|(^\d{17}([0-9]|X)$)">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.idcard.$dirty && myForm.idcard.$invalid">
+                                                                <span class="supCol" ng-show="myForm.idcard.$error.required">身份证号不能为空</span>
+                                                                <span class="supCol" ng-show="myForm.idcard.$error.pattern">身份证号格式错误</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">银行卡：</label>
+                                                            <div class="col-sm-7">
+                                                            <input type="text" ng-model="info.bank" name="bank" class="form-control" ng-required="true" pattern="^(\d{16}|\d{19})$">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.bank.$dirty && myForm.bank.$invalid">
+                                                            <span class="supCol" ng-show="myForm.bank.$error.required">银行卡号不能为空</span>
+                                                            <span class="supCol" ng-show="myForm.bank.$error.pattern">银行卡号格式错误</span>
+    
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">失信公告编号：</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" ng-model="info.bank" name="bank" class="form-control" ng-required="true">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.bank.$dirty && myForm.bank.$invalid">
+                                                                <span class="supCol" ng-show="myForm.bank.$error.required">失信公告编号不能为空</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">企业名称：</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" ng-model="info.realname" name="name" class="form-control" ng-required="true">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.name.$dirty&&myForm.name.$invalid">
+                                                                <span class="supCol" ng-show="myForm.name.$error.required">企业名称不能为空</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">企业工商注册号：</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" ng-model="info.shouji" name="shouji" class="form-control" ng-required="true">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.shouji.$dirty && myForm.shouji.$invalid">
+                                                                <span class="supCol" ng-show="myForm.shouji.$error.required">企业工商注册号不能为空</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">统一社会信用代码：</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" ng-model="info.idcard" name="idcard" class="form-control" ng-required="true">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.idcard.$dirty && myForm.idcard.$invalid">
+                                                                <span class="supCol" ng-show="myForm.idcard.$error.required">统一社会信用代码不能为空</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-12">
+                                                            <div class="col-sm-offset-2 col-sm-8">
+                                                                <button type="button"  class="btn btn-info" ng-click="submitInfo(myForm)">提交</button>
+                                                                <button type="button"  class="btn btn-info" ng-click="resetInfo()">重置</button>
+                                                                <button type="button" class="btn btn-danger" ng-click="createPdf()"><i class="fa fa-file-pdf-o"></i> 生成PDF</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="wrapper-md" ng-show="resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                            <div class="panel panel-info input-panel">
+                                <div class="panel-heading">
+                                    <span style="color: #474747;">查询结果</span>
+                                </div>
+                                <div>
+                                    <table ng-if="otherMsg" class="table-border-style">
+                                        <tr><td>{{resultMsg}}</td></tr>
+                                    </table>
+                                    <table ng-if="dataMsg" class="table-border-style">
+                                        <tr><td>姓名或公司名称</td><td>{{ resultMsg.realname }}</td></tr>
+                                        <tbody  ng-repeat="(index,value) in resultMsg.list">
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">信息{{ index + 1 }}</th></tr>
+                                        <tr><td>年龄</td><td>{{ value.age }}</td></tr>
+                                        <tr><td>性别</td><td>{{ value.sex }}</td></tr>
+                                        <tr><td>身份证号或组织机构代码</td><td>{{ value.idcard }}</td></tr>
+                                        <tr><td>立案时间</td><td>{{ value.filingdate }}</td></tr>
+                                        <tr><td>案号</td><td>{{ value.caseno }}</td></tr>
+                                        <tr><td>执行依据文号</td><td>{{ value.baseonno }}</td></tr>
+                                        <tr><td>做出执行依据单位</td><td>{{ value.baseonorg }}</td></tr>
+                                        <tr><td>执行法院</td><td>{{ value.court }}</td></tr>
+                                        <tr><td>省份</td><td>{{ value.province }}</td></tr>
+                                        <tr><td>生效法律文书确定的义务</td><td>{{ value.duty }}</td></tr>
+                                        <tr><td>被执行人的履行情况</td><td>{{ value.performance }}</td></tr>
+                                        <tr><td>失信被执行人行为具体情形</td><td>{{ value.description }}</td></tr>
+                                        <tr><td>发布时间</td><td>{{ value.pubdate }}</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+

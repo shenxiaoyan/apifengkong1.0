@@ -1,0 +1,86 @@
+<script>
+
+    "use strict";
+    app.controller("enterpriseCreditCtrl", [
+        "$scope","$http","$rootScope",
+        function ( $scope,$http,$rootScope) {
+//            $scope.risksList = [
+//
+//                {
+//                    id: "",
+//                    name: "企业法院判决简项",
+//                    sref: "enterpriseCredit.page({view_type:'business_sentence'})"
+//
+//                },
+//
+//                {
+//                    id: "",
+//                    name: "企业法院失信简项",
+//                    sref: "enterpriseCredit.page({view_type:'business_simple'})"
+//
+//                },
+//
+//                {
+//                    id: "",
+//                    name: "商户账单真伪验证",
+//                    sref: "enterpriseCredit.page({view_type:'business_authenticity'})"
+//
+//                }
+//            ]
+
+            $scope.apiId=[];
+
+            $http({
+                method: 'POST',
+                url: '/supplyAPI/getShowList?typeId='+6
+            }).then(function successCallback(response) {
+
+                $scope.RealLists=response.data;
+                angular.forEach($scope.RealLists,function (val,index) {
+                    $scope.apiId.push(val.id);
+
+                })
+
+            });
+
+            $scope.nameId=function (id) {
+                window.localStorage.setItem('apiNameId',id)
+            }
+
+        }
+    ]);
+</script>
+
+<div class="hbox hbox-auto-xs hbox-auto-sm" ng-controller="enterpriseCreditCtrl">
+    <div class="col w-md bg-light dk b-r bg-auto hidden-sm hidden-xs">
+        <div class="wrapper-md b-b bg-light">
+            <div class="font-thin h4">
+                企业信息查询
+            </div>
+        </div>
+        <div class="wrapper-md">
+            <ul class="nav nav-pills nav-stacked nav-sm">
+                <li ui-sref-active="active" ng-repeat="(index,RealList) in RealLists">
+                    <a ng-click="nameId(RealList.id)" ui-sref="{{RealList.root}}">{{RealList.description}}</a>
+                    <!--<a href="RealList.path" ui-sref="personalReal.page({view_type:'{{index}}'})">{{RealList}}</a>-->
+                </li>
+                <!--<li ui-sref-active="active">-->
+                    <!--<a ui-sref="enterpriseCredit.page({view_type:'business_details'})">企业法院失信详情 <sup class="supCol">dev</sup></a>-->
+                <!--</li>-->
+                <!--<li ui-sref-active="active">-->
+                    <!--<a ui-sref="enterpriseCredit.page({view_type:'business_document'})">企业裁判文书详情 <sup class="supCol">dev</sup></a>-->
+                <!--</li>-->
+                <!--<li ui-sref-active="active">-->
+                    <!--<a ui-sref="enterpriseCredit.page({view_type:'business_loan'})">企业借贷信息 <sup class="supCol">dev</sup></a>-->
+                <!--</li>-->
+                <!--<li ui-sref-active="active">-->
+                    <!--<a ui-sref="enterpriseCredit.page({view_type:'business_bad'})">企业不良信息 <sup class="supCol">dev</sup></a>-->
+                <!--</li>-->
+
+            </ul>
+        </div>
+    </div>
+    <div class="col">
+        <div class="hbox hbox-auto-xs bg-light" ui-view></div>
+    </div>
+</div>

@@ -1,0 +1,180 @@
+package apifengkong.service;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.request.ZhimaCreditAntifraudVerifyRequest;
+import com.alipay.api.request.ZhimaCreditScoreBriefGetRequest;
+import com.alipay.api.request.ZhimaCreditWatchlistBriefGetRequest;
+import com.alipay.api.response.ZhimaCreditAntifraudVerifyResponse;
+import com.alipay.api.response.ZhimaCreditScoreBriefGetResponse;
+import com.alipay.api.response.ZhimaCreditWatchlistBriefGetResponse;
+
+import apifengkong.util.Common.API;
+
+
+@Service
+public class ZhimaService {
+	@Value("${alipay.url}")
+	private String url;
+	@Value("${alipay.appId}")
+	private String appId;
+	@Value("${alipay.appPrivateKey}")
+	private String appPrivateKey;
+	@Value("${alipay.format}")
+	private String format;
+	@Value("${alipay.charset}")
+	private String charset;
+	@Value("${alipay.alipayPublicKey}")
+	private String alipayPublicKey;
+	@Value("${alipay.signType}")
+	private String signType;
+	@Value("${alipay.returnUrl}")
+	private String returnUrl;
+	@Value("${alipay.notifyUrl}")
+	private String notifyUrl;
+	
+	public Map zhimaScore(API api) {
+		HashMap<String, String> hashMap = new HashMap<String,String>();
+		R s600 = getScore(600,api);
+		if(R.GT.equals(s600)){
+			R s700 = getScore(700,api);
+			if(R.GT.equals(s700)){
+				hashMap.put("score", "700+");
+			}else{
+				hashMap.put("score", "600+");
+			}
+			
+		}else if(R.LT.equals(s600)){
+			R s500 = getScore(500,api);
+			if(R.GT.equals(s500)){
+				hashMap.put("score", "500+");
+			}else{
+				hashMap.put("score", "400+");
+			}
+		}else{
+			hashMap.put("score", null);
+		}
+		return hashMap;
+	}
+	
+	private R getScore(Integer i, API api){
+		AlipayClient alipayClient = new DefaultAlipayClient(url, appId, appPrivateKey, "json", charset, alipayPublicKey, "RSA2");
+		ZhimaCreditScoreBriefGetRequest request = new ZhimaCreditScoreBriefGetRequest();
+		long l = UUID.randomUUID().getMostSignificantBits();
+		request.setBizContent("{" +
+		"    \"transaction_id\":\"" + String.valueOf(l) + "\"," +
+		"    \"product_code\":\"w1010100000000002733\"," +
+		"    \"cert_type\":\"IDENTITY_CARD\"," +
+		"    \"cert_no\":\"" + api.getParameters().get("idcard") + "\"," +
+		"    \"name\":\"" + api.getParameters().get("name") +"\"," +
+		"    \"admittance_score\":" + i +
+		"  }");
+		ZhimaCreditScoreBriefGetResponse response;
+		try {
+			response = alipayClient.execute(request);
+			if(response.isSuccess()){
+			    System.out.println("zhimascore调用成功");
+			    if(response.getIsAdmittance().equals("N/A")){
+			    	return R.Not;
+			    }else if(response.getIsAdmittance().equals("Y")){
+			    	return R.GT;
+			    }else{
+			    	return R.LT;
+			    }
+			    
+			} else {
+			    System.out.println("zhimascore调用失败");
+			}
+		} catch (AlipayApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+		
+	}
+	
+	public Map antifraud(API api) {
+		
+		
+		AlipayClient alipayClient = new DefaultAlipayClient(url, appId, appPrivateKey, "json", charset, alipayPublicKey, "RSA2");
+		ZhimaCreditAntifraudVerifyRequest request = new ZhimaCreditAntifraudVerifyRequest();
+		long l = UUID.randomUUID().getMostSignificantBits();
+		request.setBizContent("{" +
+		"    \"product_code\":\"w1010100000000002859\"," +
+		"    \"transaction_id\":\""+String.valueOf(l)+"\"," +
+		"    \"cert_no\":\""+api.getParameters().get("certNo")+"\"," +
+		"    \"cert_type\":\"IDENTITY_CARD\"," +
+		"    \"name\":\""+api.getParameters().get("name")+"\"," +
+		"    \"mobile\":\""+api.getParameters().get("mobile")+"\"," +
+		"    \"bank_card\":\""+api.getParameters().get("bankCard")+"\"," +
+		"    \"address\":\""+api.getParameters().get("address")+"\"," +
+		"  }");
+		ZhimaCreditAntifraudVerifyResponse response;
+		try {
+			response = alipayClient.execute(request);
+			if(response.isSuccess()){
+			    System.out.println("antifraud调用成功");
+			    HashMap<String, Object> hashMap = new HashMap<String,Object>();
+			    hashMap.put("verifyCode", response.getVerifyCode());
+			    return hashMap;
+			    
+			} else {
+			    System.out.println("antifraud调用失败");
+			}
+		} catch (AlipayApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+		
+	}
+
+	
+	
+	public Map watchlist(API api) {
+		
+		AlipayClient alipayClient = new DefaultAlipayClient(url, appId, appPrivateKey, "json", charset, alipayPublicKey, "RSA2");
+		ZhimaCreditWatchlistBriefGetRequest request = new ZhimaCreditWatchlistBriefGetRequest();
+		long l = UUID.randomUUID().getMostSignificantBits();
+		request.setBizContent("{" +
+		"    \"product_code\":\"w1010100000000002977\"," +
+		"    \"transaction_id\":\""+String.valueOf(l)+"\"," +
+		"    \"cert_no\":\""+api.getParameters().get("certNo")+"\"," +
+		"    \"cert_type\":\"IDENTITY_CARD\"," +
+		"    \"name\":\""+api.getParameters().get("name")+"\"," +
+		"  }");
+		ZhimaCreditWatchlistBriefGetResponse  response;
+		try {
+			response = alipayClient.execute(request);
+			if(response.isSuccess()){
+			    System.out.println("watchlist调用成功");
+			    HashMap<String, Object> hashMap = new HashMap<String,Object>();
+			    hashMap.put("level", response.getLevel());
+			    return hashMap;
+			    
+			} else {
+			    System.out.println("watchlist调用失败");
+			}
+		} catch (AlipayApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+		
+	}
+	
+	
+	
+	
+	public static enum R{
+		GT,LT,Not
+	}
+}

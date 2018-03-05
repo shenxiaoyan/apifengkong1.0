@@ -1,0 +1,259 @@
+package apifengkong.service;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.annotation.PostConstruct;
+import javax.swing.plaf.synth.SynthSeparatorUI;
+import javax.transaction.Transactional;
+
+import org.apache.http.HttpStatus;
+import org.jboss.logging.Logger;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache.ValueWrapper;
+import org.springframework.cache.CacheManager;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.ser.impl.FailingSerializer;
+import com.moxie.api.DefaultMoxieClient;
+import com.moxie.api.MoxieClient;
+import com.moxie.api.MoxieRequest;
+import com.moxie.api.MoxieResponse;
+import com.moxie.api.domain.Authorization;
+import com.moxie.api.domain.MoxieApiException;
+import com.moxie.api.http.HttpClient;
+import com.moxie.api.http.HttpClientConfig;
+import com.moxie.api.http.HttpMethod;
+
+import apifengkong.controller.SearchController.PersonPasswordReset;
+import apifengkong.controller.SearchController.SearchType;
+import apifengkong.controller.UserController.PaymentChannel;
+import apifengkong.entity.PersonWeb;
+import apifengkong.entity.PersonWebRepository;
+import apifengkong.entity.PersonLoanRepository;
+import apifengkong.entity.SupplyAPIRepository;
+import apifengkong.util.Common;
+import apifengkong.util.FailResponse;
+import apifengkong.util.Important;
+
+@Service
+public class PersonWebSearchService {
+
+	private static Logger logger = Logger.getLogger(PersonWebSearchService.class);
+
+	@Autowired
+	SupplyAPIRepository supplyAPIRepository;
+
+	@Autowired
+	AnalysisService analysisService;
+
+	@Autowired
+	FetchService fetchService;
+
+	@Autowired
+	PersonWebRepository personWebRepository;
+
+	@Autowired
+	private CacheManager cacheManager;
+
+	@Autowired
+	private CompanyService companySerivce;
+
+	@Autowired
+	private UserService userSerivce;
+
+	@Value("${personWeb.price}")
+	private String basePrice;
+
+	@Value("${personLoan.education.price}")
+	private String educationPrice;
+
+	@Value("${personWeb.cache.time}")
+	private String cacheTime;
+
+
+	// 开始搜索入口
+	public Integer search(PersonWeb personWeb, SearchType searchType) {
+
+		if (personWeb.isEnableCache()) {
+			PersonWeb cacheData = personWebCache(personWeb);
+			if (cacheData != null) {
+				PersonWeb target = new PersonWeb();
+				BeanUtils.copyProperties(cacheData, target);
+				target.setCreateAt(new Date());
+				target.setCache(true);
+				if (searchType.equals(SearchType.COMPANY)) {
+					target.setCompany(personWeb.getCompany());
+				}
+				target.setUser(personWeb.getUser());
+				target.setId(null);
+				PersonWeb save = personWebRepository.save(target);
+				return save.getId();
+			} else {
+				return dispatchSearch(personWeb, searchType);
+			}
+		} else {
+			return dispatchSearch(personWeb, searchType);
+		}
+	}
+
+	// ------------------------------------------------------------------------------------------------------------
+
+
+	// 是否personloan使用缓存数据
+	private PersonWeb personWebCache(PersonWeb personLoan) {
+		String name = personLoan.getName();
+		String mobile = personLoan.getMobile();
+		String idCard = personLoan.getIdCard();
+
+		PersonWeb findOne = personWebRepository.findFirstByNameAndMobileAndIdCardAndCacheAndStatusOrderByIdDesc(name,
+				mobile, idCard, false, "处理完成");
+		if (findOne != null) {
+			Calendar c1 = Calendar.getInstance();// 取当前日期。
+			Integer i = Integer.valueOf(cacheTime);
+			c1.add(Calendar.DATE, -i);
+
+			Calendar c2 = Calendar.getInstance();
+			c2.setTime(findOne.getCreateAt());
+			if (c2.before(c1)) {
+				return null;
+			} else {
+				return findOne;
+			}
+		} else {
+			return null;
+		}
+	}
+
+	// 具体的各项任务分发
+	@Transactional
+	private Integer dispatchSearch(PersonWeb personLoan, SearchType searchType) {
+		personLoan.setCache(false);
+		personLoan.setCreateAt(new Date());
+		personLoan.setStatus("处理中");
+		PersonWeb savedPersonLoan = personWebRepository.save(personLoan);
+		Future<Map> fetchIdCard = fetchService.asyncFetchIdCard(savedPersonLoan);
+		Future<Map> fetchCellphone = fetchService.asyncFetchCellphone(savedPersonLoan);
+		Future<Map> fetchDishonestBlacklist = fetchService.asyncFetchDishonestBlacklist(savedPersonLoan);
+		Future<Map> fetchCriminal = fetchService.asyncFetchCriminal(savedPersonLoan);
+		Future<Map> courtJudgment = fetchService.asyncCourtJudgment(savedPersonLoan);
+		Future<Map> fetchMultipleHeadLend = fetchService.asyncFetchMultipleHeadLend(savedPersonLoan);
+		Future<Map> fetchEducation = fetchService.asyncFetchEducation(savedPersonLoan);
+		Future<Map> fetchZhimaScore = fetchService.asyncFetchZhimaScore(savedPersonLoan);
+		Future<Map> fetchAntifraud = fetchService.asyncFetchAntifraud(savedPersonLoan);
+		Future<Map> fetchWatchlist = fetchService.asyncFetchWatchlist(savedPersonLoan);
+
+		// 得到所有结果
+		Map idCardResult = null;
+		try {
+			idCardResult = fetchIdCard.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Map cellPhoneResult = null;
+		try {
+			cellPhoneResult = fetchCellphone.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Map dishonestBlacklistResult = null;
+		try {
+			dishonestBlacklistResult = fetchDishonestBlacklist.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Map criminalResult = null;
+		try {
+			criminalResult = fetchCriminal.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Map courtJudgmentResult = null;
+		try {
+			courtJudgmentResult = courtJudgment.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Map multipleHeadLendResult = null;
+		try {
+			multipleHeadLendResult = fetchMultipleHeadLend.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Map antifraudResult = null;
+		try {
+			antifraudResult = fetchAntifraud.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Map educationResult = null;
+		try {
+			educationResult = fetchEducation.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Map zhimaScoreResult = null;
+		try {
+			zhimaScoreResult = fetchZhimaScore.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Map watchlistResult = null;
+		try {
+			watchlistResult = fetchWatchlist.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		analysisService.handleIdCard(savedPersonLoan, idCardResult);
+		analysisService.handleCellphone(savedPersonLoan, cellPhoneResult);
+		analysisService.handleDishonestBlacklist(savedPersonLoan, dishonestBlacklistResult);
+		analysisService.handleCriminal(savedPersonLoan, criminalResult);
+		analysisService.handleCourtJudgment(savedPersonLoan, courtJudgmentResult);
+		analysisService.handleMultipleHeadLend(savedPersonLoan, multipleHeadLendResult);
+		analysisService.handleAntifraud(savedPersonLoan, antifraudResult);
+		analysisService.handleEducation(savedPersonLoan, educationResult);
+		analysisService.handleZhimaScore(savedPersonLoan, zhimaScoreResult);
+		analysisService.handleWatchlist(savedPersonLoan, watchlistResult);
+		savedPersonLoan.setStatus("处理完成");
+		personWebRepository.save(savedPersonLoan);
+
+		Integer price;
+		if (educationResult == null) {
+			price = Integer.valueOf(basePrice);
+		} else {
+			price = Integer.valueOf(basePrice) + Integer.valueOf(educationPrice);
+		}
+		if (searchType.equals(SearchType.COMPANY)) {
+			companySerivce.consume(personLoan.getCompany(), price, PaymentChannel.PERSON_WEB, savedPersonLoan.getId());
+		} else {
+			userSerivce.consume(personLoan.getUser(), price, PaymentChannel.PERSON_WEB, savedPersonLoan.getId());
+		}
+
+		return savedPersonLoan.getId();
+
+	}
+
+}

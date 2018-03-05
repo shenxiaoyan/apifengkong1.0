@@ -1,0 +1,26 @@
+package apifengkong.service;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import apifengkong.entity.APISearchLogRepository;
+
+public class APISearchLogService {
+	@Autowired
+	APISearchLogRepository apiSearchLogRepository;
+/**
+ * 公司报表
+ */
+	public Map<String, Object> getStuffConsumReport() {//员工消费积分报表
+		Map<String, Object> map=new HashMap<String,Object>();
+		
+		return null;
+		
+	}
+	
+//员工报表
+	
+	
+}

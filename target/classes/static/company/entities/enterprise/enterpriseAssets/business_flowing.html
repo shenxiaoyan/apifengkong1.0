@@ -1,0 +1,2139 @@
+<script>
+    /*
+     * 创建人：沈小艳
+     * 创建时间：2017/07/28
+     * 企业查询之商户银联流水画像
+     * */
+
+    "use strict";
+    app.controller('businessFlowingCtrl', ['$scope','$http', function ($scope,$http) {
+
+//        $http.get("/getSupplyPrice?id=" + 8003).success(function(resResult){
+//                console.log(resResult)
+//        });
+
+
+            $http({
+                url:"/getSupplyPrice?id=" + 8003,
+                method:"POST"
+            }).then(function successCallback(response) {
+                $scope.priceResult=response.data.supply.price;
+            })
+
+
+        $scope.groupsWrap = {
+
+            group1: [
+                {
+                    value: "S5266",
+                    text: "商户经营城市（按消费人群来 源确定）",
+                    type: false,
+
+                },
+                {
+                    value: "S5132",
+                    text: "每月还贷能力估计",
+                    type: false,
+
+                },
+                {
+                    value: "S5102",
+                    text: "商户编号（MID）",
+                    type: false,
+
+                },
+                {
+                    value: "S5104",
+                    text: "对应类别：（例如批发类）",
+                    type: false,
+
+                },
+                {
+                    value: "S5105",
+                    text: "手续费率： %",
+                    type: false,
+
+                },
+                {
+                    value: "S5108",
+                    text: "收单机构",
+                    type: false,
+
+                },
+                {
+                    value: "S5246",
+                    text: "终端台数（如POS机数量）",
+                    type: false,
+
+                },
+                {
+                    value: "S5247",
+                    text: "商户名称_商户地址_商户类型_ 商户所在城市",
+                    type: false,
+
+                },
+                {
+                    value: "S5196",
+                    text: "2011年1月1日起，首次交易日 期",
+                    type: false,
+
+                },
+                {
+                    value: "S5197",
+                    text: "2011年1月1日起，有交易月份 枚举",
+                    type: false,
+
+                },
+                {
+                    value: "S5198",
+                    text: "至上月，连续有交易的月份 数量",
+                    type: false,
+
+                },
+                {
+                    value: "S5200",
+                    text: "最近一日交易金额",
+                    type: false,
+
+                },
+                {
+                    value: "S5201",
+                    text: "最近一日交易笔数",
+                    type: false,
+
+                },
+                {
+                    value: "S5202",
+                    text: "最近一日交易人数",
+                    type: false,
+
+                },
+                {
+                    value: "S5199",
+                    text: "最近一日交易日期",
+                    type: false,
+
+                },
+                {
+                    value: "S5203",
+                    text: "累计交易总金额",
+                    type: false,
+
+                },
+                {
+                    value: "S5204",
+                    text: "累计交易总笔数",
+                    type: false,
+
+                },
+                {
+                    value: "S5205",
+                    text: "累计交易总人数",
+                    type: false,
+
+                },
+                {
+                    value: "S5000",
+                    text: "近12月，每月交易总金额枚举",
+                    type: false,
+
+                },
+                {
+                    value: "S5109",
+                    text: "近24月，每月交易总金额枚举",
+                    type: false,
+
+                }
+
+
+            ],
+            group2: [
+                {
+                    value: "S5001",
+                    text: "近12月，每月交易总金额枚举（大于10元）",
+                    type: false,
+                },
+                {
+                    value: "S5110",
+                    text: "近24月，每月交易总金额枚举（大于10元）",
+                    type: false,
+                },
+                {
+                    value: "S5081",
+                    text: "近12月，每月最大交易金额",
+                    type: false,
+                },
+                {
+                    value: "S5111",
+                    text: "近24月，每月最大交易金额",
+                    type: false,
+                },
+                {
+                    value: "S5112",
+                    text: "每月最小交易金额",
+                    type: false,
+                },
+                {
+                    value: "S5113",
+                    text: "每月交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5003",
+                    text: "每月交易总笔数枚举（大于10 元）",
+                    type: false,
+                },
+                {
+                    value: "S5004",
+                    text: "近12月，每月交易总天数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5114",
+                    text: "近24月，每月交易总天数枚举",
+                    type: false,
+
+                },
+                {
+                    value: "S5115",
+                    text: "每月交易总人数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5011",
+                    text: "每月交易总人数枚举（大于10元）",
+                    type: false,
+                },
+                {
+                    value: "S5116",
+                    text: "每月客单价枚举",
+                    type: false,
+                },
+                {
+                    value: "S5117",
+                    text: "每月笔单价枚举",
+                    type: false,
+                },
+                {
+                    value: "S5006",
+                    text: "每月笔单价枚举（大于10元）",
+                    type: false,
+                },
+                {
+                    value: "S5165",
+                    text: "每周交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5166",
+                    text: "每周交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5167",
+                    text: "每周交易总天数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5168",
+                    text: "每周交易总人数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5169",
+                    text: "周均交易金额",
+                    type: false,
+                },
+                {
+                    value: "S5170",
+                    text: "周均交易笔数",
+                    type: false,
+                }
+
+            ],
+            group3: [
+                {
+                    value: "S5171",
+                    text: "周均交易天数",
+                    type: false,
+                },
+                {
+                    value: "S5172",
+                    text: "周交易金额中值",
+                    type: false,
+                },
+                {
+                    value: "S5173",
+                    text: "周交易金额最高值",
+                    type: false,
+                },
+                {
+                    value: "S5174",
+                    text: "周交易金额最低值",
+                    type: false,
+                },
+                {
+                    value: "S5175",
+                    text: "低于周均交易金额的周数",
+                    type: false,
+                },
+                {
+                    value: "S5176",
+                    text: "低于周均交易金额的月份分布",
+                    type: false,
+                },
+                {
+                    value: "S5177",
+                    text: "周交易金额变异系数",
+                    type: false,
+                },
+                {
+                    value: "S5178",
+                    text: "周交易笔数变异系数",
+                    type: false,
+                },
+                {
+                    value: "S5206",
+                    text: "每小时交易金额枚举",
+                    type: false,
+
+                },
+                {
+                    value: "S5207",
+                    text: "每小时交易笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5210",
+                    text: "每月工作日工作时间交易总金额",
+                    type: false,
+                },
+                {
+                    value: "S5212",
+                    text: "每月工作日非工作时间交易总金额",
+                    type: false,
+                },
+                {
+                    value: "S5211",
+                    text: "每月工作日工作时间交易总笔数",
+                    type: false,
+                },
+                {
+                    value: "S5213",
+                    text: "每月工作日非工作时间交易总笔数",
+                    type: false,
+                },
+                {
+                    value: "S5214",
+                    text: "每月双休日交易总金额",
+                    type: false,
+                },
+                {
+                    value: "S5215",
+                    text: "每月双休日交易总笔数",
+                    type: false,
+                },
+                {
+                    value: "S5076",
+                    text: "近6月，各月四区间交易总人数",
+                    type: false,
+                },
+                {
+                    value: "S5077",
+                    text: "近6月，各月四区间最大单笔交易金额",
+                    type: false,
+                },
+                {
+                    value: "S5078",
+                    text: "近6月，各月四区间最小单笔交易金额",
+                    type: false,
+                },
+                {
+                    value: "S5129",
+                    text: "近6月月均交易金额",
+                    type: false,
+                }
+
+            ],
+            group4: [
+                {
+                    value: "S5046",
+                    text: "近6月金额标准差",
+                    type: false,
+                },
+                {
+                    value: "S5047",
+                    text: "近6月金额标准差在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5048",
+                    text: "近6月金额差异系数",
+                    type: false,
+                },
+                {
+                    value: "S5049",
+                    text: "近6月金额差异系数在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5118",
+                    text: "近12月交易金额环比增长枚举",
+                    type: false,
+                },
+                {
+                    value: "S5070",
+                    text: "标准差-交易额环比增长率",
+                    type: false,
+                },
+                {
+                    value: "S5071",
+                    text: "标准差-交易额环比增长率在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5072",
+                    text: "差异系数－交易额环比增长率",
+                    type: false,
+                },
+                {
+                    value: "S5073",
+                    text: "差异系数-交易额环比增长率在本市同行排名",
+                    type: false,
+
+                },
+                {
+                    value: "S5010",
+                    text: "每月交易金额环比增长枚举（10元以上）",
+                    type: false,
+                },
+                {
+                    value: "S5068",
+                    text: "每月交易额环比增长率均值（10元以上）",
+                    type: false,
+                },
+                {
+                    value: "S5126",
+                    text: "年度交易额峰值月份",
+                    type: false,
+                },
+                {
+                    value: "S5130",
+                    text: "近6月月均交易笔数",
+                    type: false,
+                },
+                {
+                    value: "S5052",
+                    text: "近6月交易笔数标准差",
+                    type: false,
+                },
+                {
+                    value: "S5053",
+                    text: "近6月交易笔数标准差在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5054",
+                    text: "近6月交易笔数差异系数",
+                    type: false,
+                },
+                {
+                    value: "S5055",
+                    text: "近6月交易笔数差异系数在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5119",
+                    text: "近12月交易笔数环比增长枚举",
+                    type: false,
+                },
+                {
+                    value: "S5120",
+                    text: "近12月客单价环比增长枚举",
+                    type: false,
+                },
+                {
+                    value: "S5121",
+                    text: "近12月笔单价环比增长枚举",
+                    type: false,
+                }
+
+            ],
+            group5: [
+                {
+                    value: "S5122",
+                    text: "每月交易金额同比增长枚举",
+                    type: false,
+                },
+                {
+                    value: "S5123",
+                    text: "每月交易金额同比增长率均值",
+                    type: false,
+                },
+                {
+                    value: "S5142",
+                    text: "每月交易金额同比增长率均值在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5064",
+                    text: "标准差-交易额同比增长率",
+                    type: false,
+                },
+                {
+                    value: "S5065",
+                    text: "标准差-交易额同比增长率在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5066",
+                    text: "差异系数－交易额同比增长率",
+                    type: false,
+                },
+                {
+                    value: "S5067",
+                    text: "差异系数 - 交易金额同比增长率在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5009",
+                    text: "每月交易额同比增长枚举（10 元以上）",
+                    type: false,
+                },
+                {
+                    value: "S5062",
+                    text: "每月交易额同比增长均值（10 元以上）",
+                    type: false,
+
+                },
+                {
+                    value: "S5063",
+                    text: "每月交易额同比增长率均值在本市同行排名（10元以上）",
+                    type: false,
+                },
+                {
+                    value: "S5124",
+                    text: "每月交易笔数同比增长枚举",
+                    type: false,
+                },
+                {
+                    value: "S5125",
+                    text: "每月客单价同比增长枚举",
+                    type: false,
+                },
+                {
+                    value: "S5127",
+                    text: "近6月月均交易天数",
+                    type: false,
+                },
+                {
+                    value: "S5057",
+                    text: "月均交易天数在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5131",
+                    text: "近6月交易天数变异系数",
+                    type: false,
+                },
+                {
+                    value: "S5139",
+                    text: "月交易天数变异系数在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5058",
+                    text: "近6月天数标准差",
+                    type: false,
+                },
+                {
+                    value: "S5059",
+                    text: "近6月天数标准差本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5060",
+                    text: "近6月天数差异系数",
+                    type: false,
+                },
+                {
+                    value: "S5061",
+                    text: "近6月天数差异系数在本市同行排名",
+                    type: false,
+                }
+            ],
+            group6: [
+                {
+                    value: "S5128",
+                    text: "近6月月均交易人数",
+                    type: false,
+                },
+                {
+                    value: "S5133",
+                    text: "每月交易金额在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5134",
+                    text: "每月交易笔数在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5137",
+                    text: "月均交易金额在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5138",
+                    text: "月均交易笔数在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5135",
+                    text: "客单价在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5136",
+                    text: "笔单价在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5143",
+                    text: "同行每月交易额环比增长",
+                    type: false,
+                },
+                {
+                    value: "S5069",
+                    text: "近6月交易额环比增长率在本市同行排名",
+                    type: false,
+
+                },
+                {
+                    value: "S5144",
+                    text: "同行每月客单价环比增长",
+                    type: false,
+                },
+                {
+                    value: "S5145",
+                    text: "同行每月交易笔数环比增长",
+                    type: false,
+                },
+                {
+                    value: "S5146",
+                    text: "同行每月交易金额同比增长",
+                    type: false,
+                },
+                {
+                    value: "S5147",
+                    text: "同行每月交易笔数同比增长",
+                    type: false,
+                },
+                {
+                    value: "S5148",
+                    text: "同行每月客单价同比增长",
+                    type: false,
+                },
+                {
+                    value: "S5181",
+                    text: "周均交易金额在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5182",
+                    text: "周均交易笔数在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5183",
+                    text: "周均交易天数在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5184",
+                    text: "周交易笔数变异系数在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5185",
+                    text: "周交易金额变异系数在本市同行排名",
+                    type: false,
+                },
+                {
+                    value: "S5140",
+                    text: "市场份额",
+                    type: false,
+                }
+            ],
+            group7: [
+                {
+                    value: "S5141",
+                    text: "市场增长率",
+                    type: false,
+                },
+                {
+                    value: "S5257",
+                    text: "各忠诚度客户交易金额占比（普通、中等、忠实）",
+                    type: false,
+                },
+                {
+                    value: "S5258",
+                    text: "各忠诚度客户交易笔数占比（普通、中等、忠实）",
+                    type: false,
+                },
+                {
+                    value: "S5259",
+                    text: "各忠诚度客户交易人数占比（普通、中等、忠实）",
+                    type: false,
+                },
+                {
+                    value: "S5260",
+                    text: "普卡客户人数占比",
+                    type: false,
+                },
+                {
+                    value: "S5261",
+                    text: "银卡及金卡客户人数占比",
+                    type: false,
+                },
+                {
+                    value: "S5262",
+                    text: "白金卡及以上等级客户人数占比",
+                    type: false,
+                },
+                {
+                    value: "S5254",
+                    text: "各地客户交易金额占比（同省同城、同省非同城、外省、其他）",
+                    type: false,
+                },
+                {
+                    value: "S5255",
+                    text: "各地客户交易笔数占比（同省同城、同省非同城、外省、其他）",
+                    type: false,
+
+                },
+                {
+                    value: "S5256",
+                    text: "各地客户交易人数占比（同省同城、同省非同城、外省、其他）",
+                    type: false,
+                },
+                {
+                    value: "S5265",
+                    text: "前5大异地城市客户分布",
+                    type: false,
+                },
+                {
+                    value: "S5216",
+                    text: "近12月，每月单笔(0,200]:交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5217",
+                    text: "近12月，单笔(0,200]:交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5218",
+                    text: "近12月，单笔(0,200]:交易总人数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5219",
+                    text: "近12月，单笔(200,600]:交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5220",
+                    text: "近12月，单笔(200,600]:交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5221",
+                    text: "近12月，单笔(200,600]:交易总人数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5222",
+                    text: "近12月，单笔(600,1000]:交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5223",
+                    text: "近12月，单笔(600,1000]:交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5224",
+                    text: "近12月，单笔(600,1000]:交易总人数枚举",
+                    type: false,
+                }
+            ],
+            group8: [
+                {
+                    value: "S5225",
+                    text: "近12月，单笔(1000,5000]:交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5226",
+                    text: "近12月，单笔(1000,5000]:交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5227",
+                    text: "近12月，单笔(1000,5000]:交易总人数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5228",
+                    text: "近12月，单笔(5000,20000]:交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5229",
+                    text: "近12月，单笔(5000,20000]:交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5230",
+                    text: "近12月，单笔(5000,20000]:交易总人数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5231",
+                    text: "近12月，单笔(20000,+]:交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5232",
+                    text: "近12月，单笔(20000,+]:交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5233",
+                    text: "近12月，单笔(20000,+]:交易总人数枚举",
+                    type: false,
+
+                },
+                {
+                    value: "S5234",
+                    text: "近6月，单笔(0,200]:借记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5235",
+                    text: "近6月，单笔(200,600]:借记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5236",
+                    text: "近6月，单笔(600,1000]:借记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5237",
+                    text: "近6月，单笔(1000,5000]:借记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5238",
+                    text: "近6月，单笔(5000,20000]:借记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5239",
+                    text: "近6月，单笔(20000,+]:借记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5086",
+                    text: "近12月，单笔（0，10]:借记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5087",
+                    text: "近12月，单笔（10，500]:借记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5088",
+                    text: "近12月，单笔（500，1000]: 借记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5089",
+                    text: "近12月，单笔（1000，2000]: 借记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5090",
+                    text: "近12月，单笔（2000，5000]: 借记卡交易总笔数枚举",
+                    type: false,
+                }
+            ],
+            group9: [
+                {
+                    value: "S5091",
+                    text: "近12月，单笔（5000， 10000]:借记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5092",
+                    text: "近12月，单笔（10000，+]:借记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5240",
+                    text: "近6月，单笔(0,200]:贷记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5241",
+                    text: "近6月，单笔(200,600]:贷记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5242",
+                    text: "近6月，单笔(600,1000]:贷记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5243",
+                    text: "近6月，单笔(1000,5000]:贷记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5244",
+                    text: "近6月，单笔(5000,20000]:贷记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5245",
+                    text: "近6月，单笔(20000,+]:贷记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5093",
+                    text: "近12月，单笔（0，10]:贷记卡交易总笔数枚举",
+                    type: false,
+
+                },
+                {
+                    value: "S5094",
+                    text: "近12月，单笔（10，500]:贷记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5095",
+                    text: "近12月，单笔（500，1000]:贷记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5096",
+                    text: "近12月，单笔（1000，2000]:贷记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5097",
+                    text: "近12月，单笔（2000,5000]:贷记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5098",
+                    text: "近12月，单笔（5000， 10000]:贷记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5099",
+                    text: "近12月，单笔（10000，+]:贷记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5282",
+                    text: "每月出账交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5284",
+                    text: "近6月出账交易总金额",
+                    type: false,
+                },
+                {
+                    value: "S5283",
+                    text: "每月出账交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5285",
+                    text: "近6月出账交易总笔数",
+                    type: false,
+                },
+                {
+                    value: "S5263",
+                    text: "交易金额前五的客户的金额占比",
+                    type: false,
+                }
+            ],
+            group10: [
+                {
+                    value: "S5264",
+                    text: "交易金额前五的客户的笔数占比",
+                    type: false,
+                },
+                {
+                    value: "S5179",
+                    text: "近1周交易金额TOP10客户，各客户交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5186",
+                    text: "近1月交易金额TOP10客户，各客户交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5187",
+                    text: "近3月交易金额TOP10客户，各客户交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5188",
+                    text: "近6月交易金额TOP10客户，各客户交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5189",
+                    text: "近12月交易金额TOP10客户，各客户交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5190",
+                    text: "近2年交易金额TOP10客户，各客户交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5180",
+                    text: "近1周交易整数金额的次数",
+                    type: false,
+                },
+                {
+                    value: "S5191",
+                    text: "近1月交易整数金额的次数",
+                    type: false,
+
+                },
+                {
+                    value: "S5192",
+                    text: "近3月交易整数金额的次数",
+                    type: false,
+                },
+                {
+                    value: "S5193",
+                    text: "近6月交易整数金额的次数",
+                    type: false,
+                },
+                {
+                    value: "S5194",
+                    text: "近12月交易整数金额的次数",
+                    type: false,
+                },
+                {
+                    value: "S5195",
+                    text: "近两年交易整数金额的次数",
+                    type: false,
+                },
+                {
+                    value: "S5079",
+                    text: "近12月，非正常大额（单笔金 额大于本市同行排名前10%）交易金额",
+                    type: false,
+                },
+                {
+                    value: "S5080",
+                    text: "近12月，非正常大额（单笔金 额大于本市同行排名前10%）交易笔数",
+                    type: false,
+                },
+                {
+                    value: "S5155",
+                    text: "近1月单日同卡多笔等额消费金额",
+                    type: false,
+                },
+                {
+                    value: "S5156",
+                    text: "近6月单日同卡多笔等额消费金额",
+                    type: false,
+                },
+                {
+                    value: "S5157",
+                    text: "近12月单日同卡多笔等额消费金额",
+                    type: false,
+                },
+                {
+                    value: "S5158",
+                    text: "近1月单日同卡多笔等额消费笔数",
+                    type: false,
+                },
+                {
+                    value: "S5159",
+                    text: "近6月单日同卡多笔等额消费笔数",
+                    type: false,
+                }
+            ],
+            group11: [
+                {
+                    value: "S5160",
+                    text: "近12月单日同卡多笔等额消费笔数",
+                    type: false,
+                },
+                {
+                    value: "S5161",
+                    text: "近12月单月同卡大额交易金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5162",
+                    text: "近12月单月同卡大额交易笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5163",
+                    text: "近12月单月非同卡大额交易金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5164",
+                    text: "近12月单月非同卡大额交易笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5149",
+                    text: "近1月单日同卡多笔消费次数",
+                    type: false,
+                },
+                {
+                    value: "S5150",
+                    text: "近6月单日同商户多笔消费次数",
+                    type: false,
+                },
+                {
+                    value: "S5151",
+                    text: "近12月单日同商户多笔消费次数",
+                    type: false,
+                },
+                {
+                    value: "S5152",
+                    text: "近1月同商户多笔消费最小时间间隔",
+                    type: false,
+
+                },
+                {
+                    value: "S5153",
+                    text: "近6月同商户多笔消费最小时间间隔",
+                    type: false,
+                },
+                {
+                    value: "S5154",
+                    text: "近12月同商户多笔消费最小时间间隔",
+                    type: false,
+                },
+                {
+                    value: "S5248",
+                    text: "每月交易失败总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5249",
+                    text: "每月交易失败总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5250",
+                    text: "每月交易失败原因枚举",
+                    type: false,
+                },
+                {
+                    value: "S5251",
+                    text: "近12月，交易失败总金额",
+                    type: false,
+                },
+                {
+                    value: "S5252",
+                    text: "近12月，交易失败总笔数",
+                    type: false,
+                },
+                {
+                    value: "S5269",
+                    text: "每月贷记卡交易总金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5270",
+                    text: "每月贷记卡交易总笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5007",
+                    text: "每月贷记卡笔单价枚举（10元 以上）",
+                    type: false,
+                },
+                {
+                    value: "S5274",
+                    text: "贷记卡交易总金额",
+                    type: false,
+                }
+            ],
+            group12: [
+                {
+                    value: "S5275",
+                    text: "贷记卡交易总笔数",
+                    type: false,
+                },
+                {
+                    value: "S5279",
+                    text: "贷记卡交易总卡数",
+                    type: false,
+                },
+                {
+                    value: "S5276",
+                    text: "贷记卡交易金额占比",
+                    type: false,
+                },
+                {
+                    value: "S5287",
+                    text: "贷记卡交易笔数占比",
+                    type: false,
+                },
+                {
+                    value: "S5267",
+                    text: "借记卡交易金额枚举",
+                    type: false,
+                },
+                {
+                    value: "S5268",
+                    text: "借记卡交易笔数枚举",
+                    type: false,
+                },
+                {
+                    value: "S5008",
+                    text: "每月借记卡笔单价枚举（10元 以上）",
+                    type: false,
+                },
+                {
+                    value: "S5271",
+                    text: "借记卡的交易总金额",
+                    type: false,
+                },
+                {
+                    value: "S5272",
+                    text: "借记卡的交易总笔数",
+                    type: false,
+
+                },
+                {
+                    value: "S5280",
+                    text: "借记卡交易总卡数",
+                    type: false,
+                },
+                {
+                    value: "S5273",
+                    text: "借记卡交易金额占比",
+                    type: false,
+                },
+                {
+                    value: "S5286",
+                    text: "借记卡交易笔数占比",
+                    type: false,
+                },
+                {
+                    value: "S5278",
+                    text: "贷记卡借记卡客单价比例",
+                    type: false,
+                },
+                {
+                    value: "S5277",
+                    text: "贷记卡借记卡交易笔数比例",
+                    type: false,
+                },
+                {
+                    value: "S5012",
+                    text: "每月贷记卡借记卡交易笔数比例枚举（10元以上）",
+                    type: false,
+                },
+                {
+                    value: "S5253",
+                    text: "贷记卡交易失败比例",
+                    type: false,
+                },
+                {
+                    value: "S5208",
+                    text: "夜消费交易总金额",
+                    type: false,
+                },
+                {
+                    value: "S5209",
+                    text: "夜消费交易总笔数",
+                    type: false,
+                },
+                {
+                    value: "S5281",
+                    text: "疑似信用卡套现甄别",
+                    type: false,
+                }
+            ]
+        };
+
+        $scope.info = {
+            merchantNo:""
+        };
+
+        //结果与样例的切换初始化
+        $scope.resultSwitch = false;
+
+        //重置数据
+        $scope.resetInfo = function () {
+            $scope.info.merchantNo = '';
+            $scope.resultSwitch = false;
+        };
+
+
+        //改变全选按钮样式
+        $scope.choiceAll = false;
+        //默认不显示btn的数据
+        $scope.groups = [];
+        for (var i = 1; i <= 12; i++) {
+            $scope.groups[i] = false
+        }
+
+        //全选
+        $scope.selectAll = function () {
+            $scope.choiceAll =!$scope.choiceAll;
+
+            for(var i=1;i<=12;i++){
+                if($scope.groups[i]){
+                    var temp = $scope.groupsWrap["group"+i];
+                    for(var j=0;j<temp.length;j++){
+                        temp[j].type = $scope.choiceAll
+                    }
+                }
+            }
+
+        };
+
+        $scope.btn = function (groupNum) {
+            $scope.groups[groupNum] = !$scope.groups[groupNum];
+
+            if (!$scope.groups[groupNum]) {
+                angular.forEach($scope.groupsWrap["group"+groupNum],function (group) {
+                    group.type = false
+                })
+            }
+
+            if ($scope.groups[groupNum]&&$scope.choiceAll) {
+                angular.forEach($scope.groupsWrap["group"+groupNum],function (group) {
+                    group.type = true
+                })
+            }
+
+        };
+
+
+
+        $scope.selectOne= function(type){
+            type = !type
+        };
+
+        $scope.submit = function (myForm) {
+            if (myForm.merchantNo) {
+                myForm.merchantNo.$dirty = true
+            }
+            if (!myForm.$valid) {
+                $scope.resultSwitch = false;
+                return
+            }
+
+            var arr= [];
+            for(var i=1;i<=12;i++){
+                if($scope.groups[i]){
+                    var temp = $scope.groupsWrap["group"+i];
+                    for(var j=0;j<temp.length;j++){
+                        if(temp[j].type){
+                            arr.push(temp[j].value)
+                        }
+                    }
+                }
+            }
+
+            var obj = {};
+
+            obj.merchantNo = $scope.info.merchantNo;
+            obj.type = arr.join(",");
+
+
+            $http({
+                url:"/enterpise/midPortrait",
+                method:"POST",
+                data:obj
+            }).then(function successCallback(response) {
+                if(response){
+                    if(response.data.statusCode===822){
+                        $scope.sweetResult=response.data.msg;
+                        $scope.resultSwitch = false;
+                        sweetAlert("",$scope.sweetResult, "error");
+                        return;
+                    }
+                    if(response.data.statusCode===811){
+                        $scope.sweetResult=response.data.msg;
+                        $scope.resultSwitch = false;
+                        sweetAlert("",$scope.sweetResult, "error");
+                        return;
+                    }
+                    if(response.data.data.statusCode === '2012'){
+                        $scope.dataMsg=true;//查询成功
+                        $scope.otherMsg=false;
+                        $scope.resultMsg = response.data.data.result;
+                        console.log($scope.resultMsg)
+                    }
+                    else {
+                        $scope.dataMsg=false;
+                        $scope.otherMsg=true;//查询无数据
+                        $scope.resultMsg = response.data.data.statusMsg
+                        console.log($scope.resultMsg+"aaa")
+                    }
+                    $scope.resultSwitch = true;
+                }
+
+
+            })
+
+        }
+
+
+        $scope.createPdf=function () {
+            var html = $("#business_flowing_pdf").html();
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = today.getMonth() + 1;
+            var day = today.getDay();
+            var hour = today.getHours();
+            var minute = today.getMinutes();
+
+            //使用form来生成下载所需的数据
+            var form = $("<form>");
+            form.attr("style", "display:none");
+            form.attr("target", "");
+            form.attr("method", "post");
+            form.attr("action", "/createpdf");
+
+            var input1 = $("<input>");
+            input1.attr("type", "hidden");
+            input1.attr("name", "html");
+            input1.attr("value", html);
+            form.append(input1);
+
+            var input2 = $("<input>");
+            input2.attr("type", "hidden");
+            input2.attr("name", "filename");
+            input2.attr("value", "【小金风控8003】商户银联流水画像 " + year + "." + month + "." + day + "_" + hour + "." + minute);
+            form.append(input2);
+
+            //将表单放置在web中
+            $("body").append(form);
+            form.submit();
+
+        }
+
+        $scope.apiName=localStorage.getItem("apiNameId");
+        $http({
+            url:"/supplyAPI/showApiScore?apiId="+$scope.apiName,
+            method:"GET"
+        }).then(function successCallback(response) {
+            console.log(response)
+            $scope.priceResult=response.data[0];
+        })
+
+    }]);
+</script>
+
+
+<div class="vbox" ng-controller="businessFlowingCtrl">
+    <div class="wrapper b-b">
+        <div class="font-thin h4">企业信息查询</div>
+    </div>
+    <div class="row-row">
+        <div class="cell scrollable">
+            <div class="cell-inner">
+                <div class="wrapper-md">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading overflow" style="font-size: 16px">
+                            <span class="pull-left text-left">商户银联流水画像</span>
+                            <span class="pull-right text-right supCol">{{priceResult}}积分/次</span>
+                        </div>
+                        <div class="panel-body">
+                            <form name="myForm" action="" method="post" class="form-horizontal newfenye">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label"><span
+                                            style="color: #ff0000">*</span>商户注册号：</label>
+
+                                    <div class="col-sm-4">
+                                        <input type="text" name="merchantNo" class="form-control" ng-model="info.merchantNo" ng-required="true">
+                                    </div>
+                                    <label class="col-sm-6 control-label"
+                                           style="text-align: left">提示：输入数字注册号或银联加密注册号均可</label>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.merchantNo.$dirty && myForm.merchantNo.$invalid">
+                                        <span style="color: #ff0000" ng-show="myForm.merchantNo.$error.required">注册号不能为空</span>
+                                    </div>
+                                </div>
+                                <div class="form-group validate validate-card">
+                                    <label class="col-sm-2 control-label">
+                                        <span style="color: #ff0000">*</span>名称字段：
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <button type="button" class="btn btn-default m-xs" ng-click="selectAll()" ng-class="{'btn-primary': choiceAll,'btn-default':!choiceAll}">全部</button>
+                                        <button type="button" class="btn btn-default m-xs" ng-click="btn(1)" ng-class="{'btn-primary': groups[1],'btn-default':!groups[1]}">组1</button>
+                                        <button type="button" class="btn btn-default m-xs" ng-click="btn(2)" ng-class="{'btn-primary': groups[2],'btn-default':!groups[2]}">组2</button>
+                                        <button type="button" class="btn btn-default m-xs" ng-click="btn(3)" ng-class="{'btn-primary': groups[3],'btn-default':!groups[3]}">组3</button>
+                                        <button type="button" class="btn btn-default m-xs" ng-click="btn(4)" ng-class="{'btn-primary': groups[4],'btn-default':!groups[4]}">组4</button>
+                                        <button type="button" class="btn btn-default m-xs" ng-click="btn(5)" ng-class="{'btn-primary': groups[5],'btn-default':!groups[5]}">组5</button>
+                                        <button type="button" class="btn btn-default m-xs" ng-click="btn(6)" ng-class="{'btn-primary': groups[6],'btn-default':!groups[6]}">组6</button>
+                                        <button type="button" class="btn btn-default m-xs" ng-click="btn(7)" ng-class="{'btn-primary': groups[7],'btn-default':!groups[7]}">组7</button>
+                                        <button type="button" class="btn btn-default m-xs" ng-click="btn(8)" ng-class="{'btn-primary': groups[8],'btn-default':!groups[8]}">组8</button>
+                                        <button type="button" class="btn btn-default m-xs" ng-click="btn(9)" ng-class="{'btn-primary': groups[9],'btn-default':!groups[9]}">组9</button>
+                                        <button type="button" class="btn btn-default m-xs" ng-click="btn(10)" ng-class="{'btn-primary': groups[10],'btn-default':!groups[10]}">组10</button>
+                                        <button type="button" class="btn btn-default m-xs" ng-click="btn(11)" ng-class="{'btn-primary': groups[11],'btn-default':!groups[11]}">组11</button>
+                                        <button type="button" class="btn btn-default m-xs" ng-click="btn(12)" ng-class="{'btn-primary': groups[12],'btn-default':!groups[12]}">组12</button>
+                                    </div>
+                                    <div class="col-sm-8 col-sm-offset-2">
+                                        <div class="collapse in" ng-show="groups[1]">
+                                            <div class="well">
+                                                <span ng-repeat="item in groupsWrap.group1">
+                                                     <input type="checkbox" ng-model="item.type" value="item.value" ng-click="selectOne(item.type)">{{item.text}}<br>
+                                                </span>
+
+                                            </div>
+                                        </div>
+                                        <div class="collapse in" ng-show="groups[2]">
+                                            <div class="well" >
+                                                <span ng-repeat="item in groupsWrap.group2">
+                                                    <input type="checkbox" ng-model="item.type" value="item.value">{{item.text}}><br>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="collapse in" ng-show="groups[3]">
+                                            <div class="well" >
+                                               <span ng-repeat="item in groupsWrap.group3">
+                                                   <input type="checkbox" ng-model="item.type" value="item.value">{{item.text}}<br>
+                                               </span>
+                                            </div>
+                                        </div>
+                                        <div class="collapse in" ng-show="groups[4]">
+                                            <div class="well">
+                                                <span ng-repeat="item in groupsWrap.group4">
+                                                   <input type="checkbox" ng-model="item.type" value="item.value">{{item.text}}<br>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="collapse in" ng-show="groups[5]">
+                                            <div class="well">
+                                                <span ng-repeat="item in groupsWrap.group5">
+                                                   <input type="checkbox" ng-model="item.type" value="item.value">{{item.text}}<br>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="collapse in" ng-show="groups[6]">
+                                            <div class="well">
+                                                <span ng-repeat="item in groupsWrap.group6">
+                                                   <input type="checkbox" ng-model="item.type" value="item.value">{{item.text}}<br>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="collapse in" ng-show="groups[7]">
+                                            <div class="well">
+                                                <span ng-repeat="item in groupsWrap.group7">
+                                                   <input type="checkbox" ng-model="item.type" value="item.value">{{item.text}}<br>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="collapse in" ng-show="groups[8]">
+                                            <div class="well">
+                                                <span ng-repeat="item in groupsWrap.group8">
+                                                   <input type="checkbox" ng-model="item.type" value="item.value">{{item.text}}<br>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="collapse in" ng-show="groups[9]">
+                                            <div class="well">
+                                                <span ng-repeat="item in groupsWrap.group9">
+                                                   <input type="checkbox" ng-model="item.type" value="item.value">{{item.text}}<br>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="collapse in" ng-show="groups[10]">
+                                            <div class="well">
+                                                <span ng-repeat="item in groupsWrap.group10">
+                                                   <input type="checkbox" ng-model="item.type" value="item.value">{{item.text}}<br>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="collapse in" ng-show="groups[11]">
+                                            <div class="well">
+                                                <span ng-repeat="item in groupsWrap.group10">
+                                                   <input type="checkbox" ng-model="item.type" value="item.value">{{item.text}}<br>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="collapse in" ng-show="groups[12]">
+                                            <div class="well">
+                                                <span ng-repeat="item in groupsWrap.group10">
+                                                   <input type="checkbox" ng-model="item.type" value="item.value">{{item.text}}<br>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-offset-4 col-md-offset-2 col-sm-8" style="padding-left: 20px">
+                                        <button type="button" class="btn btn-info" ng-click="submit(myForm)">提交</button>
+                                        <button type="button" class="btn btn-info" ng-click="resetInfo()">重置</button>
+                                        <button type="button" class="btn btn-danger" ng-click="createPdf();">
+                                            <i class="fa fa-file-pdf-o"></i>
+                                            生成PDF
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrapper-md" ng-show="!resultSwitch" style="width:100%; padding:20px 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                            <span style="color: red;">样例</span>
+                        </div>
+                        <div>
+                            <table class="table-border-style">
+                                <tr class="tableBg"><th style="width: 20%;">查询项名称</th><th style="width: 15%;">时间范围</th><th style="width: 25%;">说明</th><th style="width: 20%;">查询结果</th></tr>
+                                <tr><td class="S5266">商户经营城市</td><td>近12月</td><td>商户经营城市（按消费人群来 源确定）</td><td>BD98</td></tr>
+                                <tr><td class="S5132">每月还贷能力估计</td><td>近12月</td><td>根据商户每月经营状况，评估 不同行业商户的还贷能力</td><td>BD98</td></tr>
+                                <tr><td class="S5102">商户编号（MID）</td><td>近12月</td><td>商户编号（MID）信息</td><td>BD98</td></tr>
+                                <tr><td class="S5104">对应类别：（例如批发类）</td><td>近12月</td><td>商户对应类别信息</td><td>21</td></tr>
+                                <tr><td class="S5105">手续费率： %</td><td>近12月</td><td>商户手续费率信息</td><td>5411_0.38%</td></tr>
+                                <tr><td class="S5108">收单机构</td><td>近24月</td><td>收单机构信息</td><td>1611_未知</td></tr>
+                                <tr><td class="S5246">终端台数（如POS机数量）</td><td>近12月</td><td>近1年，商户使用过的POS机</td><td>1611_未知</td></tr>
+                                <tr><td class="S5247">近1年，商户使用的POS机信 息枚举</td><td>近12月</td><td>商户名称_商户地址_商户类型_ 商户所在城市</td><td>1611_未知</td></tr>
+                                <tr><td class="S5196">2011年1月1日起，首次交易日 期</td><td>2011年1月1日起</td><td>全量4.5年流水中的，第一笔交 易的日期</td><td>1611_未知</td></tr>
+                                <tr><td class="S5197">2011年1月1日起，有交易月份 枚举</td><td>2011年1月1日起</td><td>2011年1月1至今日，有交易月 份枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5198">截至上月，连续有交易的月份 数量</td><td>2011年1月1日起</td><td>截至上月的连续消费月数。比 如现在7月份，4月、５月有交 易流水，但6月没有交易流 水，有效交易月份数为0</td><td>1611_未知</td></tr>
+                                <tr><td class="S5200">最近一日交易金额</td><td>2011年1月1日起</td><td>最近一日交易金额</td><td>1611_未知</td></tr>
+                                <tr><td class="S5201">最近一日交易笔数</td><td>2011年1月1日起</td><td>最近一日交易笔数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5202">最近一日交易人数</td><td>2011年1月1日起</td><td>最近一日交易人数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5199">最近一日交易日期</td><td>2011年1月1日起</td><td>最近一日交易日期</td><td>1611_未知</td></tr>
+                                <tr><td class="S5203">累计交易总金额</td><td>2011年1月1日起</td><td>全量4.5年流水中的累计交易金额</td><td>1611_未知</td></tr>
+                                <tr><td class="S5204">累计交易总笔数</td><td>2011年1月1日起</td><td>全量4.5年流水中的累计交易笔数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5205">累计交易总人数</td><td>2011年1月1日起</td><td>全量4.5年流水中的累计交易人数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5000">近12月，每月交易总金额枚举</td><td>近12月</td><td>近12月，每月交易总金额枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5109">近24月，每月交易总金额枚举</td><td>近24月</td><td>近24月，每月交易金额枚举</td><td>1611_未知</td></tr>
+
+                                <tr><td class="S5001">近12月，每月交易总金额枚举（大于10元）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月交易金额枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5110">近24月，每月交易总金额枚举（大于10元）</td><td>近24月</td><td>去除单笔10元以下交易后，每 月交易金额枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5081">近12月，每月最大交易金额</td><td>近12月</td><td>每月最大交易金额</td><td>1611_未知</td></tr>
+                                <tr><td class="S5111">近24月，每月最大交易金额</td><td>近24月</td><td>每月最大交易金额</td><td>1611_未知</td></tr>
+                                <tr><td class="S5112">每月最小交易金额</td><td>近24月</td><td>每月最小交易金额</td><td>1611_未知</td></tr>
+                                <tr><td class="S5113">每月交易总笔数枚举</td><td>近24月</td><td>每月交易笔数枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5003">每月交易总笔数枚举（大于10 元）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月交易笔数枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5004">近12月，每月交易总天数枚举</td><td>近12月</td><td>去每月交易天数枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5114">近24月，每月交易总天数枚举</td><td>近24月</td><td>每月交易天数枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5115">每月交易总人数枚举</td><td>近24月</td><td>每月交易人数枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5011">每月交易总人数枚举（大于10 元）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月交易人数枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5116">每月客单价枚举</td><td>近24月</td><td>每月客单价枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5117">每月笔单价枚举</td><td>近24月</td><td>每月笔单价枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5006">每月笔单价枚举（大于10元）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月笔单价枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5165">每周交易总金额枚举</td><td>近24周</td><td>每周交易总金额枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5166">每周交易总笔数枚举</td><td>近24周</td><td>每周交易总笔数枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5167">每周交易总天数枚举</td><td>近24周</td><td>每周交易总天数枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5168">每周交易总人数枚举</td><td>近24周</td><td>每周交易总人数枚举</td><td>1611_未知</td></tr>
+                                <tr><td class="S5169">周均交易金额</td><td>近24周</td><td>周均交易金额</td><td>1611_未知</td></tr>
+                                <tr><td class="S5170">周均交易笔数</td><td>近24周</td><td>周均交易笔数</td><td>1611_未知</td></tr>
+
+                                <tr><td class="S5171">周均交易天数</td><td>近24周</td><td>周均交易天数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5172">周交易金额中值</td><td>近24周</td><td>周交易金额中值</td><td>1611_未知</td></tr>
+                                <tr><td class="S5173">周交易金额最高值</td><td>近24周</td><td>周交易金额最高值</td><td>1611_未知</td></tr>
+                                <tr><td class="S5174">周交易金额最低值</td><td>近24周</td><td>周交易金额最低值</td><td>1611_未知</td></tr>
+                                <tr><td class="S5175">低于周均交易金额的周数</td><td>近24周</td><td>低于周均交易金额的周数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5176">低于周均交易金额的月份分布</td><td>近24周</td><td>低于周均交易金额的月份分布</td><td>1611_未知</td></tr>
+                                <tr><td class="S5177">周交易金额变异系数</td><td>近24周</td><td>周交易金额变异系数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5178">周交易笔数变异系数</td><td>近24周</td><td>周交易笔数变异系数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5206">每小时交易金额枚举</td><td>近12月</td><td>统计近12月每个小时的交易总金额</td><td>1611_未知</td></tr>
+                                <tr><td class="S5207">每小时交易笔数枚举</td><td>近12月</td><td>统计近12月每个小时的交易总笔数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5210">每月工作日工作时间交易总金额</td><td>近12月</td><td>周一~周五 09:30-11:30,14:00-16:30 交易金额</td><td>1611_未知</td></tr>
+                                <tr><td class="S5212">每月工作日非工作时间交易总金额</td><td>近12月</td><td>周一~周五09:30- 11:30,14:00-16:30之外的交易金额</td><td>1611_未知</td></tr>
+                                <tr><td class="S5211">每月工作日工作时间交易总笔数</td><td>近12月</td><td>周一~周五 09:30-11:30,14:00-16:30 交易笔数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5213">每月工作日非工作时间交易总笔数</td><td>近12月</td><td>周一~周五09:30-11:30,14:00-16:30之外的交易笔数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5214">每月双休日交易总金额</td><td>近12月</td><td>周六、周日全时段消费金额</td><td>1611_未知</td></tr>
+                                <tr><td class="S5215">每月双休日交易总笔数</td><td>近12月</td><td>周六、周日全时段消费笔数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5076">近6月，各月四区间交易总人数</td><td>近6月</td><td>统计如下各区间的交易人数 0：（8am-14pm]、1： (14pm-17pm]、2：(17pm- 22pm]、3：(22pm-8am]</td><td>1611_未知</td></tr>
+                                <tr><td class="S5077">近6月，各月四区间最大单笔交易金额</td><td>近6月</td><td>统计如下各区间最大单笔金额 0：（8am-14pm]、1： (14pm-17pm]、2：(17pm- 22pm]、3：(22pm-8am]</td><td>1611_未知</td></tr>
+                                <tr><td class="S5078">近6月，各月四区间最小单笔交易金额</td><td>近6月</td><td>统计如下各区间最小单笔金额 0：（8am-14pm]、1： (14pm-17pm]、2：(17pm- 22pm]、3：(22pm-8am]</td><td>1611_未知</td></tr>
+                                <tr><td class="S5129">近6月月均交易金额</td><td>近6月</td><td>近6月的平均月交易金额</td><td>1611_未知</td></tr>
+
+                                <tr><td class="S5046">近6月金额标准差</td><td>近6月</td><td>近6月金额标准差</td><td>1611_未知</td></tr>
+                                <tr><td class="S5047">近6月金额标准差在本市同行排名</td><td>近6月</td><td>近6月金额标准差在本市同行排名</td><td>1611_未知</td></tr>
+                                <tr><td class="S5048">近6月金额差异系数</td><td>近6月</td><td>近6月金额差异系数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5049">近6月金额差异系数在本市同行排名</td><td>近6月</td><td>近6月金额差异系数在本市同行排名</td><td>1611_未知</td></tr>
+                                <tr><td class="S5118">近12月交易金额环比增长枚举</td><td>近13月</td><td>近12月交易金额环比增长</td><td>1611_未知</td></tr>
+                                <tr><td class="S5070">标准差-交易额环比增长率</td><td>近6月</td><td>近6月交易金额环比增长率的标准差</td><td>1611_未知</td></tr>
+                                <tr><td class="S5071">标准差-交易额环比增长率 在 本市同行排名</td><td>近6月</td><td>近6月交易金额环比增长率的标准差在本市同行排名</td><td>1611_未知</td></tr>
+                                <tr><td class="S5072">差异系数－交易额环比增长率</td><td>近6月</td><td>近6月交易金额环比增长率的差异系数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5073">差异系数-交易额环比增长率在本市同行排名</td><td>近6月</td><td>近6月交易金额环比增长率的 差异系数在本市同行排名</td><td>1611_未知</td></tr>
+                                <tr><td class="S5010">每月交易金额环比增长枚举（10元以上）</td><td>近13月</td><td>去除单笔10元以下交易后，每月交易金额环比增长率</td><td>1611_未知</td></tr>
+                                <tr><td class="S5068">每月交易额环比增长率均值（10元以上）</td><td>近6月</td><td>去除单笔10元以下交易后，每月交易金额环比增长率均值</td><td>1611_未知</td></tr>
+                                <tr><td class="S5126">年度交易额峰值月份</td><td>近12月</td><td>每月交易金额高于近12月月均交易金额的月份明细</td><td>1611_未知</td></tr>
+                                <tr><td class="S5130">近6月月均交易笔数</td><td>近6月</td><td>近6月月均交易笔数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5052">近6月交易笔数标准差</td><td>近6月</td><td>近6月交易笔数标准差</td><td>1611_未知</td></tr>
+                                <tr><td class="S5053">近6月交易笔数标准差在本市同行排名</td><td>近6月</td><td>近6月交易笔数标准差在本市同行排名</td><td>1611_未知</td></tr>
+                                <tr><td class="S5054">近6月交易笔数差异系数</td><td>近6月</td><td>近6月交易笔数差异系数</td><td>1611_未知</td></tr>
+                                <tr><td class="S5055">近6月交易笔数差异系数在本市同行排名</td><td>近6月</td><td>近6月交易笔数差异系数在本市同行排名</td><td>1611_未知</td></tr>
+                                <tr><td class="S5119">近12月交易笔数环比增长枚举</td><td>近13月</td><td>近12月交易笔数环比增长</td><td>1611_未知</td></tr>
+                                <tr><td class="S5120">近12月客单价环比增长枚举</td><td>近13月</td><td>近12月客单价环比增长</td><td>1611_未知</td></tr>
+                                <tr><td class="S5121">近12月笔单价环比增长枚举</td><td>近13月</td><td>近12月笔单价环比增长</td><td>1611_未知</td></tr>
+
+                                <tr><td class="S5122">每月交易金额同比增长枚举</td><td>近12月</td><td>每月交易金额与去年同期月份增长率</td><td>1611_未知</td></tr>
+                                <tr><td class="S5123">每月交易金额同比增长率均值</td><td>近12月</td><td>每月交易金额同比增长率均值</td><td>-100%</td></tr>
+                                <tr><td class="S5142">每月交易金额同比增长率均值在本市同行排名</td><td>近12月</td><td>每月交易金额同比增长率均值 在本市同行排名，输出： 1、本市同行1/4值、1/2、3/4 值、行业均值 2、本商户在本市排名</td><td>-100%</td></tr>
+                                <tr><td class="S5064">标准差-交易额同比增长率</td><td>近6月</td><td>标准差-交易额同比增长率</td><td>-100%</td></tr>
+                                <tr><td class="S5065">标准差-交易额同比增长率在本市同行排名</td><td>近6月</td><td>标准差-交易额同比增长率在本市同行排名</td><td>-100%</td></tr>
+                                <tr><td class="S5066">差异系数－交易额同比增长率</td><td>近6月</td><td>差异系数－交易额同比增长率</td><td>-100%</td></tr>
+                                <tr><td class="S5067">差异系数-交易金额同比增长率在本市同行排名</td><td>近6月</td><td>差异系数-交易金额同比增长率在本市同行排名</td><td>-100%</td></tr>
+                                <tr><td class="S5009">每月交易额同比增长枚举（10 元以上）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月交易金额同比增长值</td><td>-100%</td></tr>
+                                <tr><td class="S5062">每月交易额同比增长均值（10 元以上）</td><td>近6月</td><td>去除单笔10元以下交易后，每 月交易金额同比增长值均值</td><td>-100%</td></tr>
+                                <tr><td class="S5063">每月交易额同比增长率均值在本市同行排名（10元以上）</td><td>近6月</td><td>去除单笔10元以下交易后，每月交易金额同比增长值均值在 本市同行排名</td><td>-100%</td></tr>
+                                <tr><td class="S5124">每月交易笔数同比增长枚举</td><td>近12月</td><td>近12月，每月交易笔数相对于 去年同期月份的增长率</td><td>1611_未知</td></tr>
+                                <tr><td class="S5125">每月客单价同比增长枚举</td><td>近12月</td><td>近12月，每月客单价相对于去 年同期月份的增长率</td><td>1611_未知</td></tr>
+                                <tr><td class="S5127">近6月月均交易天数</td><td>近6月</td><td>近6月，平均每月交易天数</td><td>0</td></tr>
+                                <tr><td class="S5057">月均交易天数在本市同行排名</td><td>近6月</td><td>月均交易天数在本市同行排 名</td><td>0</td></tr>
+                                <tr><td class="S5131">近6月交易天数变异系数</td><td>近6月</td><td>近6月交易天数变异系数</td><td>0</td></tr>
+                                <tr><td class="S5139">月交易天数变异系数在本市同行排名</td><td>近6月</td><td>月均交易天数变异系数在本市同行排名</td><td>0</td></tr>
+                                <tr><td class="S5058">近6月天数标准差</td><td>近6月</td><td>近6月天数标准差</td><td>0</td></tr>
+                                <tr><td class="S5059">近6月天数标准差本市同行排名</td><td>近6月</td><td>近6月天数标准差本市同行排名</td><td>0</td></tr>
+                                <tr><td class="S5060">近6月天数差异系数</td><td>近6月</td><td>近6月天数差异系数</td><td>0</td></tr>
+                                <tr><td class="S5061">近6月天数差异系数在本市同行排名</td><td>近6月</td><td>近6月天数差异系数在本市同行排名</td><td>0</td></tr>
+
+                                <tr><td class="S5128">近6月月均交易人数</td><td>近6月</td><td>近6月，平均每月交易人数</td><td>0</td></tr>
+                                <tr><td class="S5133">每月交易金额在本市同行排名</td><td>近24月</td><td>每月交易金额在本市同行排</td><td>0</td></tr>
+                                <tr><td class="S5134">每月交易笔数在本市同行排名</td><td>近24月</td><td>每月交易笔数在本市同行排 名</td><td>0</td></tr>
+                                <tr><td class="S5137">月均交易金额在本市同行排名</td><td>近6月</td><td>月均交易金额在本市同行排 名</td><td>0</td></tr>
+                                <tr><td class="S5138">月均交易笔数在本市同行排名</td><td>近6月</td><td>月均交易笔数在本市同行排名</td><td>0</td></tr>
+                                <tr><td class="S5135">客单价在本市同行排名</td><td>近24月</td><td>客单价在本市同行排名</td><td>0</td></tr>
+                                <tr><td class="S5136">笔单价在本市同行排名</td><td>近24月</td><td>笔单价在本市同行排名</td><td>0</td></tr>
+                                <tr><td class="S5143">同行每月交易额环比增长</td><td>近13月</td><td>同行每月交易额环比增长</td><td>0</td></tr>
+                                <tr><td class="S5069">近6月交易额环比增长率在本市同行排名</td><td>近6月</td><td>近6月交易额环比增长率在本市同行排名</td><td>0</td></tr>
+                                <tr><td class="S5144">同行每月客单价环比增长</td><td>近13月</td><td>同行每月客单价环比增长</td><td>0</td></tr>
+                                <tr><td class="S5145">同行每月交易笔数环比增长</td><td>近13月</td><td>同行每月交易笔数环比增长</td><td>0</td></tr>
+                                <tr><td class="S5146">同行每月交易金额同比增长</td><td>近13月</td><td>同行每月交易金额同比增长</td><td>0</td></tr>
+                                <tr><td class="S5147">同行每月交易笔数同比增长</td><td>近13月</td><td>同行每月交易笔数同比增长</td><td>0</td></tr>
+                                <tr><td class="S5148">同行每月客单价同比增长</td><td>近13月</td><td>同行每月客单价同比增长</td><td>0</td></tr>
+                                <tr><td class="S5181">周均交易金额在本市同行排名</td><td>近24周</td><td>近24周周均交易金额在本市同行排名</td><td>0</td></tr>
+                                <tr><td class="S5182">周均交易笔数在本市同行排名</td><td>近13月</td><td>近24周周均交易笔数在本市同行排名</td><td>0</td></tr>
+                                <tr><td class="S5183">周均交易天数在本市同行排名</td><td>近13月</td><td>近24周周均交易天数在本市同行排名</td><td>0</td></tr>
+                                <tr><td class="S5184">周交易笔数变异系数在本市同行排名</td><td>近13月</td><td>近24周周交易笔数变异系数在本市同行排名</td><td>0</td></tr>
+                                <tr><td class="S5185">周交易金额变异系数在本市同行排名</td><td>近13月</td><td>近24周周交易金额变异系数在本市同行排名</td><td>0</td></tr>
+                                <tr><td class="S5140">市场份额</td><td>近13月</td><td>根据商户交易额、行业交易额，商户数量计算商户的市场份额。</td><td>0</td></tr>
+
+                                <tr><td class="S5141">市场增长率</td><td>近6月</td><td>根据商户、行业交易额，统计 商户市场增长率</td><td>0</td></tr>
+                                <tr><td class="S5257">各忠诚度客户交易金额占比（普通、中等、忠实）</td><td>近12月</td><td>近12月，普通客户（消费1 笔）、中等客户（２-4笔）、 VIP客户（5笔及以上）的客户 交易金额占比分布</td><td>0</td></tr>
+                                <tr><td class="S5258">各忠诚度客户交易笔数占比（普通、中等、忠实）</td><td>近12月</td><td>近12月，普通客户（消费1 笔）、中等客户（２-4笔）、 VIP客户（5笔及以上）的客户 交易笔数占比分布</td><td>0</td></tr>
+                                <tr><td class="S5259">各忠诚度客户交易人数占比（普通、中等、忠实）</td><td>近12月</td><td>近12月，普通客户（消费1 笔）、中等客户（２-4笔）、 VIP客户（5笔及以上）的客户 交易人数占比分布</td><td>0</td></tr>
+                                <tr><td class="S5260">普卡客户人数占比</td><td>近12月</td><td>统计商户下、不同卡等级的客 户分布</td><td>0</td></tr>
+                                <tr><td class="S5261">银卡及金卡客户人数占比</td><td>近12月</td><td>根统计商户下、不同卡等级的客 户分布</td><td>0</td></tr>
+                                <tr><td class="S5262">白金卡及以上等级客户人数占比</td><td>近12月</td><td>统计商户下、不同卡等级的客 户分布</td><td>0</td></tr>
+                                <tr><td class="S5254">各地客户交易金额占比（同省同城、同省非同城、外省、其他）</td><td>近12月</td><td>统计商户下各地域客户的消费 金额分布</td><td>0</td></tr>
+                                <tr><td class="S5255">地客户交易笔数占比（同省同城、同省非同城、外省、其他）</td><td>近12月</td><td>根据商户交易额、行业交易额，商户数量计算商户的市场份额。</td><td>0</td></tr>
+                                <tr><td class="S5256">地客户交易人数占比（同省同城、同省非同城、外省、其他）</td><td>近12月</td><td>根据商户交易额、行业交易额，商户数量计算商户的市场份额。</td><td>0</td></tr>
+                                <tr><td class="S5265">前5大异地城市客户分布</td><td>近12月</td><td>根据商户交易额、行业交易额，商户数量计算商户的市场份额。</td><td>0</td></tr>
+                                <tr><td class="S5216">近12月，每月单笔(0,200]:交 易总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>0</td></tr>
+                                <tr><td class="S5217">近12月，单笔(0,200]:交易总 笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>0</td></tr>
+                                <tr><td class="S5218">近12月，单笔(0,200]:交易总 人数枚</td><td>近12月</td><td>各金额区间交易总人数</td><td>0</td></tr>
+                                <tr><td class="S5219">近12月，单笔(200,600]:交易 总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>0</td></tr>
+                                <tr><td class="S5220">近12月，单笔(200,600]:交易 总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>0</td></tr>
+                                <tr><td class="S5221">近12月，单笔(200,600]:交易 总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>0</td></tr>
+                                <tr><td class="S5222">近12月，单笔(600,1000]:交易 总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>0</td></tr>
+                                <tr><td class="S5223">近12月，单笔(600,1000]:交易 总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>0</td></tr>
+                                <tr><td class="S5224">近12月，单笔(600,1000]:交易 总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>0</td></tr>
+
+                                <tr><td class="S5225">近12月，单笔(1000,5000]:交 易总金额枚举</td><td>近6月</td><td>各金额区间交易总金额</td><td>0</td></tr>
+                                <tr><td class="S5226">近12月，单笔(1000,5000]:交 易总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>0</td></tr>
+                                <tr><td class="S5227">近12月，单笔(1000,5000]:交 易总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>0</td></tr>
+                                <tr><td class="S5228">近12月，单笔(5000,20000]:交易总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>0</td></tr>
+                                <tr><td class="S5229">近12月，单笔(5000,20000]:交易总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>0</td></tr>
+                                <tr><td class="S5230">近12月，单笔(5000,20000]:交易总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>0</td></tr>
+                                <tr><td class="S5231">近12月，单笔(20000,+]:交易 总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>0</td></tr>
+                                <tr><td class="S5232">近12月，单笔(20000,+]:交易 总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>0</td></tr>
+                                <tr><td class="S5233">近12月，单笔(20000,+]:交易 总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>0</td></tr>
+                                <tr><td class="S5234">近6月，单笔(0,200]:借记卡交 易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5235">近6月，单笔(200,600]:借记卡 交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5236">近6月，单笔(600,1000]:借记 卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5237">近6月，单笔(1000,5000]:借记 卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5238">近6月，单笔(5000,20000]:借 记卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5239">近6月，单笔(20000,+]:借记卡 交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5086">近12月，单笔（0，10]:借记卡 交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5087">近12月，单笔（10，500]:借 记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5088">近12月，单笔（500，1000]: 借记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5089">近12月，单笔（1000，2000]: 借记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5090">近12月，单笔（2000，5000]: 借记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+
+                                <tr><td class="S5091">近12月，单笔（5000， 10000]:借记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5092">近12月，单笔（10000，+]:借 记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5240">近6月，单笔(0,200]:贷记卡交 易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5241">近6月，单笔(200,600]:贷记卡 交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5242">近6月，单笔(600,1000]:贷记 卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5243">近6月，单笔(1000,5000]:贷记 卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5244">近6月，单笔(5000,20000]:贷 记卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5245">近6月，单笔(20000,+]:贷记卡 交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5093">近12月，单笔（0，10]:贷记卡 交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5094">近12月，单笔（10，500]:贷 记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5095">近12月，单笔（500，1000]: 贷记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5096">近12月，单笔（1000，2000]: 贷记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5097">近12月，单笔（2000,5000]: 贷记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5098">近12月，单笔（5000， 10000]:贷记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5099">近12月，单笔（10000，+]:贷 记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5282">每月出账交易总金额枚举</td><td>近24月</td><td>商户支出交易枚举（如：撤销、退货等）</td><td>0</td></tr>
+                                <tr><td class="S5284">近6月出账交易总金额</td><td>近6月</td><td>商户支出交易总计（如：撤销、退货等）</td><td>0</td></tr>
+                                <tr><td class="S5283">每月出账交易总笔数枚举</td><td>近24月</td><td>商户支出交易枚举（如：撤销、退货等）</td><td>0</td></tr>
+                                <tr><td class="S5285">近6月出账交易总笔数</td><td>近6月</td><td>商户支出交易总计（如：撤销、退货等）</td><td>0</td></tr>
+                                <tr><td class="S5263">交易金额前五的客户的金额占比</td><td>近12月</td><td>交易金额排名前五的客户，其交易总金额占商户总金额的比</td><td>0</td></tr>
+
+                                <tr><td class="S5264">交易金额前五的客户的笔数占比</td><td>近12月</td><td>交易金额排名前五的客户</td><td>0</td></tr>
+                                <tr><td class="S5179">近1周交易金额TOP10客户，各客户交易总金额枚举</td><td>近1周</td><td>交易金额TOP10客户，各客户金额枚举</td><td>0</td></tr>
+                                <tr><td class="S5186">近1月交易金额TOP10客户，各客户交易总金额枚举</td><td>近1月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>0</td></tr>
+                                <tr><td class="S5187">近3月交易金额TOP10客户，各客户交易总金额枚举</td><td>近3月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>0</td></tr>
+                                <tr><td class="S5188">近6月交易金额TOP10客户，各客户交易总金额枚举</td><td>近6月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>0</td></tr>
+                                <tr><td class="S5189">近12月交易金额TOP10客户，各客户交易总金额枚举</td><td>近12月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>0</td></tr>
+                                <tr><td class="S5190">近2年交易金额TOP10客户，各客户交易总金额枚举</td><td>近24月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>0</td></tr>
+                                <tr><td class="S5180">近1周交易整数金额的次数</td><td>近1周</td><td>近1周交易整数金额的次数</td><td>0</td></tr>
+                                <tr><td class="S5191">近1月交易整数金额的次数</td><td>近1月</td><td>近1月交易整数金额的次数</td><td>0</td></tr>
+                                <tr><td class="S5192">近3月交易整数金额的次数</td><td>近3月</td><td>近3月交易整数金额的次数</td><td>0</td></tr>
+                                <tr><td class="S5193">近6月交易整数金额的次数</td><td>近6月</td><td>近6月交易整数金额的次数</td><td>0</td></tr>
+                                <tr><td class="S5194">近12月交易整数金额的次数</td><td>近12月</td><td>近12月交易整数金额的次数</td><td>0</td></tr>
+                                <tr><td class="S5195">近两年交易整数金额的次数</td><td>近24月</td><td>近两年交易整数金额的次数</td><td>0</td></tr>
+                                <tr><td class="S5079">近12月，非正常大额（单笔金 额大于本市同行排名前10%）交易金额</td><td>近12月</td><td>同地区同行业单笔交易额的排 名10%金额为临界值，单笔大 于该临界值的交易金额总和</td><td>0</td></tr>
+                                <tr><td class="S5080">近12月，非正常大额（单笔金 额大于本市同行排名前10%）交易笔数</td><td>近12月</td><td>同地区同行业单笔交易额的排 名10%金额为临界值，单笔大 于该临界值的交易笔数总和</td><td>0</td></tr>
+                                <tr><td class="S5155">近1月单日同卡多笔等额消费金额</td><td>近1月</td><td>去除单笔10元以下交易后，统 计近1月，单日交易3笔以上的 卡等额消费金额</td><td>0</td></tr>
+                                <tr><td class="S5156">近6月单日同卡多笔等额消费金额</td><td>近6月</td><td>去除单笔10元以下交易后，统 计近6月，单日交易3笔以上的 卡等额消费金额</td><td>0</td></tr>
+                                <tr><td class="S5157">近12月单日同卡多笔等额消费金额</td><td>近12月</td><td>去除单笔10元以下交易后，统 计近12月，单日交易3笔以上 的卡等额消费金额</td><td>0</td></tr>
+                                <tr><td class="S5158">近1月单日同卡多笔等额消费笔数</td><td>近1月</td><td>去除单笔10元以下交易后，统 计近1月，单日交易3笔以上的 卡等额消费笔数</td><td>0</td></tr>
+                                <tr><td class="S5159">近6月单日同卡多笔等额消费笔数</td><td>近6月</td><td>去除单笔10元以下交易后，统 计近6月，单日交易3笔以上的 卡等额消费笔数</td><td>0</td></tr>
+
+                                <tr><td class="S5160">近12月单日同卡多笔等额消费笔数</td><td>近12月</td><td>去除单笔10元以下交易后，统计近12月，单日交易3笔以上的卡等额消费笔数</td><td>0</td></tr>
+                                <tr><td class="S5161">近12月单月同卡大额交易金额枚举</td><td>近12月</td><td>统计当月消费5笔以上的卡，单笔交易金额大于等于5000元的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5162">近12月单月同卡大额交易笔数枚举</td><td>近12月</td><td>统计当月消费5笔以上的卡，单笔交易金额大于等于5000元的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5163">近12月单月非同卡大额交易金额枚举</td><td>近12月</td><td>统计当月消费5笔以下的卡，单笔交易金额大于等于5000元的交易总额</td><td>0</td></tr>
+                                <tr><td class="S5164">近12月单月非同卡大额交易笔数枚举</td><td>近12月</td><td>统计当月消费5笔以下的卡，单笔交易金额大于等于5000元的交易笔数</td><td>0</td></tr>
+                                <tr><td class="S5149">近1月单日同卡多笔消费次数</td><td>近1月</td><td>去除单笔10元以下交易后，统计近1月，单日交易3笔以上的卡，其消费总笔数</td><td>0</td></tr>
+                                <tr><td class="S5150">近6月单日同商户多笔消费次数</td><td>近6月</td><td>去除单笔10元以下交易后，统计近6月，单日交易3笔以上的卡，其消费总笔数</td><td>0</td></tr>
+                                <tr><td class="S5151">近12月单日同商户多笔消费次数</td><td>近12月</td><td>去除单笔10元以下交易后，统计近12月，单日交易3笔以上的卡，其消费总笔数</td><td>0</td></tr>
+                                <tr><td class="S5152">近1月同商户多笔消费最小时间间隔</td><td>近1月</td><td>去除单笔10元以下交易后，该商户下同一张卡刷卡两次以上的最小时间间隔</td><td>0</td></tr>
+                                <tr><td class="S5153">近6月同商户多笔消费最小时间间隔</td><td>近6月</td><td>去除单笔10元以下交易后，该商户下同一张卡刷卡两次以上的最小时间间隔</td><td>0</td></tr>
+                                <tr><td class="S5154">近12月同商户多笔消费最小时间间隔</td><td>近12月</td><td>去除单笔10元以下交易后，该商户下同一张卡刷卡两次以上的最小时间间隔</td><td>0</td></tr>
+                                <tr><td class="S5148">每月交易失败总金额枚举</td><td>近12月</td><td>每月交易失败总金额枚举</td><td>0</td></tr>
+                                <tr><td class="S5149">每月交易失败总笔数枚举</td><td>近12月</td><td>每月交易失败总笔数枚举</td><td>0</td></tr>
+                                <tr><td class="S5150">每月交易失败原因枚举</td><td>近12月</td><td>每月失败交易原因，以及该原因对应的金额枚举</td><td>0</td></tr>
+                                <tr><td class="S5151">近12月，交易失败总金额</td><td>近12月</td><td>失败交易总金额</td><td>0</td></tr>
+                                <tr><td class="S5152">近12月，交易失败总笔数</td><td>近12月</td><td>失败交易总笔数</td><td>0</td></tr>
+                                <tr><td class="S5169">每月贷记卡交易总金额枚举</td><td>近12月</td><td>在该商户消费过的贷记卡金额枚举</td><td>0</td></tr>
+                                <tr><td class="S5170">每月贷记卡交易总笔数枚举</td><td>近12月</td><td>在该商户消费过的贷记卡笔数枚举</td><td>0</td></tr>
+                                <tr><td class="S5007">每月贷记卡笔单价枚举（10元 以上）</td><td>近12月</td><td>剔除交易金额最高的一笔及10元及以下的交易后，贷记卡每月笔单价枚举</td><td>0</td></tr>
+                                <tr><td class="S5274">贷记卡交易总金额</td><td>近12月</td><td>贷记卡交易总金额</td><td>0</td></tr>
+
+                                <tr><td class="S5275">贷记卡交易总笔数</td><td>近12月</td><td>贷记卡交易总笔数</td><td>0</td></tr>
+                                <tr><td class="S5279">贷记卡交易总卡数</td><td>近12月</td><td>近6月，在该商户消费过的贷记卡数量</td><td>0</td></tr>
+                                <tr><td class="S5276">贷记卡交易金额占比</td><td>近12月</td><td>该商户下，贷记卡交易总金额占商户总交易金额的比例</td><td>0</td></tr>
+                                <tr><td class="S5287">贷记卡交易笔数占比</td><td>近12月</td><td>该商户下，贷记卡交易总笔数占商户总交易笔数的比例</td><td>0</td></tr>
+                                <tr><td class="S5267">借记卡交易金额枚举</td><td>近12月</td><td>在该商户消费过的借记卡金额枚举</td><td>0</td></tr>
+                                <tr><td class="S5268">借记卡交易笔数枚举</td><td>近12月</td><td>在该商户消费过的借记卡笔数枚举</td><td>0</td></tr>
+                                <tr><td class="S5008">每月借记卡笔单价枚举（10元 以上）</td><td>近12月</td><td>剔除交易金额最高的一笔及10元及以下的交易后，借记卡每月笔单价枚举</td><td>0</td></tr>
+                                <tr><td class="S5271">借记卡交易笔数枚举</td><td>近12月</td><td>借记卡交易笔数枚举</td><td>0</td></tr>
+                                <tr><td class="S5272">借记卡的交易总笔数</td><td>近12月</td><td>借记卡的交易总笔数</td><td>0</td></tr>
+                                <tr><td class="S5280">借记卡交易总卡数</td><td>近12月</td><td>近6月，在该商户消费过的借记卡数量</td><td>0</td></tr>
+                                <tr><td class="S5273">借记卡交易金额占比</td><td>近12月</td><td>该商户下，借记卡交易总金额占商户总交易金额的比例</td><td>0</td></tr>
+                                <tr><td class="S5286">借记卡交易笔数占比</td><td>近12月</td><td>该商户下，借记卡交易总笔数占商户总交易笔数的比例</td><td>0</td></tr>
+                                <tr><td class="S5278">贷记卡借记卡客单价比例</td><td>近12月</td><td>贷记卡客单价与借记卡客单价的比例</td><td>0</td></tr>
+                                <tr><td class="S5277">贷记卡借记卡交易笔数比例</td><td>近12月</td><td>贷记卡交易笔数与借记卡交易笔数的比例</td><td>0</td></tr>
+                                <tr><td class="S5012">每月贷记卡借记卡交易笔数比例枚举（10元以上）</td><td>近12月</td><td>贷记卡交易笔数与借记卡交易笔数的比例，每月枚举</td><td>0</td></tr>
+                                <tr><td class="S5253">贷记卡交易失败比例</td><td>近12月</td><td>全部失败交易中，贷记卡失败的比例</td><td>0</td></tr>
+                                <tr><td class="S5208">夜消费交易总金额</td><td>近6月</td><td>22:00-5:00期间的交易总金额</td><td>0</td></tr>
+                                <tr><td class="S5209">夜消费交易总笔数</td><td>近6月</td><td>22:00-5:00期间的交易总笔数</td><td>0</td></tr>
+                                <tr><td class="S5281">疑似信用卡套现甄别</td><td>近12月</td><td>套现金额；套现笔数;套现金额占比</td><td>0</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div id="business_flowing_pdf" class="wrapper-md" ng-show="resultSwitch" style="width:100%; padding:20px 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                        </div>
+                        <div>
+                            <table ng-if="otherMsg" class="table-border-style">
+                                <tr><td colspan="2">{{resultMsg}}</td></tr>
+                            </table>
+                            <table ng-if="dataMsg" class="table-border-style grid_table">
+                                <!--1-->
+                                <tr style="background-color: #f6f8f8"><th width="20%">查询项名称</th><th width="15%">时间范围</th><th width="25%">说明</th><th width="20%">查询结果</th></tr>
+                                <tr><td class="S5266">商户经营城市</td><td>近12月</td><td>商户经营城市（按消费人群来 源确定）</td><td>{{resultMsg.S5266}}</td></tr>
+                                <tr><td class="S5132">每月还贷能力估计</td><td>近12月</td><td>根据商户每月经营状况，评估 不同行业商户的还贷能力</td><td>{{resultMsg.S5132}}</td></tr>
+                                <tr><td class="S5102">商户编号（MID）</td><td>近12月</td><td>商户编号（MID）信息</td><td>{{resultMsg.S5102}}</td></tr>
+                                <tr><td class="S5104">对应类别：（例如批发类）</td><td>近12月</td><td>商户对应类别信息</td><td>{{resultMsg.S5104}}</td></tr>
+                                <tr><td class="S5105">手续费率： %</td><td>近12月</td><td>商户手续费率信息</td><td>{{resultMsg.S5105}}</td></tr>
+                                <tr><td class="S5108">收单机构</td><td>近24月</td><td>收单机构信息</td><td>{{resultMsg.S5108}}</td></tr>
+                                <tr><td class="S5246">终端台数（如POS机数量）</td><td>近12月</td><td>近1年，商户使用过的POS机</td><td>{{resultMsg.S5246}}</td></tr>
+                                <tr><td class="S5247">近1年，商户使用的POS机信 息枚举</td><td>近12月</td><td>商户名称_商户地址_商户类型_ 商户所在城市</td><td>{{resultMsg.S5247}}</td></tr>
+                                <tr><td class="S5196">2011年1月1日起，首次交易日 期</td><td>2011年1月1日起</td><td>全量4.5年流水中的，第一笔交 易的日期</td><td>{{resultMsg.S5196}}</td></tr>
+                                <tr><td class="S5197">2011年1月1日起，有交易月份 枚举</td><td>2011年1月1日起</td><td>2011年1月1至今日，有交易月 份枚举</td><td>{{resultMsg.S5197}}</td></tr>
+                                <tr><td class="S5198">截至上月，连续有交易的月份 数量</td><td>2011年1月1日起</td><td>截至上月的连续消费月数。比 如现在7月份，4月、５月有交 易流水，但6月没有交易流水，有效交易月份数为0</td><td>{{resultMsg.S5198}}</td></tr>
+                                <tr><td class="S5200">最近一日交易金额</td><td>2011年1月1日起</td><td>最近一日交易金额</td><td>{{resultMsg.S5200}}</td></tr>
+                                <tr><td class="S5201">最近一日交易笔数</td><td>2011年1月1日起</td><td>最近一日交易笔数</td><td>{{resultMsg.S5201}}</td></tr>
+                                <tr><td class="S5202">最近一日交易人数</td><td>2011年1月1日起</td><td>最近一日交易人数</td><td>{{resultMsg.S5202}}</td></tr>
+                                <tr><td class="S5199">最近一日交易日期</td><td>2011年1月1日起</td><td>最近一日交易日期</td><td>{{resultMsg.S5199}}</td></tr>
+                                <tr><td class="S5203">累计交易总金额</td><td>2011年1月1日起</td><td>全量4.5年流水中的累计交易金额</td><td>{{resultMsg.S5203}}</td></tr>
+                                <tr><td class="S5204">累计交易总笔数</td><td>2011年1月1日起</td><td>全量4.5年流水中的累计交易笔数</td><td>{{resultMsg.S5204}}</td></tr>
+                                <tr><td class="S5205">累计交易总人数</td><td>2011年1月1日起</td><td>全量4.5年流水中的累计交易人数</td><td>{{resultMsg.S5205}}</td></tr>
+                                <tr><td class="S5000">近12月，每月交易总金额枚举</td><td>近12月</td><td>近12月，每月交易总金额枚举</td><td>{{resultMsg.S5000}}</td></tr>
+                                <tr><td class="S5109">近24月，每月交易总金额枚举</td><td>近24月</td><td>近24月，每月交易金额枚举</td><td>{{resultMsg.S5109}}</td></tr>
+                                <!--2-->
+                                <tr><td class="S5001">近12月，每月交易总金额枚举（大于10元）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月交易金额枚举</td><td>{{resultMsg.S5001}}</td></tr>
+                                <tr><td class="S5110">近24月，每月交易总金额枚举（大于10元）</td><td>近24月</td><td>去除单笔10元以下交易后，每 月交易金额枚举</td><td>{{resultMsg.S5110}}</td></tr>
+                                <tr><td class="S5081">近12月，每月最大交易金额</td><td>近12月</td><td>每月最大交易金额</td><td>{{resultMsg.S5081}}</td></tr>
+                                <tr><td class="S5111">近24月，每月最大交易金额</td><td>近24月</td><td>每月最大交易金额</td><td>{{resultMsg.S5111}}</td></tr>
+                                <tr><td class="S5112">每月最小交易金额</td><td>近24月</td><td>每月最小交易金额</td><td>{{resultMsg.S5112}}</td></tr>
+                                <tr><td class="S5113">每月交易总笔数枚举</td><td>近24月</td><td>每月交易笔数枚举</td><td>{{resultMsg.S5113}}</td></tr>
+                                <tr><td class="S5003">每月交易总笔数枚举（大于10 元）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月交易笔数枚举</td><td>{{resultMsg.S5003}}</td></tr>
+                                <tr><td class="S5004">近12月，每月交易总天数枚举</td><td>近12月</td><td>去每月交易天数枚举</td><td>{{resultMsg.S5004}}知</td></tr>
+                                <tr><td class="S5114">近24月，每月交易总天数枚举</td><td>近24月</td><td>每月交易天数枚举</td><td>{{resultMsg.S5114}}</td></tr>
+                                <tr><td class="S5115">每月交易总人数枚举</td><td>近24月</td><td>每月交易人数枚举</td><td>{{resultMsg.S5115}}</td></tr>
+                                <tr><td class="S5011">每月交易总人数枚举（大于10 元）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月交易人数枚举</td><td>{{resultMsg.S5011}}</td></tr>
+                                <tr><td class="S5116">每月客单价枚举</td><td>近24月</td><td>每月客单价枚举</td><td>{{resultMsg.S5116}}</td></tr>
+                                <tr><td class="S5117">每月笔单价枚举</td><td>近24月</td><td>每月笔单价枚举</td><td>{{resultMsg.S5117}}</td></tr>
+                                <tr><td class="S5006">每月笔单价枚举（大于10元）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月笔单价枚举</td><td>{{resultMsg.S5006}}</td></tr>
+                                <tr><td class="S5165">每周交易总金额枚举</td><td>近24周</td><td>每周交易总金额枚举</td><td>{{resultMsg.S5165}}</td></tr>
+                                <tr><td class="S5166">每周交易总笔数枚举</td><td>近24周</td><td>每周交易总笔数枚举</td><td>{{resultMsg.S5166}}</td></tr>
+                                <tr><td class="S5167">每周交易总天数枚举</td><td>近24周</td><td>每周交易总天数枚举</td><td>{{resultMsg.S5167}}</td></tr>
+                                <tr><td class="S5168">每周交易总人数枚举</td><td>近24周</td><td>每周交易总人数枚举</td><td>{{resultMsg.S5168}}</td></tr>
+                                <tr><td class="S5169">周均交易金额</td><td>近24周</td><td>周均交易金额</td><td>{{resultMsg.S5169}}</td></tr>
+                                <tr><td class="S5170">周均交易笔数</td><td>近24周</td><td>周均交易笔数</td><td>{{resultMsg.S5170}}</td></tr>
+                                <!--3-->
+                                <tr><td class="S5171">周均交易天数</td><td>近24周</td><td>周均交易天数</td><td>{{resultMsg.S5171}}</td></tr>
+                                <tr><td class="S5172">周交易金额中值</td><td>近24周</td><td>周交易金额中值</td><td>{{resultMsg.S5172}}</td></tr>
+                                <tr><td class="S5173">周交易金额最高值</td><td>近24周</td><td>周交易金额最高值</td><td>{{resultMsg.S5173}}</td></tr>
+                                <tr><td class="S5174">周交易金额最低值</td><td>近24周</td><td>周交易金额最低值</td><td>{{resultMsg.S5174}}</td></tr>
+                                <tr><td class="S5175">低于周均交易金额的周数</td><td>近24周</td><td>低于周均交易金额的周数</td><td>{{resultMsg.S5175}}</td></tr>
+                                <tr><td class="S5176">低于周均交易金额的月份分布</td><td>近24周</td><td>低于周均交易金额的月份分布</td><td>{{resultMsg.S5176}}</td></tr>
+                                <tr><td class="S5177">周交易金额变异系数</td><td>近24周</td><td>周交易金额变异系数</td><td>{{resultMsg.S5177}}</td></tr>
+                                <tr><td class="S5178">周交易笔数变异系数</td><td>近24周</td><td>周交易笔数变异系数</td><td>{{resultMsg.S5178}}</td></tr>
+                                <tr><td class="S5206">每小时交易金额枚举</td><td>近12月</td><td>统计近12月每个小时的交易总金额</td><td>{{resultMsg.S5206}}</td></tr>
+                                <tr><td class="S5207">每小时交易笔数枚举</td><td>近12月</td><td>统计近12月每个小时的交易总笔数</td><td>{{resultMsg.S5207}}</td></tr>
+                                <tr><td class="S5210">每月工作日工作时间交易总金额</td><td>近12月</td><td>周一~周五 09:30-11:30,14:00-16:30 交易金额</td><td>{{resultMsg.S5210}}</td></tr>
+                                <tr><td class="S5212">每月工作日非工作时间交易总金额</td><td>近12月</td><td>周一~周五09:30- 11:30,14:00-16:30之外的交易金额</td><td>{{resultMsg.S5212}}</td></tr>
+                                <tr><td class="S5211">每月工作日工作时间交易总笔数</td><td>近12月</td><td>周一~周五 09:30-11:30,14:00-16:30 交易笔数</td><td>{{resultMsg.S5211}}</td></tr>
+                                <tr><td class="S5213">每月工作日非工作时间交易总笔数</td><td>近12月</td><td>周一~周五09:30-11:30,14:00-16:30之外的交易笔数</td><td>{{resultMsg.S5213}}</td></tr>
+                                <tr><td class="S5214">每月双休日交易总金额</td><td>近12月</td><td>周六、周日全时段消费金额</td><td>{{resultMsg.S5214}}</td></tr>
+                                <tr><td class="S5215">每月双休日交易总笔数</td><td>近12月</td><td>周六、周日全时段消费笔数</td><td>{{resultMsg.S5215}}</td></tr>
+                                <tr><td class="S5076">近6月，各月四区间交易总人数</td><td>近6月</td><td>统计如下各区间的交易人数 0：（8am-14pm]、1： (14pm-17pm]、2：(17pm- 22pm]、3：(22pm-8am]</td><td>{{resultMsg.S5076}}</td></tr>
+                                <tr><td class="S5077">近6月，各月四区间最大单笔交易金额</td><td>近6月</td><td>统计如下各区间最大单笔金额 0：（8am-14pm]、1： (14pm-17pm]、2：(17pm- 22pm]、3：(22pm-8am]</td><td>{{resultMsg.S5077}}</td></tr>
+                                <tr><td class="S5078">近6月，各月四区间最小单笔交易金额</td><td>近6月</td><td>统计如下各区间最小单笔金额 0：（8am-14pm]、1： (14pm-17pm]、2：(17pm- 22pm]、3：(22pm-8am]</td><td>{{resultMsg.S5078}}</td></tr>
+                                <tr><td class="S5129">近6月月均交易金额</td><td>近6月</td><td>近6月的平均月交易金额</td><td>{{resultMsg.S5129}}</td></tr>
+                                <!--4-->
+                                <tr><td class="S5046">近6月金额标准差</td><td>近6月</td><td>近6月金额标准差</td><td>{{resultMsg.S5046}}</td></tr>
+                                <tr><td class="S5047">近6月金额标准差在本市同行排名</td><td>近6月</td><td>近6月金额标准差在本市同行排名</td><td>{{resultMsg.S5047}}</td></tr>
+                                <tr><td class="S5048">近6月金额差异系数</td><td>近6月</td><td>近6月金额差异系数</td><td>{{resultMsg.S5048}}</td></tr>
+                                <tr><td class="S5049">近6月金额差异系数在本市同行排名</td><td>近6月</td><td>近6月金额差异系数在本市同行排名</td><td>{{resultMsg.S5049}}</td></tr>
+                                <tr><td class="S5118">近12月交易金额环比增长枚举</td><td>近13月</td><td>近12月交易金额环比增长</td><td>{{resultMsg.S5118}}</td></tr>
+                                <tr><td class="S5070">标准差-交易额环比增长率</td><td>近6月</td><td>近6月交易金额环比增长率的标准差</td><td>{{resultMsg.S5070}}</td></tr>
+                                <tr><td class="S5071">标准差-交易额环比增长率 在 本市同行排名</td><td>近6月</td><td>近6月交易金额环比增长率的标准差在本市同行排名</td><td>{{resultMsg.S5071}}</td></tr>
+                                <tr><td class="S5072">差异系数－交易额环比增长率</td><td>近6月</td><td>近6月交易金额环比增长率的差异系数</td><td>{{resultMsg.S5072}}</td></tr>
+                                <tr><td class="S5073">差异系数-交易额环比增长率在本市同行排名</td><td>近6月</td><td>近6月交易金额环比增长率的 差异系数在本市同行排名</td><td>{{resultMsg.S5073}}</td></tr>
+                                <tr><td class="S5010">每月交易金额环比增长枚举（10元以上）</td><td>近13月</td><td>去除单笔10元以下交易后，每月交易金额环比增长率</td><td>{{resultMsg.S5010}}</td></tr>
+                                <tr><td class="S5068">每月交易额环比增长率均值（10元以上）</td><td>近6月</td><td>去除单笔10元以下交易后，每月交易金额环比增长率均值</td><td>{{resultMsg.S5068}}</td></tr>
+                                <tr><td class="S5126">年度交易额峰值月份</td><td>近12月</td><td>每月交易金额高于近12月月均交易金额的月份明细</td><td>{{resultMsg.S5126}}</td></tr>
+                                <tr><td class="S5130">近6月月均交易笔数</td><td>近6月</td><td>近6月月均交易笔数</td><td>{{resultMsg.S5130}}</td></tr>
+                                <tr><td class="S5052">近6月交易笔数标准差</td><td>近6月</td><td>近6月交易笔数标准差</td><td>{{resultMsg.S5052}}</td></tr>
+                                <tr><td class="S5053">近6月交易笔数标准差在本市同行排名</td><td>近6月</td><td>近6月交易笔数标准差在本市同行排名</td><td>{{resultMsg.S5053}}</td></tr>
+                                <tr><td class="S5054">近6月交易笔数差异系数</td><td>近6月</td><td>近6月交易笔数差异系数</td><td>{{resultMsg.S5054}}</td></tr>
+                                <tr><td class="S5055">近6月交易笔数差异系数在本市同行排名</td><td>近6月</td><td>近6月交易笔数差异系数在本市同行排名</td><td>{{resultMsg.S5055}}</td></tr>
+                                <tr><td class="S5119">近12月交易笔数环比增长枚举</td><td>近13月</td><td>近12月交易笔数环比增长</td><td>{{resultMsg.S5119}}</td></tr>
+                                <tr><td class="S5120">近12月客单价环比增长枚举</td><td>近13月</td><td>近12月客单价环比增长</td><td>{{resultMsg.S5120}}</td></tr>
+                                <tr><td class="S5121">近12月笔单价环比增长枚举</td><td>近13月</td><td>近12月笔单价环比增长</td><td>{{resultMsg.S5121}}</td></tr>
+                                <!--5-->
+                                <tr><td class="S5122">每月交易金额同比增长枚举</td><td>近12月</td><td>每月交易金额与去年同期月份 增长率</td><td>{{resultMsg.S5122}}</td></tr>
+                                <tr><td class="S5123">每月交易金额同比增长率均值</td><td>近12月</td><td>每月交易金额同比增长率均值</td><td>{{resultMsg.S5123}}</td></tr>
+                                <tr><td class="S5142">每月交易金额同比增长率均值在本市同行排名</td><td>近12月</td><td>每月交易金额同比增长率均值 在本市同行排名，输出： 1、本市同行1/4值、1/2、3/4 值、行业均值 2、本商户在本市排名</td><td>{{resultMsg.S5142}}</td></tr>
+                                <tr><td class="S5064">标准差-交易额同比增长率</td><td>近6月</td><td>标准差-交易额同比增长率</td><td>{{resultMsg.S5064}}</td></tr>
+                                <tr><td class="S5065">标准差-交易额同比增长率在本市同行排名</td><td>近6月</td><td>标准差-交易额同比增长率在本市同行排名</td><td>{{resultMsg.S5065}}</td></tr>
+                                <tr><td class="S5066">差异系数－交易额同比增长率</td><td>近6月</td><td>差异系数－交易额同比增长率</td><td>{{resultMsg.S5066}}</td></tr>
+                                <tr><td class="S5067">差异系数-交易金额同比增长率在本市同行排名</td><td>近6月</td><td>差异系数-交易金额同比增长率在本市同行排名</td><td>{{resultMsg.S5067}}</td></tr>
+                                <tr><td class="S5009">每月交易额同比增长枚举（10 元以上）</td><td>近12月</td><td>去除单笔10元以下交易后，每 月交易金额同比增长值</td><td>{{resultMsg.S5009}}</td></tr>
+                                <tr><td class="S5062">每月交易额同比增长均值（10 元以上）</td><td>近6月</td><td>去除单笔10元以下交易后，每 月交易金额同比增长值均值</td><td>{{resultMsg.S5062}}</td></tr>
+                                <tr><td class="S5063">每月交易额同比增长率均值在本市同行排名（10元以上）</td><td>近6月</td><td>去除单笔10元以下交易后，每月交易金额同比增长值均值在 本市同行排名</td><td>{{resultMsg.S5063}}</td></tr>
+                                <tr><td class="S5124">每月交易笔数同比增长枚举</td><td>近12月</td><td>近12月，每月交易笔数相对于 去年同期月份的增长率</td><td>{{resultMsg.S5124}}</td></tr>
+                                <tr><td class="S5125">每月客单价同比增长枚举</td><td>近12月</td><td>近12月，每月客单价相对于去 年同期月份的增长率</td><td>{{resultMsg.S5125}}</td></tr>
+                                <tr><td class="S5127">近6月月均交易天数</td><td>近6月</td><td>近6月，平均每月交易天数</td><td>{{resultMsg.S5127}}</td></tr>
+                                <tr><td class="S5057">月均交易天数在本市同行排名</td><td>近6月</td><td>月均交易天数在本市同行排 名</td><td>{{resultMsg.S5057}}</td></tr>
+                                <tr><td class="S5131">近6月交易天数变异系数</td><td>近6月</td><td>近6月交易天数变异系数</td><td>{{resultMsg.S5131}}</td></tr>
+                                <tr><td class="S5139">月交易天数变异系数在本市同行排名</td><td>近6月</td><td>月均交易天数变异系数在本市同行排名</td><td>{{resultMsg.S5139}}</td></tr>
+                                <tr><td class="S5058">近6月天数标准差</td><td>近6月</td><td>近6月天数标准差</td><td>{{resultMsg.S5058}}</td></tr>
+                                <tr><td class="S5059">近6月天数标准差本市同行排名</td><td>近6月</td><td>近6月天数标准差本市同行排名</td><td>{{resultMsg.S5059}}</td></tr>
+                                <tr><td class="S5060">近6月天数差异系数</td><td>近6月</td><td>近6月天数差异系数</td><td>{{resultMsg.S5060}}</td></tr>
+                                <tr><td class="S5061">近6月天数差异系数在本市同行排名</td><td>近6月</td><td>近6月天数差异系数在本市同行排名</td><td>{{resultMsg.S5061}}</td></tr>
+                                <!--6-->
+                                <tr><td class="S5128">近6月月均交易人数</td><td>近6月</td><td>近6月，平均每月交易人数</td><td>{{resultMsg.S5128}}</td></tr>
+                                <tr><td class="S5133">每月交易金额在本市同行排名</td><td>近24月</td><td>每月交易金额在本市同行排</td><td>{{resultMsg.S5133}}</td></tr>
+                                <tr><td class="S5134">每月交易笔数在本市同行排名</td><td>近24月</td><td>每月交易笔数在本市同行排 名</td><td>{{resultMsg.S5134}}</td></tr>
+                                <tr><td class="S5137">月均交易金额在本市同行排名</td><td>近6月</td><td>月均交易金额在本市同行排 名</td><td>{{resultMsg.S5137}}</td></tr>
+                                <tr><td class="S5138">月均交易笔数在本市同行排名</td><td>近6月</td><td>月均交易笔数在本市同行排名</td><td>{{resultMsg.S5138}}</td></tr>
+                                <tr><td class="S5135">客单价在本市同行排名</td><td>近24月</td><td>客单价在本市同行排名</td><td>{{resultMsg.S5135}}</td></tr>
+                                <tr><td class="S5136">笔单价在本市同行排名</td><td>近24月</td><td>笔单价在本市同行排名</td><td>{{resultMsg.S5136}}</td></tr>
+                                <tr><td class="S5143">同行每月交易额环比增长</td><td>近13月</td><td>同行每月交易额环比增长</td><td>{{resultMsg.S5143}}</td></tr>
+                                <tr><td class="S5069">近6月交易额环比增长率在本市同行排名</td><td>近6月</td><td>近6月交易额环比增长率在本市同行排名</td><td>{{resultMsg.S5069}}</td></tr>
+                                <tr><td class="S5144">同行每月客单价环比增长</td><td>近13月</td><td>同行每月客单价环比增长</td><td>{{resultMsg.S5144}}</td></tr>
+                                <tr><td class="S5145">同行每月交易笔数环比增长</td><td>近13月</td><td>同行每月交易笔数环比增长</td><td>{{resultMsg.S5145}}</td></tr>
+                                <tr><td class="S5146">同行每月交易金额同比增长</td><td>近13月</td><td>同行每月交易金额同比增长</td><td>{{resultMsg.S5146}}</td></tr>
+                                <tr><td class="S5147">同行每月交易笔数同比增长</td><td>近13月</td><td>同行每月交易笔数同比增长</td><td>{{resultMsg.S5147}}</td></tr>
+                                <tr><td class="S5148">同行每月客单价同比增长</td><td>近13月</td><td>同行每月客单价同比增长</td><td>{{resultMsg.S5148}}</td></tr>
+                                <tr><td class="S5181">周均交易金额在本市同行排名</td><td>近24周</td><td>近24周周均交易金额在本市同行排名</td><td>{{resultMsg.S5181}}</td></tr>
+                                <tr><td class="S5182">周均交易笔数在本市同行排名</td><td>近13月</td><td>近24周周均交易笔数在本市同行排名</td><td>{{resultMsg.S5182}}</td></tr>
+                                <tr><td class="S5183">周均交易天数在本市同行排名</td><td>近13月</td><td>近24周周均交易天数在本市同行排名</td><td>{{resultMsg.S5183}}</td></tr>
+                                <tr><td class="S5184">周交易笔数变异系数在本市同行排名</td><td>近13月</td><td>近24周周交易笔数变异系数在本市同行排名</td><td>{{resultMsg.S5184}}</td></tr>
+                                <tr><td class="S5185">周交易金额变异系数在本市同行排名</td><td>近13月</td><td>近24周周交易金额变异系数在本市同行排名</td><td>{{resultMsg.S5185}}</td></tr>
+                                <tr><td class="S5140">市场份额</td><td>近13月</td><td>根据商户交易额、行业交易额，商户数量计算商户的市场份额。</td><td>{{resultMsg.S5140}}</td></tr>
+                                <!--7-->
+                                <tr><td class="S5141">市场增长率</td><td>近6月</td><td>根据商户、行业交易额，统计 商户市场增长率</td><td>{{resultMsg.S5141}}</td></tr>
+                                <tr><td class="S5257">各忠诚度客户交易金额占比（普通、中等、忠实）</td><td>近12月</td><td>近12月，普通客户（消费1 笔）、中等客户（２-4笔）、 VIP客户（5笔及以上）的客户 交易金额占比分布</td><td>{{resultMsg.S5257}}</td></tr>
+                                <tr><td class="S5258">各忠诚度客户交易笔数占比（普通、中等、忠实）</td><td>近12月</td><td>近12月，普通客户（消费1 笔）、中等客户（２-4笔）、 VIP客户（5笔及以上）的客户 交易笔数占比分布</td><td>{{resultMsg.S5258}}</td></tr>
+                                <tr><td class="S5259">各忠诚度客户交易人数占比（普通、中等、忠实）</td><td>近12月</td><td>近12月，普通客户（消费1 笔）、中等客户（２-4笔）、 VIP客户（5笔及以上）的客户 交易人数占比分布</td><td>{{resultMsg.S5259}}</td></tr>
+                                <tr><td class="S5260">普卡客户人数占比</td><td>近12月</td><td>统计商户下、不同卡等级的客户分布</td><td>{{resultMsg.S5260}}</td></tr>
+                                <tr><td class="S5261">银卡及金卡客户人数占比</td><td>近12月</td><td>根统计商户下、不同卡等级的客户分布</td><td>{{resultMsg.S5261}}</td></tr>
+                                <tr><td class="S5262">白金卡及以上等级客户人数占比</td><td>近12月</td><td>统计商户下、不同卡等级的客户分布</td><td>{{resultMsg.S5262}}</td></tr>
+                                <tr><td class="S5254">各地客户交易金额占比（同省同城、同省非同城、外省、其他）</td><td>近12月</td><td>统计商户下各地域客户的消费 金额分布</td><td>{{resultMsg.S5254}}</td></tr>
+                                <tr><td class="S5255">地客户交易笔数占比（同省同城、同省非同城、外省、其他）</td><td>近12月</td><td>根据商户交易额、行业交易额，商户数量计算商户的市场份额。</td><td>{{resultMsg.S5255}}</td></tr>
+                                <tr><td class="S5256">地客户交易人数占比（同省同城、同省非同城、外省、其他）</td><td>近12月</td><td>根据商户交易额、行业交易额，商户数量计算商户的市场份额。</td><td>{{resultMsg.S5256}}</td></tr>
+                                <tr><td class="S5265">前5大异地城市客户分布</td><td>近12月</td><td>根据商户交易额、行业交易额，商户数量计算商户的市场份额。</td><td>{{resultMsg.S5265}}</td></tr>
+                                <tr><td class="S5216">近12月，每月单笔(0,200]:交 易总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>{{resultMsg.S5216}}</td></tr>
+                                <tr><td class="S5217">近12月，单笔(0,200]:交易总 笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>{{resultMsg.S5217}}</td></tr>
+                                <tr><td class="S5218">近12月，单笔(0,200]:交易总 人数枚</td><td>近12月</td><td>各金额区间交易总人数</td><td>{{resultMsg.S5218}}</td></tr>
+                                <tr><td class="S5219">近12月，单笔(200,600]:交易 总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>{{resultMsg.S5219}}</td></tr>
+                                <tr><td class="S5220">近12月，单笔(200,600]:交易 总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>{{resultMsg.S5220}}</td></tr>
+                                <tr><td class="S5221">近12月，单笔(200,600]:交易 总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>{{resultMsg.S5221}}</td></tr>
+                                <tr><td class="S5222">近12月，单笔(600,1000]:交易 总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>{{resultMsg.S5222}}</td></tr>
+                                <tr><td class="S5223">近12月，单笔(600,1000]:交易 总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>{{resultMsg.S5223}}</td></tr>
+                                <tr><td class="S5224">近12月，单笔(600,1000]:交易 总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>{{resultMsg.S5224}}</td></tr>
+                                <!--8-->
+                                <tr><td class="S5225">近12月，单笔(1000,5000]:交 易总金额枚举</td><td>近6月</td><td>各金额区间交易总金额</td><td>{{resultMsg.S5225}}</td></tr>
+                                <tr><td class="S5226">近12月，单笔(1000,5000]:交 易总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>{{resultMsg.S5226}}</td></tr>
+                                <tr><td class="S5227">近12月，单笔(1000,5000]:交 易总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>{{resultMsg.S5227}}</td></tr>
+                                <tr><td class="S5228">近12月，单笔(5000,20000]:交易总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>{{resultMsg.S5228}}</td></tr>
+                                <tr><td class="S5229">近12月，单笔(5000,20000]:交易总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>{{resultMsg.S5229}}</td></tr>
+                                <tr><td class="S5230">近12月，单笔(5000,20000]:交易总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>{{resultMsg.S5230}}</td></tr>
+                                <tr><td class="S5231">近12月，单笔(20000,+]:交易 总金额枚举</td><td>近12月</td><td>各金额区间交易总金额</td><td>{{resultMsg.S5231}}</td></tr>
+                                <tr><td class="S5232">近12月，单笔(20000,+]:交易 总笔数枚举</td><td>近12月</td><td>各金额区间交易总笔数</td><td>{{resultMsg.S5232}}</td></tr>
+                                <tr><td class="S5233">近12月，单笔(20000,+]:交易 总人数枚举</td><td>近12月</td><td>各金额区间交易总人数</td><td>{{resultMsg.S5233}}</td></tr>
+                                <tr><td class="S5234">近6月，单笔(0,200]:借记卡交 易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>{{resultMsg.S5234}}</td></tr>
+                                <tr><td class="S5235">近6月，单笔(200,600]:借记卡 交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>{{resultMsg.S5235}}</td></tr>
+                                <tr><td class="S5236">近6月，单笔(600,1000]:借记 卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>{{resultMsg.S5236}}</td></tr>
+                                <tr><td class="S5237">近6月，单笔(1000,5000]:借记 卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>{{resultMsg.S5237}}</td></tr>
+                                <tr><td class="S5238">近6月，单笔(5000,20000]:借 记卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>{{resultMsg.S5238}}</td></tr>
+                                <tr><td class="S5239">近6月，单笔(20000,+]:借记卡 交易总笔数枚举</td><td>近6月</td><td>各金额区间下，借记卡的交易笔数</td><td>{{resultMsg.S5239}}</td></tr>
+                                <tr><td class="S5086">近12月，单笔（0，10]:借记卡 交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>{{resultMsg.S5086}}</td></tr>
+                                <tr><td class="S5087">近12月，单笔（10，500]:借 记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>{{resultMsg.S5087}}</td></tr>
+                                <tr><td class="S5088">近12月，单笔（500，1000]: 借记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>{{resultMsg.S5088}}</td></tr>
+                                <tr><td class="S5089">近12月，单笔（1000，2000]: 借记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>{{resultMsg.S5089}}</td></tr>
+                                <tr><td class="S5090">近12月，单笔（2000，5000]: 借记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>{{resultMsg.S5090}}</td></tr>
+                                <!--9-->
+                                <tr><td class="S5091">近12月，单笔（5000， 10000]:借记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>{{resultMsg.S5091}}</td></tr>
+                                <tr><td class="S5092">近12月，单笔（10000，+]:借 记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，借记卡的交易笔数</td><td>{{resultMsg.S5092}}</td></tr>
+                                <tr><td class="S5240">近6月，单笔(0,200]:贷记卡交 易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>{{resultMsg.S5240}}</td></tr>
+                                <tr><td class="S5241">近6月，单笔(200,600]:贷记卡 交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>{{resultMsg.S5241}}</td></tr>
+                                <tr><td class="S5242">近6月，单笔(600,1000]:贷记 卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>{{resultMsg.S5242}}</td></tr>
+                                <tr><td class="S5243">近6月，单笔(1000,5000]:贷记 卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>{{resultMsg.S5243}}</td></tr>
+                                <tr><td class="S5244">近6月，单笔(5000,20000]:贷 记卡交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>{{resultMsg.S5244}}</td></tr>
+                                <tr><td class="S5245">近6月，单笔(20000,+]:贷记卡 交易总笔数枚举</td><td>近6月</td><td>各金额区间下，贷记卡的交易笔数</td><td>{{resultMsg.S5245}}</td></tr>
+                                <tr><td class="S5093">近12月，单笔（0，10]:贷记卡 交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>{{resultMsg.S5093}}</td></tr>
+                                <tr><td class="S5094">近12月，单笔（10，500]:贷 记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>{{resultMsg.S5094}}</td></tr>
+                                <tr><td class="S5095">近12月，单笔（500，1000]: 贷记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>{{resultMsg.S5095}}</td></tr>
+                                <tr><td class="S5096">近12月，单笔（1000，2000]: 贷记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>{{resultMsg.S5096}}</td></tr>
+                                <tr><td class="S5097">近12月，单笔（2000,5000]: 贷记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>{{resultMsg.S5097}}</td></tr>
+                                <tr><td class="S5098">近12月，单笔（5000， 10000]:贷记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>{{resultMsg.S5098}}</td></tr>
+                                <tr><td class="S5099">近12月，单笔（10000，+]:贷 记卡交易总笔数枚举</td><td>近12月</td><td>各金额区间下，贷记卡的交易笔数</td><td>{{resultMsg.S5099}}</td></tr>
+                                <tr><td class="S5282">每月出账交易总金额枚举</td><td>近24月</td><td>商户支出交易枚举（如：撤销、退货等）</td><td>{{resultMsg.S5282}}</td></tr>
+                                <tr><td class="S5284">近6月出账交易总金额</td><td>近6月</td><td>商户支出交易总计（如：撤销、退货等）</td><td>{{resultMsg.S5284}}</td></tr>
+                                <tr><td class="S5283">每月出账交易总笔数枚举</td><td>近24月</td><td>商户支出交易枚举（如：撤销、退货等）</td><td>{{resultMsg.S5283}}</td></tr>
+                                <tr><td class="S5285">近6月出账交易总笔数</td><td>近6月</td><td>商户支出交易总计（如：撤销、退货等）</td><td>{{resultMsg.S5285}}</td></tr>
+                                <tr><td class="S5263">交易金额前五的客户的金额占比</td><td>近12月</td><td>交易金额排名前五的客户，其交易总金额占商户总金额的比</td><td>{{resultMsg.S5263}}</td></tr>
+                                <!--10-->
+                                <tr><td class="S5264">交易金额前五的客户的笔数占比</td><td>近12月</td><td>交易金额排名前五的客户</td><td>{{resultMsg.S5264}}</td></tr>
+                                <tr><td class="S5179">近1周交易金额TOP10客户，各客户交易总金额枚举</td><td>近1周</td><td>交易金额TOP10客户，各客户金额枚举</td><td>{{resultMsg.S5179}}</td></tr>
+                                <tr><td class="S5186">近1月交易金额TOP10客户，各客户交易总金额枚举</td><td>近1月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>{{resultMsg.S5186}}</td></tr>
+                                <tr><td class="S5187">近3月交易金额TOP10客户，各客户交易总金额枚举</td><td>近3月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>{{resultMsg.S5187}}</td></tr>
+                                <tr><td class="S5188">近6月交易金额TOP10客户，各客户交易总金额枚举</td><td>近6月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>{{resultMsg.S5188}}</td></tr>
+                                <tr><td class="S5189">近12月交易金额TOP10客户，各客户交易总金额枚举</td><td>近12月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>{{resultMsg.S5189}}</td></tr>
+                                <tr><td class="S5190">近2年交易金额TOP10客户，各客户交易总金额枚举</td><td>近24月</td><td>交易金额TOP10客户，各客户 金额枚举</td><td>{{resultMsg.S5190}}</td></tr>
+                                <tr><td class="S5180">近1周交易整数金额的次数</td><td>近1周</td><td>近1周交易整数金额的次数</td><td>{{resultMsg.S5180}}</td></tr>
+                                <tr><td class="S5191">近1月交易整数金额的次数</td><td>近1月</td><td>近1月交易整数金额的次数</td><td>{{resultMsg.S5191}}</td></tr>
+                                <tr><td class="S5192">近3月交易整数金额的次数</td><td>近3月</td><td>近3月交易整数金额的次数</td><td>{{resultMsg.S5192}}</td></tr>
+                                <tr><td class="S5193">近6月交易整数金额的次数</td><td>近6月</td><td>近6月交易整数金额的次数</td><td>{{resultMsg.S5193}}</td></tr>
+                                <tr><td class="S5194">近12月交易整数金额的次数</td><td>近12月</td><td>近12月交易整数金额的次数</td><td>{{resultMsg.S5194}}</td></tr>
+                                <tr><td class="S5195">近两年交易整数金额的次数</td><td>近24月</td><td>近两年交易整数金额的次数</td><td>{{resultMsg.S5195}}</td></tr>
+                                <tr><td class="S5079">近12月，非正常大额（单笔金 额大于本市同行排名前10%）交易金额</td><td>近12月</td><td>同地区同行业单笔交易额的排 名10%金额为临界值，单笔大 于该临界值的交易金额总和</td><td>{{resultMsg.S5079}}</td></tr>
+                                <tr><td class="S5080">近12月，非正常大额（单笔金 额大于本市同行排名前10%）交易笔数</td><td>近12月</td><td>同地区同行业单笔交易额的排 名10%金额为临界值，单笔大 于该临界值的交易笔数总和</td><td>{{resultMsg.S5080}}</td></tr>
+                                <tr><td class="S5155">近1月单日同卡多笔等额消费金额</td><td>近1月</td><td>去除单笔10元以下交易后，统 计近1月，单日交易3笔以上的 卡等额消费金额</td><td>{{resultMsg.S5155}}</td></tr>
+                                <tr><td class="S5156">近6月单日同卡多笔等额消费金额</td><td>近6月</td><td>去除单笔10元以下交易后，统 计近6月，单日交易3笔以上的 卡等额消费金额</td><td>{{resultMsg.S5156}}</td></tr>
+                                <tr><td class="S5157">近12月单日同卡多笔等额消费金额</td><td>近12月</td><td>去除单笔10元以下交易后，统 计近12月，单日交易3笔以上 的卡等额消费金额</td><td>{{resultMsg.S5157}}</td></tr>
+                                <tr><td class="S5158">近1月单日同卡多笔等额消费笔数</td><td>近1月</td><td>去除单笔10元以下交易后，统 计近1月，单日交易3笔以上的 卡等额消费笔数</td><td>{{resultMsg.S5158}}</td></tr>
+                                <tr><td class="S5159">近6月单日同卡多笔等额消费笔数</td><td>近6月</td><td>去除单笔10元以下交易后，统 计近6月，单日交易3笔以上的 卡等额消费笔数</td><td>{{resultMsg.S5159}}</td></tr>
+                                <!--11-->
+                                <tr><td class="S5160">近12月单日同卡多笔等额消费笔数</td><td>近12月</td><td>去除单笔10元以下交易后，统计近12月，单日交易3笔以上的卡等额消费笔数</td><td>{{resultMsg.S5160}}</td></tr>
+                                <tr><td class="S5161">近12月单月同卡大额交易金额枚举</td><td>近12月</td><td>统计当月消费5笔以上的卡，单笔交易金额大于等于5000元的交易笔数</td><td>{{resultMsg.S5161}}</td></tr>
+                                <tr><td class="S5162">近12月单月同卡大额交易笔数枚举</td><td>近12月</td><td>统计当月消费5笔以上的卡，单笔交易金额大于等于5000元的交易笔数</td><td>{{resultMsg.S5162}}</td></tr>
+                                <tr><td class="S5163">近12月单月非同卡大额交易金额枚举</td><td>近12月</td><td>统计当月消费5笔以下的卡，单笔交易金额大于等于5000元的交易总额</td><td>{{resultMsg.S5163}}</td></tr>
+                                <tr><td class="S5164">近12月单月非同卡大额交易笔数枚举</td><td>近12月</td><td>统计当月消费5笔以下的卡，单笔交易金额大于等于5000元的交易笔数</td><td>{{resultMsg.S5164}}</td></tr>
+                                <tr><td class="S5149">近1月单日同卡多笔消费次数</td><td>近1月</td><td>去除单笔10元以下交易后，统计近1月，单日交易3笔以上的卡，其消费总笔数</td><td>{{resultMsg.S5149}}</td></tr>
+                                <tr><td class="S5150">近6月单日同商户多笔消费次数</td><td>近6月</td><td>去除单笔10元以下交易后，统计近6月，单日交易3笔以上的卡，其消费总笔数</td><td>{{resultMsg.S5150}}</td></tr>
+                                <tr><td class="S5151">近12月单日同商户多笔消费次数</td><td>近12月</td><td>去除单笔10元以下交易后，统计近12月，单日交易3笔以上的卡，其消费总笔数</td><td>{{resultMsg.S5151}}</td></tr>
+                                <tr><td class="S5152">近1月同商户多笔消费最小时间间隔</td><td>近1月</td><td>去除单笔10元以下交易后，该商户下同一张卡刷卡两次以上的最小时间间隔</td><td>{{resultMsg.S5152}}</td></tr>
+                                <tr><td class="S5153">近6月同商户多笔消费最小时间间隔</td><td>近6月</td><td>去除单笔10元以下交易后，该商户下同一张卡刷卡两次以上的最小时间间隔</td><td>{{resultMsg.S5153}}</td></tr>
+                                <tr><td class="S5154">近12月同商户多笔消费最小时间间隔</td><td>近12月</td><td>去除单笔10元以下交易后，该商户下同一张卡刷卡两次以上的最小时间间隔</td><td>{{resultMsg.S5154}}</td></tr>
+                                <tr><td class="S5148">每月交易失败总金额枚举</td><td>近12月</td><td>每月交易失败总金额枚举</td><td>{{resultMsg.S5148}}</td></tr>
+                                <tr><td class="S5149">每月交易失败总笔数枚举</td><td>近12月</td><td>每月交易失败总笔数枚举</td><td>{{resultMsg.S5149}}</td></tr>
+                                <tr><td class="S5150">每月交易失败原因枚举</td><td>近12月</td><td>每月失败交易原因，以及该原因对应的金额枚举</td><td>{{resultMsg.S5150}}</td></tr>
+                                <tr><td class="S5151">近12月，交易失败总金额</td><td>近12月</td><td>失败交易总金额</td><td>{{resultMsg.S5151}}</td></tr>
+                                <tr><td class="S5152">近12月，交易失败总笔数</td><td>近12月</td><td>失败交易总笔数</td><td>{{resultMsg.S5152}}</td></tr>
+                                <tr><td class="S5169">每月贷记卡交易总金额枚举</td><td>近12月</td><td>在该商户消费过的贷记卡金额枚举</td><td>{{resultMsg.S5169}}</td></tr>
+                                <tr><td class="S5170">每月贷记卡交易总笔数枚举</td><td>近12月</td><td>在该商户消费过的贷记卡笔数枚举</td><td>{{resultMsg.S5170}}</td></tr>
+                                <tr><td class="S5007">每月贷记卡笔单价枚举（10元 以上）</td><td>近12月</td><td>剔除交易金额最高的一笔及10元及以下的交易后，贷记卡每月笔单价枚举</td><td>{{resultMsg.S5007}}</td></tr>
+                                <tr><td class="S5274">贷记卡交易总金额</td><td>近12月</td><td>贷记卡交易总金额</td><td>{{resultMsg.S5274}}</td></tr>
+                                <!--12-->
+                                <tr><td class="S5275">贷记卡交易总笔数</td><td>近12月</td><td>贷记卡交易总笔数</td><td>{{resultMsg.S5275}}</td></tr>
+                                <tr><td class="S5279">贷记卡交易总卡数</td><td>近12月</td><td>近6月，在该商户消费过的贷记卡数量</td><td>{{resultMsg.S5279}}</td></tr>
+                                <tr><td class="S5276">贷记卡交易金额占比</td><td>近12月</td><td>该商户下，贷记卡交易总金额占商户总交易金额的比例</td><td>{{resultMsg.S5276}}</td></tr>
+                                <tr><td class="S5287">贷记卡交易笔数占比</td><td>近12月</td><td>该商户下，贷记卡交易总笔数占商户总交易笔数的比例</td><td>{{resultMsg.S5287}}</td></tr>
+                                <tr><td class="S5267">借记卡交易金额枚举</td><td>近12月</td><td>在该商户消费过的借记卡金额枚举</td><td>{{resultMsg.S5267}}</td></tr>
+                                <tr><td class="S5268">借记卡交易笔数枚举</td><td>近12月</td><td>在该商户消费过的借记卡笔数枚举</td><td>{{resultMsg.S5268}}</td></tr>
+                                <tr><td class="S5008">每月借记卡笔单价枚举（10元 以上）</td><td>近12月</td><td>剔除交易金额最高的一笔及10元及以下的交易后，借记卡每月笔单价枚举</td><td>{{resultMsg.S5008}}</td></tr>
+                                <tr><td class="S5271">借记卡交易笔数枚举</td><td>近12月</td><td>借记卡交易笔数枚举</td><td>{{resultMsg.S5271}}</td></tr>
+                                <tr><td class="S5272">借记卡的交易总笔数</td><td>近12月</td><td>借记卡的交易总笔数</td><td>{{resultMsg.S5272}}</td></tr>
+                                <tr><td class="S5280">借记卡交易总卡数</td><td>近12月</td><td>近6月，在该商户消费过的借记卡数量</td><td>{{resultMsg.S5280}}</td></tr>
+                                <tr><td class="S5273">借记卡交易金额占比</td><td>近12月</td><td>该商户下，借记卡交易总金额占商户总交易金额的比例</td><td>{{resultMsg.S5273}}</td></tr>
+                                <tr><td class="S5286">借记卡交易笔数占比</td><td>近12月</td><td>该商户下，借记卡交易总笔数占商户总交易笔数的比例</td><td>{{resultMsg.S5286}}</td></tr>
+                                <tr><td class="S5278">贷记卡借记卡客单价比例</td><td>近12月</td><td>贷记卡客单价与借记卡客单价的比例</td><td>{{resultMsg.S5278}}</td></tr>
+                                <tr><td class="S5277">贷记卡借记卡交易笔数比例</td><td>近12月</td><td>贷记卡交易笔数与借记卡交易笔数的比例</td><td>{{resultMsg.S5277}}</td></tr>
+                                <tr><td class="S5012">每月贷记卡借记卡交易笔数比例枚举（10元以上）</td><td>近12月</td><td>贷记卡交易笔数与借记卡交易笔数的比例，每月枚举</td><td>{{resultMsg.S5012}}</td></tr>
+                                <tr><td class="S5253">贷记卡交易失败比例</td><td>近12月</td><td>全部失败交易中，贷记卡失败的比例</td><td>{{resultMsg.S5253}}</td></tr>
+                                <tr><td class="S5208">夜消费交易总金额</td><td>近6月</td><td>22:00-5:00期间的交易总金额</td><td>{{resultMsg.S5208}}</td></tr>
+                                <tr><td class="S5209">夜消费交易总笔数</td><td>近6月</td><td>22:00-5:00期间的交易总笔数</td><td>{{resultMsg.S5209}}</td></tr>
+                                <tr><td class="S5281">疑似信用卡套现甄别</td><td>近12月</td><td>套现金额；套现笔数;套现金额占比</td><td>{{resultMsg.S5281}}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

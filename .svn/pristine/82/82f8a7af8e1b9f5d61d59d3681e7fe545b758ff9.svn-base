@@ -1,0 +1,267 @@
+<script>
+    "use strict";
+    /*
+     *创建人：沈小艳
+     *创建时间：2017/08/02
+     *学历信息核查信息
+     * */
+    app.controller('academicInfoCheck', ['$scope','$http','utifyFunction',"$rootScope",
+        function ($scope,$http,utifyFunction,$rootScope) {
+        //数据初始化
+        $scope.info = {
+            name: '',
+            idCard:'',
+            apiId:localStorage.getItem("apiNameId")
+        };
+
+        //结果与样例的切换初始化
+        $scope.resultSwitch = false;
+
+        //重置数据
+        $scope.resetInfo = function () {
+            $scope.info.name = '';
+            $scope.info.idCard = '';
+            $scope.resultSwitch = false;
+        };
+
+            $('#cache_model').modal("hide");
+        //提交
+        $scope.submitInfo = function (myForm) {
+
+            //数据信息格式错误时阻止表单提交
+            if (myForm.name) {
+                myForm.name.$dirty = true
+            }
+            if (myForm.idCard) {
+                myForm.idCard.$dirty = true
+            }
+            if (!myForm.$valid) {
+                $scope.resultSwitch = false;
+                return
+            }
+            $('#cache_model').modal("show");
+
+            $http({
+                method: 'POST',
+                url: '/normalSearch'+utifyFunction($scope.info)
+            }).then(function successCallback(response) {
+                $('#cache_model').modal("hide");
+
+                if(response.data.code === 8652){
+                    $scope.resultSwitch = false;
+                    sweetAlert("",response.data.message, "error");
+                    return;
+                }
+
+                if(response.data["youfen学历学籍信息查询"].resCode === '0000'){
+                    console.log('aaa')
+                    if (response.data["youfen学历学籍信息查询"].data.statusCode === '2012') {
+                        $scope.dataMsg = true;//查询成功
+                        $scope.otherMsg = false;
+                        $scope.resultMsg = response.data["youfen学历学籍信息查询"].data.result;
+
+                    }
+                    else{
+                        $scope.resultMsg = response.data["youfen学历学籍信息查询"].data.statusMsg;
+                        $scope.dataMsg = false;//查询成功
+                        $scope.otherMsg = true;
+
+                    }
+                    $scope.resultSwitch = true;
+                }
+                else{
+                    $scope.dataMsg = false;//查询成功
+                    $scope.otherMsg = true;
+                    $scope.resultMsg = response.data["youfen学历学籍信息查询"].resMsg;
+                    $scope.resultSwitch = true;
+                }
+
+            });
+        };
+
+        //下载
+//        $scope.createPdf=function () {
+//            if($scope.resultSwitch ===true){
+//                var html = $("#business_flowing_pdf").html();
+//                var today = new Date();
+//                var year = today.getFullYear();
+//                var month = today.getMonth() + 1;
+//                var day = today.getDay();
+//                var hour = today.getHours();
+//                var minute = today.getMinutes();
+//
+//                //使用form来生成下载所需的数据
+//                var form = $("<form>");
+//                form.attr("style", "display:none");
+//                form.attr("target", "");
+//                form.attr("method", "post");
+//                form.attr("action", "/createpdf");
+//
+//                var input1 = $("<input>");
+//                input1.attr("type", "hidden");
+//                input1.attr("name", "html");
+//                input1.attr("value", html);
+//                form.append(input1);
+//
+//                var input2 = $("<input>");
+//                input2.attr("type", "hidden");
+//                input2.attr("name", "filename");
+//                input2.attr("value", "【小金风控8022】学历信息核查 " + year + "." + month + "." + day + "_" + hour + "." + minute);
+//                form.append(input2);
+//
+//                //将表单放置在web中
+//                $("body").append(form);
+//                form.submit();
+//            }
+//            else{
+//                sweetAlert("", "请先查询再下载", "error");
+//            }
+//        }
+
+        //接口单价
+            $scope.apiName=localStorage.getItem("apiNameId");
+            $http({
+                url:"/supplyAPI/showApiScore?apiId="+$scope.apiName,
+                method:"GET"
+            }).then(function successCallback(response) {
+                console.log(response)
+                $scope.priceResult=response.data[0];
+            })
+
+    }]);
+</script>
+<div class="vbox" ng-controller="academicInfoCheck">
+    <div class="wrapper b-b">
+        <div class="font-thin h4">个人信息查询</div>
+    </div>
+    <div class="row-row">
+        <div class="cell scrollable">
+            <div class="cell-inner">
+                <div class="wrapper-md">
+                    <div class="panel panel-info input-panel" style="margin-bottom: 0">
+                        <div class="panel-heading overflow" style="font-size: 16px">
+                            <span class="pull-left text-left">学历信息核查</span>
+                            <span class="pull-right text-right supCol">{{priceResult}}积分/次</span>
+                        </div>
+                        <div class="panel-body">
+                            <form name="myForm" action="" method="post" class="form-horizontal">
+                                <div class="form-group validate validate-name">
+                                    <label class="col-sm-4 col-md-2 control-label"><span class="supCol">*</span>姓名：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.name" name="name" class="form-control" ng-required="true" pattern="[\u4E00-\u9FA5]{2,5}(?:·[\u4E00-\u9FA5]{2,5})*">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.name.$dirty&&myForm.name.$invalid">
+                                        <span class="supCol" ng-show="myForm.name.$error.required">姓名不能为空</span>
+                                        <span class="supCol" ng-show="myForm.name.$error.pattern">姓名格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group validate validate-name">
+                                    <label class="col-sm-4 col-md-2 control-label"><span class="supCol">*</span>身份证号：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.idCard" name="idCard" class="form-control" ng-required="true" pattern="(^\d{15}$)|(^\d{17}([0-9]|X)$)">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.idCard.$dirty && myForm.idCard.$invalid">
+                                        <span class="supCol" ng-show="myForm.idCard.$error.required">身份证号不能为空</span>
+                                        <span class="supCol" ng-show="myForm.idCard.$error.pattern">身份证号格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-offset-4 col-md-offset-2 col-sm-8" style="padding-left: 20px">
+                                        <button type="button"  class="btn btn-info" ng-click="submitInfo(myForm)">提交</button>
+                                        <button type="button"  class="btn btn-info" ng-click="resetInfo()">重置</button>
+                                        <button type="button" class="btn btn-danger" ng-click="createPdf()"><i class="fa fa-file-pdf-o"></i> 生成PDF</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrapper-md" ng-show="!resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                            <span style="color: red;">样例</span>
+                        </div>
+                        <div>
+                            <table class="table-border-style">
+                                <tr><td>姓名</td><td>刘某</td></tr>
+                                <tr><td>毕业院校</td><td>中央财经大学</td></tr>
+                                <tr><td>学历</td><td>本科</td></tr>
+                                <tr><td>入学年份</td><td>2003</td></tr>
+                                <tr><td>专业</td><td>信息管理与信息系统</td></tr>
+                                <tr><td>毕业时间</td><td>2007</td></tr>
+                                <tr><td>毕业结论</td><td>毕业</td></tr>
+                                <tr><td>学历类型</td><td>普通</td></tr>
+                                <tr><td>毕业院校类型</td><td>1</td></tr>
+                                <tr><td>学校所在城市</td><td>北京</td></tr>
+                                <tr><td>学校性质(公办、民办等)</td><td>公办</td></tr>
+                                <tr><td>学校所属主管单位</td><td>教育部</td></tr>
+                                <tr><td>学校类型(理工、医药、综合等)</td><td>财经</td></tr>
+                                <tr><td>学校类别(211 工程院校)</td><td>985、211工程院校</td></tr>
+                                <tr><td>办学层次</td><td>博士</td></tr>
+                                <tr><td>办学形式(全日制、函授等)</td><td>全日制</td></tr>
+                                <tr><td>是否为 985(Y为是，N为否)</td><td>Y</td></tr>
+                                <tr><td>是否为 211(Y为是，N为否)</td><td>Y</td></tr>
+                                <tr><td>学校创建日期</td><td>1949-11-06</td></tr>
+                                <tr><td>创建年限</td><td>67</td></tr>
+                                <tr><td>学校院士人数</td><td>0</td></tr>
+                                <tr><td>博士后流动站数目</td><td>5</td></tr>
+                                <tr><td>博士点数目</td><td>31</td></tr>
+                                <tr><td>硕士点数目</td><td>89</td></tr>
+                                <tr><td>国家重点学科数目</td><td>11</td></tr>
+                                <tr><td>学习形式</td><td>普通全日制</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="business_flowing_pdf" class="wrapper-md" ng-show="resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                        </div>
+                        <div>
+                            <table ng-if="otherMsg" class="table-border-style grid_table">
+                                <tr><td  width="80%">{{resultMsg}}</td></tr>
+                            </table>
+                            <table ng-if="dataMsg" class="table-border-style grid_table">
+                                <tr><td width="40%">姓名</td><td width="40%">{{resultMsg.name}}</td></tr>
+                                <tr><td>毕业院校</td><td>{{resultMsg.college}}</td></tr>
+                                <tr><td>学历</td><td>{{resultMsg.degree}}</td></tr>
+                                <tr><td>入学年份</td><td>{{resultMsg.startTime}}</td></tr>
+                                <tr><td>专业</td><td>{{resultMsg.specialty}}</td></tr>
+                                <tr><td>毕业时间</td><td>{{resultMsg.graduateTime}}</td></tr>
+                                <tr><td>毕业结论</td><td>{{resultMsg.studyResult}}</td></tr>
+                                <tr><td>学历类型</td><td>{{resultMsg.degreeStyle}}</td></tr>
+                                <tr><td>毕业院校类型</td><td>{{resultMsg.collegeType}}</td></tr>
+                                <tr><td>学校所在城市</td><td>{{resultMsg.collegeCity}}</td></tr>
+                                <tr><td>学校性质(公办、民办等)</td><td>{{resultMsg.character}}</td></tr>
+                                <tr><td>学校所属主管单位</td><td>{{resultMsg.manageDept}}</td></tr>
+                                <tr><td>学校类型(理工、医药、综合等)</td><td>{{resultMsg.schoolType}}</td></tr>
+                                <tr><td>学校类别(211 工程院校)</td><td>{{resultMsg.collegeCategory}}</td></tr>
+                                <tr><td>办学层次</td><td>{{resultMsg.collegeLevel}}</td></tr>
+                                <tr><td>办学形式(全日制、函授等)</td><td>{{resultMsg.educationApproach}}</td></tr>
+                                <tr><td>是否为 985(Y为是，N为否)</td><td>{{resultMsg.is985}}</td></tr>
+                                <tr><td>是否为 211(Y为是，N为否)</td><td>{{resultMsg.is211}}</td></tr>
+                                <tr><td>学校创建日期</td><td>{{resultMsg.createDate}}</td></tr>
+                                <tr><td>创建年限</td><td>{{resultMsg.createYears}}</td></tr>
+                                <tr><td>学校院士人数</td><td>{{resultMsg.academicianNum}}</td></tr>
+                                <tr><td>博士后流动站数目</td><td>{{resultMsg.postDoctorNum}}</td></tr>
+                                <tr><td>博士点数目</td><td>{{resultMsg.doctorDegreeNum}}</td></tr>
+                                <tr><td>硕士点数目</td><td>{{resultMsg.masterDegreeNum}}</td></tr>
+                                <tr><td>国家重点学科数目</td><td>{{resultMsg.nationalSubjectNum}}</td></tr>
+                                <tr><td>学习形式</td><td>{{resultMsg.studyStyle}}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="modal gifPosition" id="cache_model">
+        <img src="../../../../img/cache1.gif" alt="">
+    </div>
+</div>
+
+

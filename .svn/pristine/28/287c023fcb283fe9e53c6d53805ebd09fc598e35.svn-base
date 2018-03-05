@@ -1,0 +1,553 @@
+package apifengkong.util;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.http.HttpStatus;
+import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.moxie.api.DefaultMoxieClient;
+import com.moxie.api.MoxieClient;
+import com.moxie.api.MoxieRequest;
+import com.moxie.api.MoxieResponse;
+import com.moxie.api.domain.Authorization;
+import com.moxie.api.domain.MoxieApiException;
+import com.moxie.api.http.HttpClient;
+import com.moxie.api.http.HttpClientConfig;
+import com.moxie.api.http.HttpMethod;
+
+import apifengkong.entity.PersonCreditOverview;
+import apifengkong.entity.PersonCreditOverviewRepository;
+import apifengkong.entity.SupplyAPI;
+import apifengkong.service.PersonCreditSearchService;
+import apifengkong.service.PersonCreditSearchService.Color;
+import apifengkong.service.PersonCreditSearchService.Response;
+
+@Component
+public class BackgroundCellphoneLogAnalysis implements Runnable {
+
+	private static Logger logger = Logger.getLogger(BackgroundCellphoneLogAnalysis.class);
+
+	private static HttpClient httpClient;
+
+	private static Authorization authorization;
+
+	private String mobile;
+	private String taskId;
+
+	@Value("${mojie.api.key}")
+	private String apiKey;
+	@Value("${mojie.api.token}")
+	private String token;
+
+	private PersonCreditOverviewRepository personCreditOverviewRepository;
+
+	@PostConstruct
+	public void initHttpClient() {
+		HttpClientConfig httpClientConfig = HttpClientConfig.custom().setMaxTotal(100).setDefaultMaxPerRoute(2)
+				.setConnectTimeout(30 * 100).setConnectionRequestTimeout(30 * 100).setSocketTimeout(30 * 100).build();
+		httpClient = new HttpClient(httpClientConfig.getRequestConfig(), httpClientConfig.getPool());
+
+		authorization = Authorization.AuthorizationBuilder.newBuilder().withApiKey(apiKey).withToken(token).build();
+	}
+
+	public BackgroundCellphoneLogAnalysis() {
+		super();
+	}
+
+	public BackgroundCellphoneLogAnalysis(String mobile, String taskId,PersonCreditOverviewRepository personCreditOverviewRepository) {
+		super();
+		this.mobile = mobile;
+		this.taskId = taskId;
+		this.personCreditOverviewRepository = personCreditOverviewRepository;
+	}
+
+	public void run() {
+		String url = "https://api.51datakey.com/report/status/v1/carrier/status?userName=" + mobile + "&taskId="
+				+ taskId;
+		MoxieRequest moxieRequest = MoxieRequest.custom().setResponseClass(MoxieResponse.class).build();
+
+		// 轮询任务状态处理逻辑
+		long startTime = System.currentTimeMillis();
+		while (true) {
+			if (System.currentTimeMillis() - startTime > 10 * 60 * 1000) { // 超过{timeoutMillis}秒，退出；可根据实际业务情况调整
+				PersonCreditOverview findByMojieTaskId = personCreditOverviewRepository.findFirstByMojieTaskOrderByIdDesc(taskId);
+				findByMojieTaskId.setStatus("超时失败");
+				personCreditOverviewRepository.save(findByMojieTaskId);
+				return;
+			}
+
+			try {
+				Thread.sleep(2000); // 休眠2秒
+			} catch (InterruptedException e) {
+				// ignore
+			}
+
+			System.out.println(String.format(">>> 调用魔蝎URL: %s", url));
+			MoxieClient moxieClient = new DefaultMoxieClient(httpClient, url, authorization.getApiKey());
+			MoxieResponse response = null;
+			try {
+				response = moxieClient.execute(moxieRequest, HttpMethod.GET);
+			} catch (Exception e) {
+				// TODO 调用接口异常, 打印异常日志并记录异常信息, 此异常逻辑忽略
+				MoxieApiException moxieApiException = new MoxieApiException(e);
+				System.out.println("调用魔蝎接口异常: " + moxieApiException.getMessage());
+			}
+
+			if (response == null)
+				continue;
+
+			System.out.println("调用魔蝎接口, 响应码: " + response.getResponseCode() + ", 响应结果: " + response.getResponseData());
+
+			JSONObject object = JSON.parseObject(response.getResponseData());
+			if (response.isSuccess()) {
+				if (object.getInteger("code").equals(200)) {
+					break;
+				} else if (object.getInteger("code").equals(0)) {
+
+				}
+			} else {
+				String errorDesc = object.getString("message"); // 获取异常信息
+				System.out.println("调用魔蝎接口异常:" + errorDesc);
+				return;
+			}
+		}
+
+		url = "https://api.51datakey.com/carrier/v3/mobiles/" + mobile + "/data?task_id=" + taskId;
+		System.out.println(String.format(">>> 调用魔蝎taskId: %s", taskId));
+		moxieRequest = MoxieRequest.custom().setResponseClass(MoxieResponse.class).build();
+		System.out.println(String.format(">>> 调用魔蝎URL: %s", url));
+		System.out.println(String.format(">>> 调用魔蝎token: %s", authorization.getToken()));
+
+		MoxieClient moxieClient = new DefaultMoxieClient(httpClient, url, authorization.getToken());
+		MoxieResponse response = null;
+
+		try {
+			response = moxieClient.execute(moxieRequest, HttpMethod.GET);
+			System.out.println("========" + response);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+
+		JSONObject object = JSON.parseObject(response.getResponseData());
+		if (!response.isSuccess()) {
+			String errorDesc = object.getString("detail"); // 获取异常信息
+			System.out.println("调用魔蝎接口错误:" + errorDesc);
+			Response res = new Response();
+			res.setColor(Color.info);
+			res.setStatus(400);
+			res.setMsg(errorDesc);
+			PersonCreditOverview findByMojieTaskId = personCreditOverviewRepository.findFirstByMojieTaskOrderByIdDesc(taskId);
+			findByMojieTaskId.setAnalyseCellphoneLog(JsonTools.toJson(res));
+			findByMojieTaskId.setStatus("处理完成");
+			personCreditOverviewRepository.save(findByMojieTaskId);
+			// TODO 轮询任务状态返回结果异常, 打印异常信息, 继续轮询
+		} else {
+			System.out.println("处理正常，返回结果：");
+			Response res = new Response();
+			res.setColor(Color.primary);
+			res.setStatus(0);
+			res.setMsg("得到数据，开始处理");
+			res.setResult(object);
+			PersonCreditOverview findByMojieTaskId = personCreditOverviewRepository.findFirstByMojieTaskOrderByIdDesc(taskId);
+			findByMojieTaskId.setStatus("处理中");
+			findByMojieTaskId.setAnalyseCellphoneLog(JsonTools.toJson(res));
+			PersonCreditOverview save = personCreditOverviewRepository.save(findByMojieTaskId);
+			getReport(save);
+		}
+	}
+	private void getReport(PersonCreditOverview save){
+		
+		String linkman1Mobile = save.getPerson().getLinkman1Mobile();
+		String linkman1Name = save.getPerson().getLinkman1Name();
+		String linkman1Relationship = save.getPerson().getLinkman1Relationship();
+		
+		String linkman2Mobile = save.getPerson().getLinkman2Mobile();
+		String linkman2Name = save.getPerson().getLinkman2Name();
+		String linkman2Relationship = save.getPerson().getLinkman2Relationship();
+		String name = save.getPerson().getName();
+		String idCard = save.getPerson().getIdCard();
+		
+		String url = "https://api.51datakey.com/carrier/v3/mobiles/"+mobile
+				+"/mxreport?name="+name+"&idcard="+idCard+"&task_id="+taskId
+				+"&contact="+linkman1Mobile+":"+linkman1Name+":"+linkman1Relationship+","+linkman2Mobile+":"+linkman2Name+":"+linkman2Relationship;
+		MoxieRequest moxieRequest = MoxieRequest.custom().setResponseClass(MoxieResponse.class).build();
+
+		System.out.println(String.format(">>> 调用魔蝎URL: %s", url));
+		System.out.println(String.format(">>> 调用魔蝎token: %s", authorization.getToken()));
+
+		MoxieClient moxieClient = new DefaultMoxieClient(httpClient, url, authorization.getToken());
+		MoxieResponse response = null;
+
+		try {
+			response = moxieClient.execute(moxieRequest, HttpMethod.GET);
+			System.out.println("========" + response);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		PersonCreditOverview findOne = personCreditOverviewRepository.findOne(save.getId());
+		JSONObject object = JSON.parseObject(response.getResponseData());
+		int i = 0;
+		while(!response.isSuccess()) {
+			try {
+				Thread.sleep(2*1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+			}
+			String errorDesc = object.getString("detail"); // 获取异常信息
+			System.out.println("调用魔蝎接口错误:" + errorDesc);
+			try {
+				response = moxieClient.execute(moxieRequest, HttpMethod.GET);
+				findOne = personCreditOverviewRepository.findOne(save.getId());
+				object = JSON.parseObject(response.getResponseData());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+			}
+			i++;
+			if(i>30){
+				JSONObject o2 = JSON.parseObject(findOne.getAnalyseCellphoneLog());
+				o2.put("color", "GRAY");
+				o2.put("msg", object.getString("detail"));
+				findOne.setStatus("处理完成");
+				findOne.setAnalyseCellphoneLog(JsonTools.toJson(o2));
+				personCreditOverviewRepository.save(findOne);
+				return;
+			}
+		} 
+		
+			System.out.println("处理正常，返回结果：");
+			JSONObject o3 = JSON.parseObject(findOne.getAnalyseCellphoneLog());
+			HashMap<String, Object> description = new HashMap<String, Object>();
+			o3.put("color", "GREEN");
+			
+			
+			
+			JSONArray report = object.getJSONArray("report");
+			for (Object object1 : report) {
+				Color color = Color.primary;
+				if("update_time".equals(((JSONObject)object1).getString("key"))){
+					String updateTime = ((JSONObject)object1).getString("value");
+					description.put("updateTime", new CodeMessageColor("抓取时间", updateTime, color));
+				}
+			}
+			
+			JSONArray cellPhone = object.getJSONArray("cell_phone");
+			for (Object object2 : cellPhone) {
+				Color color = Color.primary;
+				if("in_time".equals(((JSONObject)object2).getString("key"))){
+					Integer inTime = ((JSONObject)object2).getInteger("value");
+					if(inTime<12){
+						color = Color.danger;
+					}else if(inTime<24){
+						color = Color.warning;
+					}else{
+						color = Color.success;
+					}
+					description.put("inTime", new CodeMessageColor("网龄", inTime.toString(), color));
+				}
+				else if("reliability".equals(((JSONObject)object2).getString("key"))){
+					String reliability = ((JSONObject)object2).getString("value");
+					if("未实名".equals(reliability)){
+						color = Color.danger;
+					}else{
+						color = Color.success;
+					}
+					description.put("reliability", new CodeMessageColor("实名认证", reliability, color));
+				}
+				else if("live_address".equals(((JSONObject)object2).getString("key"))){
+					String liveAddress = ((JSONObject)object2).getString("value");
+					description.put("liveAddress", new CodeMessageColor("现居住地", liveAddress, Color.primary));
+				}
+				else if("package_name".equals(((JSONObject)object2).getString("key"))){
+					String packageName = ((JSONObject)object2).getString("value");
+					description.put("packageName", new CodeMessageColor("套餐", packageName, Color.primary));
+				}
+			}
+			
+			JSONArray basicCheckItems = object.getJSONArray("basic_check_items");
+			for (Object object3 : basicCheckItems) {
+				Color color = Color.primary;
+				if("name_match".equals(((JSONObject)object3).getString("check_item"))){
+					String nameMatch = ((JSONObject)object3).getString("result");
+					if("匹配成功".equals(nameMatch)){
+						color = Color.success;
+					}else{
+						color = Color.warning;
+					}
+					description.put("nameMatch", new CodeMessageColor("姓名匹配", nameMatch, color));
+				}
+			}
+			
+			JSONArray applicationCheck = object.getJSONArray("application_check");
+			String linkmanTemplate = "linkman%dCheck";
+			int linkmanNumber = 0;
+			for (Object object4 : applicationCheck) {
+				Color color = Color.success;
+				linkmanNumber++;
+				String linkman = String.format(linkmanTemplate, linkmanNumber);
+				JSONObject checkPoint = ((JSONObject)object4).getJSONObject("check_points");
+				if(!"该联系人号码非临时小号".equals(checkPoint.getString("check_xiaohao"))){
+					color = Color.warning;
+				}
+				if("无该联系人电话的通话记录".equals(checkPoint.getString("check_mobile"))){
+					color = Color.danger;
+				}
+				checkPoint.put("color", color);
+				description.put(linkman, checkPoint);
+				
+			}
+			
+			JSONArray behaviorCheck = object.getJSONArray("behavior_check");
+			for (Object object5 : behaviorCheck) {
+				Color color = Color.primary;
+				String checkPoint = ((JSONObject)object5).getString("check_point");
+				if(checkPoint.equals("regular_circle")){
+					((JSONObject)object5).put("color", Color.primary);
+					description.put("regularCircle", object5);
+				}else if(checkPoint.equals("phone_silent")){
+					if(((JSONObject)object5).getInteger("score").equals(1)){
+						((JSONObject)object5).put("color", Color.primary);
+					}else{
+						((JSONObject)object5).put("color", Color.warning);
+					}
+					description.put("phoneSilent", object5);
+				}else if(checkPoint.equals("contact_each_other")){
+					if(((JSONObject)object5).getInteger("score").equals(1)){
+						((JSONObject)object5).put("color", Color.primary);
+					}else{
+						((JSONObject)object5).put("color", Color.warning);
+					}
+					description.put("contactEachOther", object5);
+				}else if(checkPoint.equals("contact_loan")){
+					if(((JSONObject)object5).getInteger("score").equals(1)){
+						((JSONObject)object5).put("color", Color.primary);
+					}else{
+						((JSONObject)object5).put("color", Color.warning);
+					}
+					description.put("contactLoan", object5);
+				}else if(checkPoint.equals("contact_bank")){
+					if(((JSONObject)object5).getInteger("score").equals(1)){
+						((JSONObject)object5).put("color", Color.primary);
+					}else{
+						((JSONObject)object5).put("color", Color.warning);
+					}
+					description.put("contactBank", object5);
+				}else if(checkPoint.equals("contact_credit_card")){
+					if(((JSONObject)object5).getInteger("score").equals(1)){
+						((JSONObject)object5).put("color", Color.primary);
+					}else{
+						((JSONObject)object5).put("color", Color.warning);
+					}
+					description.put("contactCreditCard", object5);
+				}else if(checkPoint.equals("contact_collection")){
+					if(((JSONObject)object5).getInteger("score").equals(1)){
+						((JSONObject)object5).put("color", Color.primary);
+					}else{
+						((JSONObject)object5).put("color", Color.warning);
+					}
+					description.put("contactCollection", object5);
+				}else if(checkPoint.equals("phone_call")){
+					if(((JSONObject)object5).getInteger("score").equals(1)){
+						((JSONObject)object5).put("color", Color.primary);
+					}else{
+						((JSONObject)object5).put("color", Color.warning);
+					}
+					description.put("phoneCall", object5);
+				}
+			}
+			
+			JSONArray callContactDetail = object.getJSONArray("call_contact_detail");
+			ArrayList<PhoneDetail> arrayList = new ArrayList<PhoneDetail>();
+			for (Object object6 : callContactDetail) {
+				Color color = Color.primary;
+				String city = ((JSONObject)object6).getString("city");
+				String peerNum = ((JSONObject)object6).getString("peer_num");
+				String companyName = ((JSONObject)object6).getString("company_name");
+				Integer dialCount = ((JSONObject)object6).getInteger("dial_cnt_6m");
+				Integer dialedCount = ((JSONObject)object6).getInteger("dialed_cnt_6m");
+				Integer callTime = ((JSONObject)object6).getInteger("call_time_6m")/60;
+				PhoneDetail phoneDetail = new PhoneDetail(peerNum,city,companyName,dialCount,dialedCount,callTime);
+				arrayList.add(phoneDetail);
+			}
+			description.put("phoneDetails", arrayList);
+			
+			JSONArray activeDegree = object.getJSONArray("active_degree");
+			for (Object object7 : activeDegree) {
+				Color color = Color.primary;
+				String appPoint = ((JSONObject)object7).getString("app_point");
+				if(appPoint.equals("net_used")){
+					String avgMonth = ((JSONObject)object7).getJSONObject("item").getString("avg_item_6m");
+					Integer valueOf = Integer.valueOf(avgMonth);
+					valueOf = valueOf/1024;
+					description.put("netUsedPerMonth", new CodeMessageColor("流量套餐使用量（MB）/月", valueOf, color));
+				}else if(appPoint.equals("call_cnt")){
+					String avgMonth = ((JSONObject)object7).getJSONObject("item").getString("avg_item_6m");
+					Double valueOf = Double.valueOf(avgMonth);
+					valueOf = valueOf/30;
+					if(valueOf < 2){
+						color = Color.warning;
+					}
+					description.put("callCountPerDay", new CodeMessageColor("平均通话次数/天", String.format("%.1f", valueOf), color));
+				}else if(appPoint.equals("avg_call_time")){
+					String avgMonth = ((JSONObject)object7).getJSONObject("item").getString("item_6m");
+					Integer valueOf = Integer.valueOf(avgMonth);
+					if(valueOf < 30){
+						color = Color.warning;
+					}
+					description.put("callTimePerTime", new CodeMessageColor("平均通话时长（秒）/次", String.format("%d", valueOf), color));
+				}
+				
+			}
+			
+			JSONArray consumptionDetail = object.getJSONArray("consumption_detail");
+			for (Object object8 : consumptionDetail) {
+				Color color = Color.primary;
+				String appPoint = ((JSONObject)object8).getString("app_point");
+				if(appPoint.equals("total_fee")){
+					String money = ((JSONObject)object8).getJSONObject("item").getString("avg_item_6m");
+					Integer valueOf = Integer.valueOf(money);
+					valueOf = valueOf/100;
+					description.put("moneyPerMonth", new CodeMessageColor("平均话费（元）/月", valueOf.toString(), color));
+				}
+			}
+			
+			JSONArray userInfoCheck = object.getJSONArray("user_info_check");
+			for (Object object9 : userInfoCheck) {
+				Color color = Color.primary;
+				JSONObject checkSearchInfo = ((JSONObject)object9).getJSONObject("check_search_info");
+				Integer searchedOrgCnt = checkSearchInfo.getInteger("searched_org_cnt");
+				description.put("searchedOrganizationCount", new CodeMessageColor("查询过该用户的相关企业数量", searchedOrgCnt, color));
+				JSONArray jsonArray = checkSearchInfo.getJSONArray("searched_org_type");
+				description.put("searchedOrganizationType", new CodeMessageColor("查询过该用户的相关企业类型", jsonArray, color));
+				
+				JSONObject checkBlackInfo = ((JSONObject)object9).getJSONObject("check_black_info");
+				Integer contactsClass1BlacklistCnt = checkBlackInfo.getInteger("contacts_class1_blacklist_cnt");
+				if(contactsClass1BlacklistCnt>0){
+					color = Color.warning;
+				}
+				description.put("contactsClass1BlacklistCnt", new CodeMessageColor("直接联系人中黑名单人数", contactsClass1BlacklistCnt, color));
+				Integer contactsClass2BlacklistCnt = checkBlackInfo.getInteger("contacts_class2_blacklist_cnt");
+				if(contactsClass2BlacklistCnt>3){
+					color = Color.warning;
+				}else{
+					color = Color.primary;
+				}
+				description.put("contactsClass2BlacklistCnt", new CodeMessageColor("间接联系人中黑名单人数", contactsClass2BlacklistCnt, color));
+			}
+			
+			
+			o3.put("description", description);
+			o3.put("msg", "处理完成");
+			findOne.setStatus("处理完成");
+			findOne.setAnalyseCellphoneLog(JsonTools.toJson(o3));
+			personCreditOverviewRepository.save(findOne);
+		
+	}
+	public static class PhoneDetail{
+		private String peerNum;
+		private String city;
+		private String companyName;
+		private Integer dialCount;
+		private Integer dialedCount;
+		private Integer callTime;
+		public String getPeerNum() {
+			return peerNum;
+		}
+		public void setPeerNum(String peerNum) {
+			this.peerNum = peerNum;
+		}
+		public String getCity() {
+			return city;
+		}
+		public void setCity(String city) {
+			this.city = city;
+		}
+		public String getCompanyName() {
+			return companyName;
+		}
+		public void setCompanyName(String companyName) {
+			this.companyName = companyName;
+		}
+		
+		public Integer getDialCount() {
+			return dialCount;
+		}
+		public void setDialCount(Integer dialCount) {
+			this.dialCount = dialCount;
+		}
+		public Integer getDialedCount() {
+			return dialedCount;
+		}
+		public void setDialedCount(Integer dialedCount) {
+			this.dialedCount = dialedCount;
+		}
+		public Integer getCallTime() {
+			return callTime;
+		}
+		public void setCallTime(Integer callTime) {
+			this.callTime = callTime;
+		}
+		public PhoneDetail(){
+			super();
+		}
+		public PhoneDetail(String peerNum, String city, String companyName, Integer dialCount, Integer dialedCount,
+				Integer callTime) {
+			super();
+			this.peerNum = peerNum;
+			this.city = city;
+			this.companyName = companyName;
+			this.dialCount = dialCount;
+			this.dialedCount = dialedCount;
+			this.callTime = callTime;
+		}
+		
+		
+	}
+	
+	public static class CodeMessageColor {
+		private String message;
+		private Object value;
+		private Color color;
+		public String getMessage() {
+			return message;
+		}
+		public void setMessage(String message) {
+			this.message = message;
+		}
+		public Object getValue() {
+			return value;
+		}
+		public void setValue(Object value) {
+			this.value = value;
+		}
+		public Color getColor() {
+			return color;
+		}
+		public void setColor(Color color) {
+			this.color = color;
+		}
+		public CodeMessageColor(String message, Object value, Color color) {
+			super();
+			this.message = message;
+			this.value = value;
+			this.color = color;
+		}
+
+	
+
+
+	}
+}

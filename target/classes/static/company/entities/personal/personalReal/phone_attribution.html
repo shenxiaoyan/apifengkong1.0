@@ -1,0 +1,199 @@
+ <script>
+    "use strict";
+    /*
+     *创建人：沈小艳
+     *创建时间：2017/08/01
+     *验证手机号归属地查询信息
+     * */
+    app.controller('phoneAttributionCheck', ['$scope','$http','pdfprint','utifyFunction',"$rootScope", function ($scope,$http,pdfprint,utifyFunction,$rootScope) {
+        
+        //数据初始化
+        $scope.info = {
+            cellphone: '',
+            apiId:localStorage.getItem("apiNameId")
+        };
+
+        //结果与样例的切换初始化
+        $scope.resultSwitch = false;
+
+        //重置数据
+        $scope.resetInfo = function () {
+            $scope.info.cellphone = '';
+            $scope.resultSwitch = false;
+        };
+        $('#cache_model').modal("hide");
+        //提交
+        $scope.submitInfo = function (myForm) {
+            //提交空表单时提示格式错误
+            if (myForm.cellphone) {
+                myForm.cellphone.$dirty = true;
+            }
+            if (!myForm.$valid) {
+                $scope.resultSwitch = false;
+                return
+            }
+            $('#cache_model').modal("show");
+            $http({
+                method: 'POST',
+                url: '/normalSearch'+utifyFunction($scope.info)
+            }).then(function successCallback(response) {
+                $('#cache_model').modal("hide");
+                if(response){
+                    if(response.data.code === 8652){
+                        $scope.resultSwitch = false;
+                        sweetAlert("",response.data.message, "error");
+                        return;
+                    }
+
+                    if(response.data["ali手机号码归属地"].error_code === 0){
+                        $scope.resultMsg = response.data["ali手机号码归属地"].result;
+                        $scope.dataMsg = true;//查询成功
+                        $scope.otherMsg = false;
+                        console.log(response)
+                    }
+                    $scope.resultSwitch = true;
+
+                }
+            }, function errorCallback(response) {
+                // 请求失败执行代码
+
+            });
+        }
+
+        //下载
+//        $scope.createPdf=function () {
+//            if ($scope.resultSwitch === true) {
+//                var html = $("#business_flowing_pdf").html();
+//                var today = new Date();
+//                var year = today.getFullYear();
+//                var month = today.getMonth() + 1;
+//                var day = today.getDay();
+//                var hour = today.getHours();
+//                var minute = today.getMinutes();
+
+                //使用form来生成下载所需的数据
+//                var form = $("<form>");
+//                form.attr("style", "display:none");
+//                form.attr("target", "");
+//                form.attr("method", "post");
+//                form.attr("action", "http://www.jinrongfengkong.com/createpdf");
+//
+//                var input1 = $("<input>");
+//                input1.attr("type", "hidden");
+//                input1.attr("name", "html");
+//                input1.attr("value", html);
+//                form.append(input1);
+//
+//                var input2 = $("<input>");
+//                input2.attr("type", "hidden");
+//                input2.attr("name", "filename");
+//                input2.attr("value", "【小金风控803】手机号码归属地" + year + "." + month + "." + day + "_" + hour + "." + minute);
+//                form.append(input2);
+//
+//                //将表单放置在web中
+//                $("body").append(form);
+//                form.submit();
+//
+//            }
+//            else {
+//                sweetAlert("", "请先查询再下载", "error");
+//            }
+//        }
+        //接口单价
+        $scope.apiName=localStorage.getItem("apiNameId");
+        $http({
+            url:"/supplyAPI/showApiScore?apiId="+$scope.apiName,
+            method:"GET"
+        }).then(function successCallback(response) {
+            console.log(response)
+            $scope.priceResult=response.data[0];
+        })
+
+    }]);
+</script>
+<div class="vbox" ng-controller="phoneAttributionCheck">
+    <div class="wrapper b-b">
+        <div class="font-thin h4">个人信息查询</div>
+    </div>
+    <div class="row-row">
+        <div class="cell scrollable">
+            <div class="cell-inner">
+                <div class="wrapper-md">
+                    <div class="panel panel-info input-panel" style="margin-bottom: 0">
+                        <div class="panel-heading overflow" style="font-size: 16px">
+                            <span class="pull-left text-left">手机号归属地查询</span>
+                            <span class="pull-right text-right supCol">{{priceResult}}积分/次</span>
+                        </div>
+                        <div class="panel-body">
+                            <form name="myForm" class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label"><span class="supCol">*</span>手机号：</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" ng-model="info.cellphone" name="cellphone" class="form-control" >
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.cellphone.$dirty && myForm.cellphone.$invalid">
+                                        <span class="supCol" ng-show="myForm.cellphone.$error.required">手机号不能为空</span>
+                                        <span class="supCol" ng-show="myForm.cellphone.$error.pattern">手机号格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-offset-3 col-sm-8">
+                                        <button type="button"  class="btn btn-info" ng-click="submitInfo(myForm)">提交</button>
+                                        <button type="button"  class="btn btn-info" ng-click="resetInfo()">重置</button>
+                                        <button type="button" class="btn btn-danger" ng-click="createPdf()"><i class="fa fa-file-pdf-o"></i> 生成PDF</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!--样例-->
+                <div class="wrapper-md" style="width:100%; padding:0 20px 0 20px;" ng-show="!resultSwitch">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                            <span style="color: red;">样例</span>
+                        </div>
+                        <div>
+                            <table class="table-border-style">
+                                <tr ><td width="50%">手机号所在省份</td><td width="50%">北京</td></tr>
+                                <tr ><td>手机号所在区域名字</td><td>北京</td></tr>
+                                <tr ><td>手机号简单描述</td><td>北京移动全球通卡</td></tr>
+                                <tr ><td>手机号供应商</td><td>中国移动</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!--结果-->
+                <div id="business_flowing_pdf" class="wrapper-md" style="width:100%; padding:0 20px 0 20px;" ng-show="resultSwitch">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                        </div>
+                        <div>
+                            <table ng-if="otherMsg" class="table-border-style grid_table">
+                                <tr><td width="80%">{{resultMsg}}</td></tr>
+                            </table>
+                            <table ng-if="dataMsg" class="table-border-style grid_table">
+                                <tr><td width="40%">手机号供应商</td><td width="40%">{{resultMsg.company}}</td></tr>
+                                <tr><td>手机号类型</td><td>{{resultMsg.card}}</td></tr>
+                                <tr><td>手机号所在省份</td><td>{{resultMsg.province}}</td></tr>
+                                <tr><td>手机号所在城市</td><td>{{resultMsg.city}}</td></tr>
+                                <tr><td>手机号</td><td>{{resultMsg.num}}</td></tr>
+                                <tr><td>手机号所在城市区号</td><td>{{resultMsg.citycode}}</td></tr>
+                                <tr><td>手机号所在省区号</td><td>{{resultMsg.areacode}}</td></tr>
+                                <tr><td>手机号所在地编码</td><td>{{resultMsg.zip}}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="modal gifPosition" id="cache_model">
+        <img src="../../../../img/cache1.gif" alt="">
+    </div>
+</div>
+
+

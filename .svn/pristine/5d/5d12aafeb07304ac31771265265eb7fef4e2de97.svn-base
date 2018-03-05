@@ -1,0 +1,471 @@
+package apifengkong.service;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.annotation.PostConstruct;
+
+import org.jboss.logging.Logger;
+import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import apifengkong.entity.Customer;
+import apifengkong.entity.PersonCreditOverview;
+import apifengkong.entity.PersonCreditOverviewRepository;
+import apifengkong.entity.PersonCreditSubmit;
+import apifengkong.entity.SupplyAPI;
+import apifengkong.entity.SupplyAPIRepository;
+import apifengkong.util.Common;
+import apifengkong.util.FailResponse;
+import apifengkong.util.JsonTools;
+
+@Service
+public class PersonCreditSearchService {
+
+	private static Logger logger = Logger.getLogger(PersonCreditSearchService.class);
+
+	@Autowired
+	SupplyAPIRepository supplyAPIRepository;
+	@Autowired
+	BaseSearchService baseSearchService;
+	@Autowired
+	PersonCreditOverviewRepository personCreditOverviewRepository;
+
+	public void personCreditSearch(PersonCreditSubmit savePerson, Customer customer) {
+		PersonCreditOverview personCreditOverview = new PersonCreditOverview();
+		personCreditOverview.setPerson(savePerson);
+
+		// analyseIdCard(savePerson, customer, personCreditOverview);
+		// analyseCellphone(savePerson, customer, personCreditOverview);
+		// analyseDishonestBlacklist(savePerson, customer,
+		// personCreditOverview);
+		// analyseCriminal(savePerson, customer, personCreditOverview);
+		analyseMultipleHeadLend(savePerson, customer, personCreditOverview);
+
+		personCreditOverviewRepository.save(personCreditOverview);
+
+	}
+
+	public void analyseIdCard(PersonCreditSubmit savePerson, Customer customer,
+			PersonCreditOverview personCreditOverview) {
+		String idCard = savePerson.getIdCard();
+		Response res = new Response();
+		HashMap<SupplyAPI, HashMap<String, String>> api = new HashMap<>();
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8034);
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		hashMap.put("idcard", idCard);
+		api.put(supplyApi, hashMap);
+
+		Map<String, Map> results = baseSearchService.search(api, customer);
+		if (!results.isEmpty()) {
+			Collection<Map> values = results.values();
+			for (Map map : values) {
+				if (Integer.valueOf(map.get("status").toString()).equals(0)) {
+					res.setColor(Color.BLACK);
+					res.setMsg(map.get("msg").toString());
+					res.setStatus(0);
+					res.setResult(map.get("result"));
+					logger.info("正常内容" + res);
+					personCreditOverview.setArea(((HashMap) map.get("result")).get("area").toString());
+					personCreditOverview.setSex(((HashMap) map.get("result")).get("sex").toString());
+					personCreditOverview.setBirth(((HashMap) map.get("result")).get("birth").toString());
+					SimpleDateFormat dateformat = new SimpleDateFormat("yyyy年MM月dd日");
+					try {
+						Date parse = dateformat.parse(((HashMap) map.get("result")).get("birth").toString());
+						int year1 = new Date().getYear();
+						int year2 = parse.getYear();
+						int age = year1 - year2;
+						personCreditOverview.setAge(age);
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				} else {
+					res.setColor(Color.RED);
+					res.setMsg(map.get("msg").toString());
+					res.setStatus(Integer.valueOf(map.get("status").toString()));
+					logger.info("错误内容" + res);
+				}
+			}
+		} else {
+			res.setColor(Color.GRAY);
+			res.setStatus(400);
+			res.setMsg("访问超时");
+			logger.info("错误内容" + res);
+		}
+		personCreditOverview.setAnalyseIdCard(JsonTools.toJson(res));
+
+	}
+
+	public void analyseCellphone(PersonCreditSubmit savePerson, Customer customer,
+			PersonCreditOverview personCreditOverview) {
+		String mobile = savePerson.getMobile();
+		Response res = new Response();
+		HashMap<SupplyAPI, HashMap<String, String>> api = new HashMap<>();
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8001);
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		hashMap.put("mobile", mobile);
+		api.put(supplyApi, hashMap);
+
+		Map<String, Map> results = baseSearchService.search(api, customer);
+		if (!results.isEmpty()) {
+			Collection<Map> values = results.values();
+			for (Map map : values) {
+				if (Integer.valueOf(map.get("error_code").toString()).equals(0)) {
+					res.setColor(Color.BLACK);
+					res.setStatus(0);
+					res.setMsg("ok");
+					res.setResult(map.get("result"));
+					logger.info("正常内容" + res);
+					String mobileCompany = ((HashMap) map.get("result")).get("city").toString()
+							+ ((HashMap) map.get("result")).get("company").toString().substring(2);
+					personCreditOverview.setMobileCompany(mobileCompany);
+
+				} else {
+					res.setColor(Color.RED);
+					res.setMsg(map.get("reason").toString());
+					res.setStatus(Integer.valueOf(map.get("error_code").toString()));
+					logger.info("错误内容" + res);
+				}
+
+			}
+		} else {
+			res.setColor(Color.GRAY);
+			res.setStatus(400);
+			res.setMsg("访问超时");
+			logger.info("错误内容" + res);
+		}
+		personCreditOverview.setAnalyseCellphone(JsonTools.toJson(res));
+	}
+
+	private void analyseAntifraud() {
+
+	}
+
+	private void analyseRenhangCredit() {
+
+	}
+
+	private void analyseDishonestBlacklist(PersonCreditSubmit savePerson, Customer customer,
+			PersonCreditOverview personCreditOverview) {
+		Response res = new Response();
+		HashMap<SupplyAPI, HashMap<String, String>> api = new HashMap<>();
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8028);
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		hashMap.put("name", savePerson.getName());
+		hashMap.put("cardno", savePerson.getIdCard());
+		hashMap.put("type", "person");
+		api.put(supplyApi, hashMap);
+
+		Map<String, Map> results = baseSearchService.search(api, customer);
+		if (!results.isEmpty()) {
+			Collection<Map> values = results.values();
+			for (Map map : values) {
+				if (Integer.valueOf(map.get("code").toString()).equals(1)) {
+					res.setColor(Color.GREEN);
+					res.setStatus(0);
+					res.setMsg(map.get("msg").toString());
+					res.setResult(map.get("data"));
+					logger.info("正常内容" + res);
+
+				} else if (Integer.valueOf(map.get("code").toString()).equals(0)) {
+					res.setColor(Color.RED);
+					res.setMsg(map.get("msg").toString());
+					res.setStatus(0);
+					res.setResult(map.get("data"));
+					personCreditOverview.setBlacklist(true);
+					logger.info("错误内容" + res);
+				}
+
+			}
+		} else {
+			res.setColor(Color.GRAY);
+			res.setStatus(400);
+			res.setMsg("访问超时");
+			logger.info("错误内容" + res);
+		}
+		personCreditOverview.setAnalyseDishonestBlacklist(JsonTools.toJson(res));
+	}
+
+	private void analyseCriminal(PersonCreditSubmit savePerson, Customer customer,
+			PersonCreditOverview personCreditOverview) {
+		Response res = new Response();
+		HashMap<SupplyAPI, HashMap<String, String>> api = new HashMap<>();
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8022);
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		hashMap.put("name", savePerson.getName());
+		hashMap.put("idcard", savePerson.getIdCard());
+		api.put(supplyApi, hashMap);
+
+		Map<String, Map> results = baseSearchService.search(api, customer);
+		if (!results.isEmpty()) {
+			Collection<Map> values = results.values();
+			for (Map map : values) {
+				if (map.get("resCode").toString().equals("0000")) {
+					res.setStatus(0);
+					res.setMsg(((HashMap) map.get("data")).get("statusMsg").toString());
+					if (((HashMap) map.get("data")).get("statusCode").toString().equals("2012")) {
+						res.setColor(Color.RED);
+						personCreditOverview.setCriminal(true);
+					} else {
+						res.setColor(Color.GREEN);
+					}
+					res.setResult(map.get("data"));
+					logger.info("正常内容" + res);
+
+				} else {
+					res.setColor(Color.GRAY);
+					res.setMsg(map.get("resMsg").toString());
+					res.setStatus(300);
+					logger.info("错误内容" + res);
+				}
+
+			}
+		} else {
+			res.setColor(Color.GRAY);
+			res.setStatus(400);
+			res.setMsg("访问超时");
+			logger.info("错误内容" + res);
+		}
+		personCreditOverview.setAnalyseCriminal(JsonTools.toJson(res));
+	}
+
+	private void analyseMultipleHeadLend(PersonCreditSubmit savePerson, Customer customer,
+			PersonCreditOverview personCreditOverview) {
+		Response res = new Response();
+		HashMap<SupplyAPI, HashMap<String, String>> api = new HashMap<>();
+		SupplyAPI supplyApi = supplyAPIRepository.findOne(8006);
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		hashMap.put("cycle", "12");
+		hashMap.put("cellphone", savePerson.getMobile());
+		api.put(supplyApi, hashMap);
+
+		Map<String, Map> results = baseSearchService.search(api, customer);
+		if (!results.isEmpty()) {
+			Collection<Map> values = results.values();
+			for (Map map : values) {
+				if (map.get("resCode").toString().equals("0000")) {
+					res.setStatus(0);
+					res.setMsg(((HashMap) map.get("data")).get("statusMsg").toString());
+					if (((HashMap) map.get("data")).get("statusCode").toString().equals("2012")) {
+						if (((HashMap) ((HashMap) map.get("data")).get("result")).get("code").toString()
+								.equals("200")) {
+							res.setColor(Color.GREEN);
+							HashMap<String, Integer> description = new HashMap<String, Integer>();
+
+							HashMap s002 = (HashMap) ((HashMap) ((HashMap) ((HashMap) map.get("data")).get("result"))
+									.get("data")).get("S002");
+							HashMap s004 = (HashMap) ((HashMap) ((HashMap) ((HashMap) map.get("data")).get("result"))
+									.get("data")).get("S004");
+							HashMap s007 = (HashMap) ((HashMap) ((HashMap) ((HashMap) map.get("data")).get("result"))
+									.get("data")).get("S007");
+							HashMap s009 = (HashMap) ((HashMap) ((HashMap) ((HashMap) map.get("data")).get("result"))
+									.get("data")).get("S009");
+							HashMap s012 = (HashMap) ((HashMap) ((HashMap) ((HashMap) map.get("data")).get("result"))
+									.get("data")).get("S012");
+							HashMap s013 = (HashMap) ((HashMap) ((HashMap) ((HashMap) map.get("data")).get("result"))
+									.get("data")).get("S013");
+
+							int bankRegisterCount = 0;
+							int webRegisterCount = 0;
+							int webApplyMin = 0;
+							int webApplyMax = 0;
+							int webLendMin = 0;
+							int webLendMax = 0;
+							int webOverdueCount = 0;
+							int webOverdueMin = 0;
+							int webOverdueMax = 0;
+							
+							
+							HashSet<String> webApplySet = new HashSet<String>();
+							HashSet<String> webLendSet = new HashSet<String>();
+							HashSet<String> webOverdueSet = new HashSet<String>();
+							
+			
+							
+							
+							List l_s002 = (ArrayList) s002.get("data");
+							List l_s004 = (ArrayList) s004.get("data");
+							List l_s007 = (ArrayList) s007.get("data");
+							List l_s009 = (ArrayList) s009.get("data");
+							List l_s012 = (ArrayList) s012.get("data");
+							List l_s013 = (ArrayList) s013.get("data");
+
+							if (!l_s002.isEmpty()) {
+								for (Object object : l_s002) {
+									HashMap row = (HashMap) object;
+									if (row.get("platformType").toString().equals("2")) {
+										webRegisterCount++;
+									} else if (row.get("platformType").toString().equals("1")) {
+										bankRegisterCount++;
+									}
+								}
+							}
+							if (!l_s004.isEmpty()) {
+
+								for (Object object : l_s004) {
+									HashMap row = (HashMap) object;
+									if (row.get("platformType").toString().equals("2")) {
+										webApplySet.add(row.get("platformCode").toString());
+										webApplyMin += Common.youfen_money_min(row.get("applicationAmount").toString());
+										webApplyMax += Common.youfen_money_max(row.get("applicationAmount").toString());
+									}
+								}
+							}
+
+							if (!l_s007.isEmpty()) {
+								for (Object object : l_s007) {
+									HashMap row = (HashMap) object;
+									if (row.get("platformType").toString().equals("2")) {
+										webLendSet.add(row.get("platformCode").toString());
+										webLendMin += Common.youfen_money_min(row.get("loanLendersAmount").toString());
+										webLendMax += Common.youfen_money_max(row.get("loanLendersAmount").toString());
+									}
+								}
+							}
+							if (!l_s012.isEmpty()) {
+								for (Object object : l_s012) {
+									HashMap row = (HashMap) object;
+										webOverdueCount += Integer.valueOf(row.get("counts").toString());
+										webOverdueSet.add(row.get("platformCode").toString());
+										webOverdueMin += Common.youfen_money_min(row.get("money").toString());
+										webOverdueMax += Common.youfen_money_max(row.get("money").toString());
+									
+								}
+							}
+							if(webApplySet.size()>7 || webLendSet.size()>3){
+								res.setColor(Color.YELLOW);
+							}
+							if(webOverdueCount>0){
+								res.setColor(Color.YELLOW);
+							}
+							if(webLendMin>50){
+								res.setColor(Color.RED);
+							}
+							
+							description.put("银行注册次数", bankRegisterCount);
+							description.put("网贷平台注册次数", webRegisterCount);
+							
+							description.put("在多少网贷平台申请贷款", webApplySet.size());
+							description.put("网贷申请额度下限", webApplyMin);
+							description.put("网贷申请额度上限", webApplyMax);
+							
+							description.put("放款平台数", webLendSet.size());
+							description.put("网贷借款额度下限", webLendMin);
+							description.put("网贷借款额度上限", webLendMax);
+							
+							description.put("逾期平台数", webOverdueSet.size());
+							description.put("网贷逾期次数", webOverdueCount);
+							description.put("网贷逾期额度下限", webOverdueMin);
+							description.put("网贷逾期额度上限", webOverdueMax);
+							res.setDescription(description);
+
+						} else {
+							res.setColor(Color.GRAY);
+						}
+					}
+					res.setResult(map.get("data"));
+					logger.info("正常内容" + res);
+
+				} else {
+					res.setColor(Color.GRAY);
+					res.setMsg(map.get("resMsg").toString());
+					res.setStatus(300);
+					logger.info("错误内容" + res);
+				}
+
+			}
+		} else {
+			res.setColor(Color.GRAY);
+			res.setStatus(400);
+			res.setMsg("访问超时");
+			logger.info("错误内容" + res);
+		}
+		personCreditOverview.setAnalyseMultipleHeadLend(JsonTools.toJson(res));
+	}
+
+	private void analyseZhimaScore() {
+
+	}
+
+	private void analyseCellphoneLog() {
+
+	}
+
+	private void analyseBill() {
+
+	}
+
+	private void analyseComprehensiveRisk() {
+
+	}
+
+	public static class Response {
+		Integer status;
+		String msg;
+		Color color;
+		Object result;
+		Object Description;
+
+		public Object getDescription() {
+			return Description;
+		}
+
+		public void setDescription(Object description) {
+			Description = description;
+		}
+
+		public Integer getStatus() {
+			return status;
+		}
+
+		public void setStatus(Integer status) {
+			this.status = status;
+		}
+
+		public String getMsg() {
+			return msg;
+		}
+
+		public void setMsg(String msg) {
+			this.msg = msg;
+		}
+
+		public Color getColor() {
+			return color;
+		}
+
+		public void setColor(Color color) {
+			this.color = color;
+		}
+
+		public Object getResult() {
+			return result;
+		}
+
+		public void setResult(Object result) {
+			this.result = result;
+		}
+
+		@Override
+		public String toString() {
+			return "Response [status=" + status + ", msg=" + msg + ", color=" + color + ", result=" + result + "]";
+		}
+
+	}
+
+	public enum Color {
+		GRAY, BLACK, YELLOW, GREEN, RED
+	}
+
+}

@@ -1,0 +1,33 @@
+
+<div class="body_wrap">
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+
+    <table width="100%">
+        <tr>
+            <td width="40%" style="text-align: right;padding-right:60px;">
+                <img src="fengkongweishi/images/icon_full.png" width="180" alt="风控卫士" />
+            </td>
+            <td style="vertical-align: top;">
+                <h4>功能正在开发中...</h4>
+                <br />
+                杭州商道科技有限公司 &nbsp;
+                <br />
+                0571-56932575
+            </td>
+        </tr>
+    </table>
+    <div class="footer_wrap">
+        <div class="pull-right">
+            杭州商道科技有限公司 &nbsp;
+            0571-56932575
+        </div>
+    </div>
+</div>

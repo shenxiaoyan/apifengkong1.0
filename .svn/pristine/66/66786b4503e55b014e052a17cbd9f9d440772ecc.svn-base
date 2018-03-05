@@ -1,0 +1,17 @@
+package apifengkong.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import apifengkong.entity.Customer;
+
+public class RechargeService {
+public Integer recharge() {
+	List<Customer> customerList=new ArrayList<Customer>();
+	for (Customer customer : customerList) {
+		
+	}
+	return null;
+	
+}
+}

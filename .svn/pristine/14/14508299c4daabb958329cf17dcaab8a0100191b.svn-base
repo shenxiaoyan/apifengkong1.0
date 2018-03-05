@@ -1,0 +1,64 @@
+package apifengkong.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import apifengkong.entity.APISearchLogRepository;
+import apifengkong.entity.PersonLoanRepository;
+import apifengkong.entity.SupplyAPIRepository;
+import apifengkong.entity.UserRepository;
+import apifengkong.util.Common;
+
+@Controller
+public class HomeController {
+	@Autowired
+	UserRepository userRepository;
+	
+	@Autowired
+	PersonLoanRepository personLoanRepository;
+	@Autowired
+	APISearchLogRepository apiSearchLogRepository;
+	@Autowired
+	SupplyAPIRepository supplyAPIRepository;
+	
+	@RequestMapping("/")
+    public String index(Model model) {
+		
+		System.out.println(Common.getPrincipal());
+		
+		 if(Common.getPrincipal().getRole().getName().equals("ROLE_ADMIN")){
+			return "redirect:admin/index.html";
+//		 }else	if(Common.getPrincipal().getRole().getName().equals("ROLE_EMPLOYEE")){
+//				return "redirect:fengkongweishi/index.html";
+		
+//		}else if(Common.getPrincipal().getRole().getName().equals("ROLE_MANAGER")){
+//			return "redirect:fengkongweishi/index.html";
+//		}else if(Common.getPrincipal().getRole().getName().equals("ROLE_USER")){
+//			return "redirect:fengkongweishi/index.html";
+		}else{
+			return "index";
+		}
+    }
+	
+    @RequestMapping("/login")
+    public String login(Model model) {
+    	return "login";
+    }
+
+    
+    @RequestMapping("/register")
+    public String register(Model model) {
+		return "register";
+    }
+    
+    @RequestMapping("/password")
+    public String password(Model model) {
+		return "password";
+    }
+    
+   
+	
+
+}

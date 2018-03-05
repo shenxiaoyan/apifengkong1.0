@@ -1,0 +1,342 @@
+<script>
+    "use strict";
+    /*
+     *创建人：沈小艳
+     *创建时间：2017/08/02
+     *银联消费报告信息
+     * */
+    app.controller('cardPresentationCheck', ['$scope','$http','utifyFunction',"$rootScope",
+        function ($scope,$http,utifyFunction,$rootScope) {
+        //数据初始化
+        $scope.info = {
+            name: '',
+            cellphone: '',
+            bankcard: '',
+            idCard:'',
+            apiId:localStorage.getItem("apiNameId")
+        };
+
+        //结果与样例的切换初始化
+        $scope.resultSwitch = false;
+
+        //重置数据
+        $scope.resetInfo = function () {
+            $scope.info.name = '';
+            $scope.info.cellphone = '';
+            $scope.info.bankcard = '';
+            $scope.info.idCard = '';
+            $scope.resultSwitch = false;
+        };
+
+        $('#cache_model').modal("hide");
+
+        //提交
+        $scope.submitInfo = function (myForm) {
+
+            //数据信息格式错误时阻止表单提交
+            if (myForm.name) {
+                myForm.name.$dirty = true
+            }
+            if (myForm.cellphone) {
+                myForm.cellphone.$dirty = true
+            }
+            if (myForm.idCard) {
+                myForm.idCard.$dirty = true
+            }
+            if (myForm.bankcard) {
+                myForm.bankcard.$dirty = true
+            }
+            if (!myForm.$valid) {
+                $scope.resultSwitch = false;
+                return
+            }
+
+            $('#cache_model').modal("hide");
+            $http({
+                method: 'POST',
+                url: '/normalSearch'+utifyFunction($scope.info)
+            }).then(function successCallback(response) {
+                $('#cache_model').modal("hide");
+
+                if(response.data.code === 8652){
+                    $scope.resultSwitch = false;
+                    sweetAlert("",response.data.message, "error");
+                    return;
+                }
+
+                if(response.data["youfen银联消费报告"].resCode === '0000'){
+                    if (response.data["youfen银联消费报告"].data.statusCode === '2012') {
+                        $scope.dataMsg = true;//查询成功
+                        $scope.otherMsg = false;
+                        $scope.resultMsg = response.data["youfen银联消费报告"].data.result;
+                        $scope.resultSwitch = true;
+                    }
+                    else{
+                        $scope.resultMsg = response.data["youfen银联消费报告"].data.statusMsg;
+                        $scope.dataMsg = false;//查询成功
+                        $scope.otherMsg = true;
+                        $scope.resultSwitch = true;
+                    }
+                    $scope.resultSwitch = true;
+                }
+                else{
+                    $scope.dataMsg = false;//查询成功
+                    $scope.otherMsg = true;
+                    $scope.resultMsg = response.data["youfen银联消费报告"].resMsg;
+                    $scope.resultSwitch = true;
+                }
+
+            });
+        }
+
+        //下载
+        $scope.createPdf=function () {
+            if($scope.resultSwitch ===true){
+                var html = $("#business_flowing_pdf").html();
+                var today = new Date();
+                var year = today.getFullYear();
+                var month = today.getMonth() + 1;
+                var day = today.getDay();
+                var hour = today.getHours();
+                var minute = today.getMinutes();
+
+                //使用form来生成下载所需的数据
+                var form = $("<form>");
+                form.attr("style", "display:none");
+                form.attr("target", "");
+                form.attr("method", "post");
+                form.attr("action", "/createpdf");
+
+                var input1 = $("<input>");
+                input1.attr("type", "hidden");
+                input1.attr("name", "html");
+                input1.attr("value", html);
+                form.append(input1);
+
+                var input2 = $("<input>");
+                input2.attr("type", "hidden");
+                input2.attr("name", "filename");
+                input2.attr("value", "【小金风控8023】银联消费报告 " + year + "." + month + "." + day + "_" + hour + "." + minute);
+                form.append(input2);
+
+                //将表单放置在web中
+                $("body").append(form);
+                form.submit();
+            }
+            else{
+                sweetAlert("", "请先查询再下载", "error");
+            }
+        }
+//接口单价
+            $scope.apiName=localStorage.getItem("apiNameId");
+            $http({
+                url:"/supplyAPI/showApiScore?apiId="+$scope.apiName,
+                method:"GET"
+            }).then(function successCallback(response) {
+                console.log(response)
+                $scope.priceResult=response.data[0];
+            })
+
+    }]);
+</script>
+
+<div class="vbox" ng-controller="cardPresentationCheck">
+    <div class="wrapper b-b">
+        <div class="font-thin h4">个人信息查询</div>
+    </div>
+    <div class="row-row">
+        <div class="cell scrollable">
+            <div class="cell-inner">
+                <div class="wrapper-md">
+                    <div class="panel panel-info input-panel" style="margin-bottom: 0">
+                        <div class="panel-heading overflow" style="font-size: 16px">
+                            <span class="pull-left text-left">银联消费报告</span>
+                            <span class="pull-right text-right supCol">{{priceResult}}积分/次</span>
+                        </div>
+                        <div class="panel-body">
+                            <form name="myForm" method="post" class="form-horizontal">
+                                <div class="form-group validate validate-mobile">
+                                    <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>持卡人姓名：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.name" name="name" class="form-control" ng-required="true" pattern="[\u4E00-\u9FA5]{2,5}(?:·[\u4E00-\u9FA5]{2,5})*">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.name.$dirty&&myForm.name.$invalid">
+                                        <span style="color: #ff0000" ng-show="myForm.name.$error.required">姓名不能为空</span>
+                                        <span style="color: #ff0000" ng-show="myForm.name.$error.pattern">姓名格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group validate">
+                                    <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>手机号：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.cellphone" name="cellphone" class="form-control" ng-required="true" pattern="^1[3|4|5|7|8][0-9]{9}$">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.cellphone.$dirty && myForm.cellphone.$invalid">
+                                        <span style="color: #ff0000" ng-show="myForm.cellphone.$error.required">手机号不能为空</span>
+                                        <span style="color: #ff0000" ng-show="myForm.cellphone.$error.pattern">手机号格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group validate validate-name">
+                                    <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>银行卡号：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.bankcard" name="bankcard" class="form-control" ng-required="true" pattern="^(\d{16}|\d{19})$">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.bankcard.$dirty && myForm.bankcard.$invalid">
+                                        <span style="color: #ff0000" ng-show="myForm.bankcard.$error.required">银行卡号不能为空</span>
+                                        <span style="color: #ff0000" ng-show="myForm.bankcard.$error.pattern">银行卡号格式错误</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group validate">
+                                    <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>身份证：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.idCard" name="idCard" class="form-control" ng-required="true" pattern="(^\d{15}$)|(^\d{17}([0-9]|X)$)">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.idCard.$dirty && myForm.idCard.$invalid">
+                                        <span style="color: #ff0000" ng-show="myForm.idCard.$error.required">身份证号不能为空</span>
+                                        <span style="color: #ff0000" ng-show="myForm.idCard.$error.pattern">身份证号格式错误</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-offset-4 col-md-offset-2 col-sm-8" style="padding-left: 20px">
+                                        <button type="button"  class="btn btn-info" ng-click="submitInfo(myForm)">提交</button>
+                                        <button type="button"  class="btn btn-info" ng-click="resetInfo()">重置</button>
+                                        <button type="button" class="btn btn-danger" ng-click="createPdf()"><i class="fa fa-file-pdf-o"></i> 生成PDF</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrapper-md" ng-show="!resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                            <span style="color: red;">样例</span>
+                        </div>
+                        <div>
+                            <table class="table-border-style">
+                                <tr><td width="40%">卡性质</td><td width="60%">贷记卡</td></tr>
+                                <tr><td>首次交易日期</td><td>20160514</td></tr>
+                                <tr><td>消费总金额</td><td>4590.00</td> </tr>
+                                <tr><td>消费总笔数</td><td>18</td></tr>
+                                <tr><td>取现总金额</td><td>未知</td></tr>
+                                <tr><td>取现总笔数</td><td>未知</td></tr>
+                                <tr><td>还款总金额</td><td>0.00</td></tr>
+                                <tr><td>还款总笔数</td><td>0</td></tr>
+                                <tr><td>刚需类消费占比</td><td>13%</td></tr>
+                                <tr><td>常住城市</td><td>北京市</td></tr>
+                                <tr><td>近 12 月没有发生交易的周数占比</td><td>81%</td></tr>
+                                <tr><td>最大单月消费金额</td><td>3280.00</td></tr>
+                                <tr><td>消费金额</td><td>1610_770.00,1609_3280.00,1609_3280.00,1609_3280.00,1609_3280.00,1604_未知,1606_未知,1601_未知</td></tr>
+                                <tr><td>消费金额在本市的排名</td><td>1610_55%,1609_30%,1608_95%,1607_65%,1605_100%,1603_100%,1601_100%,1512_100%</td></tr>
+                                <tr><td>消费笔数</td><td>1610_3,1610_3,1610_3,1610_3,1610_31610_3,1604_未知,1604_未知1604_未知,1604_未知,1604_未知,1604_未知</td></tr>
+                                <tr><td>消费笔数在本市的排名</td><td>1610_50%,1610_50%,1608_100%,1608_100%,1608_100%,1608_100%,1608_100%,1608_100%</td></tr>
+                                <tr><td>取现金额</td><td>未知</td></tr>
+                                <tr><td>取现笔数</td><td>未知</td></tr>
+                                <tr><td>消费金额分布</td><td>21_54%,21_54%,21_54%,21_54%,21_54%</td></tr>
+                                <tr><td> 消费笔数分布</td><td>21_54%,14_26%,14_26%,14_26%,14_26%</td></tr>
+                                <tr><td>消费金额分布 </td><td>1000_80%,1460_12%,1460_12%,1460_12%,1460_12%,1460_12%</td></tr>
+                                <tr><td>消费笔数分布</td><td>1000_78%,1460_5%,1460_5%,1460_5%,1460_5%</td></tr>
+                                <tr><td>有无出差</td><td>有</td></tr>
+                                <tr><td>有无婚庆消费</td><td>有</td></tr>
+                                <tr><td>有无家庭特征</td><td>有</td></tr>
+                                <tr><td>有无境外消费</td><td>无</td></tr>
+                                <tr><td>有无夜消费</td><td>有</td> </tr>
+                                <tr><td>有无博彩业消费</td><td>无</td></tr>
+                                <tr><td>有无无业特征</td><td>无</td></tr>
+                                <tr><td>公共事业缴费金额</td><td>1190.00</td></tr>
+                                <tr><td>公共事业缴费笔数</td><td>2</td></tr>
+                                <tr><td>纳税金额</td><td>未知</td></tr>
+                                <tr><td>纳税笔数</td><td>未知</td></tr>
+                                <tr><td>夜消费金额</td><td>80.00</td></tr>
+                                <tr><td>夜消费笔数</td><td>1</td></tr>
+                                <tr><td>博彩业消费金额</td><td>未知</td></tr>
+                                <tr><td>博彩业消费笔数</td><td>未知</td></tr>
+                                <tr><td>网上消费金额</td><td>0.00</td></tr>
+                                <tr><td>网上消费笔数</td><td>0</td></tr>
+                                <tr><td>近一年疑似套现金额</td><td>未知</td></tr>
+                                <tr><td>近一年疑似套现笔数</td><td>未知</td></tr>
+                                <tr><td>近一年套现高危行业交易金额占比</td><td>0%</td></tr>
+                                <tr><td>近一年套现高危行业交易笔数占比</td><td>0%</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="business_flowing_pdf" class="wrapper-md" ng-show="resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                        </div>
+                        <div>
+                            <table ng-if="otherMsg" class="table-border-style grid_table">
+                                <tr><td>{{resultMsg}}</td></tr>
+                            </table>
+                            <table ng-if="dataMsg" class="table-border-style grid_table">
+                                <tr><th width="80%" colspan="2" class="tableBg">核心消费指标</th></tr>
+                                <tr><td width="40%">卡性质</td><td width="40%">{{resultMsg.indexProperty.cardProperty}}</td></tr>
+                                <tr><td>首次交易日期</td><td>{{ resultMsg.indexProperty.firstTransDate }}</td></tr>
+                                <tr><td>消费总金额</td><td>{{ resultMsg.indexProperty.transTotalAmount }}</td></tr>
+                                <tr><td>消费总笔数</td><td>{{ resultMsg.indexProperty.transTotalCount }}</td></tr>
+                                <tr><td>取现总金额</td><td>{{ resultMsg.indexProperty.cashTotalAmount }}</td></tr>
+                                <tr><td>取现总笔数</td><td>{{ resultMsg.indexProperty.cashTotalCount }}</td></tr>
+                                <tr><td>还款总金额</td><td>{{ resultMsg.indexProperty.refundTotalAmount }}</td></tr>
+                                <tr><td>还款总笔数</td><td>{{ resultMsg.indexProperty.refundTotalCount }}</td></tr>
+                                <tr><td>刚需类消费占比</td><td>{{ resultMsg.indexProperty.rigidTransAmountPercent }}</td></tr>
+                                <tr><td>常住城市</td><td>{{ resultMsg.indexProperty.fromCity }}</td></tr>
+                                <tr><td>近12月没有发生交易的周数占比</td><td>{{ resultMsg.indexProperty.noTransWeekPercent }}</td></tr>
+                                <tr><td>最大单月消费金额</td><td>{{ resultMsg.indexProperty.monthlyCardLargeAmount }}</td></tr>
+                                <tr><th colspan="2" class="tableBg">每月消费状况</th></tr>
+                                <tr><td>消费金额</td><td>{{ resultMsg.indexMonthConsumes.transAmount }}</td></tr>
+                                <tr><td>消费金额在本市的排名</td><td>{{ resultMsg.indexMonthConsumes.amountRank }}</td></tr>
+                                <tr><td>消费笔数</td><td>{{ resultMsg.indexMonthConsumes.transCount }}</td></tr>
+                                <tr><td>消费笔数在本市的排名</td><td>{{ resultMsg.indexMonthConsumes.countRank }}</td></tr>
+                                <tr><td>取现金额 </td><td>{{ resultMsg.indexMonthConsumes.cashAmount }}</td></tr>
+                                <tr><td>取现笔数</td><td>{{ resultMsg.indexMonthConsumes.cashCount }}</td></tr>
+                                <tr><th colspan="2" class="tableBg">消费大类分布</th></tr>
+                                <tr><td>消费金额分布</td><td>{{ resultMsg.indexConsumeCategories.transAmountPercent }}</td></tr>
+                                <tr><td>消费笔数分布</td><td>{{ resultMsg.indexConsumeCategories.transCountPercent }}</td></tr>
+                                <tr><th colspan="2" class="tableBg">消费地点分布</th></tr>
+                                <tr><td>消费金额分布 </td><td>{{ resultMsg.indexConsumeCities.placesTransAmountPercent }}</td></tr>
+                                <tr><td>消费笔数分布</td><td>{{ resultMsg.indexConsumeCities.placesTransCountPercent }}</td></tr>
+                                <tr><th colspan="2" class="tableBg">消费行为特征</th></tr>
+                                <tr><td>有无出差</td><td>{{ resultMsg.indexTransBehavior.ifHasBusinessTrip }}</td></tr>
+                                <tr><td>有无婚庆消费</td><td>{{ resultMsg.indexTransBehavior.ifHasWeddingTrans }}</td></tr>
+                                <tr><td>有无家庭特征</td><td>{{ resultMsg.indexTransBehavior.ifHasFamily }}</td></tr>
+                                <tr><td>有无境外消费</td><td>{{ resultMsg.indexTransBehavior.ifHasOverseasTrans }}</td></tr>
+                                <tr><td>有无夜消费</td><td>{{ resultMsg.indexTransBehavior.ifHasNightTrans }}</td></tr>
+                                <tr><td>有无博彩业消费</td><td>{{ resultMsg.indexTransBehavior.ifHasLotteryTrans }}</td></tr>
+                                <tr><td>有无无业特征</td><td>{{ resultMsg.indexTransBehavior.ifHasUnemployed }}</td></tr>
+                                <tr><th colspan="2" class="tableBg">特殊交易统计</th></tr>
+
+                                <tr><td>公共事业缴费金额</td><td>{{ resultMsg.indexTransCredits.publicPayAmount }}</td></tr>
+                                <tr><td>公共事业缴费笔数</td><td>{{ resultMsg.indexTransCredits.publicPayCount }}</td></tr>
+                                <tr><td>纳税金额</td><td>{{ resultMsg.indexTransCredits.taxAmount }}</td></tr>
+                                <tr><td>纳税笔数</td><td>{{ resultMsg.indexTransCredits.taxCount }}</td></tr>
+                                <tr><td>夜消费金额</td><td>{{ resultMsg.indexTransCredits.nightTransAmount }}</td></tr>
+                                <tr><td>夜消费笔数</td><td>{{ resultMsg.indexTransCredits.nightTransCount }}</td></tr>
+                                <tr><td>博彩业消费金额</td><td>{{ resultMsg.indexTransCredits.lotteryTransAmount }}</td></tr>
+                                <tr><td>博彩业消费笔数</td><td>{{ resultMsg.indexTransCredits.lotteryTransCount }}</td></tr>
+                                <tr><td>网上消费金额</td><td>{{ resultMsg.indexTransCredits.onlineTransAmount }}</td></tr>
+                                <tr><td>网上消费笔数</td><td>{{ resultMsg.indexTransCredits.onlineTransCount }}</td></tr>
+                                <tr><th colspan="2" class="tableBg">疑似套现行为甄别</th></tr>
+
+                                <tr><td>近一年疑似套现金额</td><td>{{ resultMsg.cashout.latestYearSeemCreditCardCashAmount }}</td></tr>
+                                <tr><td>近一年疑似套现笔数</td><td>{{ resultMsg.cashout.latestYearSeemCreditCardCashCount }}</td></tr>
+                                <tr><td>近一年套现高危行业交易金额占比 </td><td>{{ resultMsg.cashout.latestYearSeemHighRiskCashAmountPercent }}</td></tr>
+                                <tr><td>近一年套现高危行业交易笔数占比</td><td>{{ resultMsg.cashout.latestYearSeemHighRiskCashCountPercent }}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="modal gifPosition" id="cache_model">
+        <img src="../../../../img/cache1.gif" alt="">
+    </div>
+</div>
+
+

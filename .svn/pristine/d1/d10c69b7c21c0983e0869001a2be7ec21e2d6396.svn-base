@@ -1,0 +1,17 @@
+package apifengkong.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import apifengkong.entity.APISearchLogRepository;
+@Service
+public class APISearchLogService {
+	@Autowired
+	APISearchLogRepository apiSearchLogRepository;
+	
+    
+  
+}
+

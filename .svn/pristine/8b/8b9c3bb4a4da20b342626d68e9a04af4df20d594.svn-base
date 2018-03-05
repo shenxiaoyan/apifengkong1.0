@@ -1,0 +1,188 @@
+<script>
+    /*
+     * 创建人：刘雅倩
+     * 创建时间：2017/08/10
+     * 平台看的各公司接口请求数量
+     *
+     * */
+    "use strict";
+    app.controller("companyInterCtrl", [
+        "$scope","$http",
+        function($scope,$http) {
+
+//        各个公司
+
+
+            $scope.companys=[];
+//            $scope.company={};
+            $http({
+                method: 'POST',
+                url: '/customer/list'
+
+            }).then(function successCallback(response) {
+                console.log(response);
+                $scope.companys=response.data;
+//                $scope.company=$scope.companys[0].id
+
+
+            });
+
+            $scope.custormScore=[];
+            $scope.chargeScore=[];
+            $scope.getEregist=function () {
+
+                $scope.company=$scope.selectedSite.value.id;
+
+                $http({
+                    method: 'POST',
+                        url: '/getApiSearchCountByCompany?customerId='+$scope.company
+                }).then(function successCallback(response) {
+
+                    console.log(response)
+//                    循环出消费列表的account，把所有数据相加，得到本月的总值
+                       if(response.data.length){
+                           angular.forEach(response.data,function(val,index){
+                               $scope.custormScore.push(val[2]) ;
+                               $scope.chargeScore.push(val[3]) ;
+
+                               console.log($scope.custormScore)
+                               console.log($scope.chargeScore)
+                           });
+                       }
+                       else{
+                           sweetAlert('','该公司暂无数据')
+                           $scope.custormScore=[];
+                           $scope.chargeScore=[];
+                       }
+
+//                    调用图表的方法，参数要对应
+                    $scope.setCharts($scope.chargeScore,$scope.custormScore);
+                    $scope.custormScore=[];
+                    $scope.chargeScore=[];
+
+                });
+
+
+            }
+
+
+
+
+
+
+
+
+            //echarts，数据是假的
+
+
+            $scope.setCharts = function(chargeScore,custormScore) {
+                var branchChart = echarts.init(document.getElementById('brand_dashboard_chart'));
+
+                var option = {
+                    title: {
+                        text: '公司接口数量'
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+//                    legend: {
+//                        data: ['2011年']
+//                    },
+                    grid: {
+                        left: '7%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'value',
+                        boundaryGap: [0, 0.01]
+                    },
+                    yAxis: {
+                        type: 'category',
+                        data: $scope.custormScore
+                    },
+                    series: [{
+                        name: '使用数量',
+                        type: 'bar',
+                        itemStyle: {
+                            normal: {
+                                color: '#7BBBF6'
+                            }
+                        },
+                        data: $scope.chargeScore
+                    }]
+                };
+
+
+
+                branchChart.setOption(option);
+
+                //窗口大小改变时重新绘制图表
+                $(window).resize(function() {
+                    branchChart.resize();
+                });
+            };
+
+            $scope.setCharts();
+        }
+    ]);
+</script>
+
+<div class="hbox hbox-auto-xs lter" ng-controller="companyInterCtrl">
+    <!-- column -->
+    <div class="col">
+        <div class="vbox">
+            <div class="bg-light lter b-b clearfix" style="padding: 14.5px 20px;">
+                <div class="btn-group">
+                    <button type="button" class="m-r btn btn-sm btn-addon btn-info">
+                        <i class="fa fa-plus" ng-class="iconClass[btn]"></i><span>打印</span>
+                    </button>
+                </div>
+                <!--<div class="pull-right">-->
+                    <!--<div class="btn-group">-->
+                        <!--<button class="btn btn-sm btn-default" ng-click="texts()">今天</button>-->
+                        <!--<button class="btn btn-sm btn-default" ng-click="getEregist()">昨天</button>-->
+                        <!--<button class="btn btn-sm btn-default" ng-click="changeView($event)">前天</button>-->
+                    <!--</div>-->
+                    <!--<div class="btn-group">-->
+                        <!--<button class="btn btn-sm btn-default" ng-click="changeView('agendaDay')">本周</button>-->
+                        <!--<button class="btn btn-sm btn-default" ng-click="changeView('agendaWeek')">上周</button>-->
+                    <!--</div>-->
+                    <!--<div class="btn-group">-->
+                        <!--<button class="btn btn-sm btn-default" ng-click="changeView('month')">本月</button>-->
+                        <!--<button class="btn btn-sm btn-default" ng-click="changeView('month')">上月</button>-->
+                    <!--</div>-->
+                <!--</div>-->
+            </div>
+
+            <div class="bg-light lter b-b clearfix">
+                <div class="col-sm-4 m-t m-b">
+                    <label class="col-sm-4 m-t-sm text-center">选择公司名称:</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" ng-model="selectedSite.value" ng-options="company.companyName for company in companys" >
+                            <option value="">-- 请选择 --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-5 m-t m-b">
+                    <button class="btn m-b-xs w-xs btn-info"  ng-click="getEregist()" >确定</button>
+                </div>
+            </div>
+            <div class="row-row">
+                <div class="cell">
+                    <div class="cell-inner wrapper-md">
+                        <div style="padding-top: 0;">
+                            <div class="panel wrapper">
+                                <div id="brand_dashboard_chart" style="height:800px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

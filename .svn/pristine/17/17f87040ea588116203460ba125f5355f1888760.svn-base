@@ -1,0 +1,149 @@
+package apifengkong.entity;
+
+
+import java.beans.Transient;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Index;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import apifengkong.controller.UserController.PaymentChannel;
+import apifengkong.controller.UserController.Platform;
+
+@Entity
+public class UserRemainderLog  extends BaseEntity{
+
+	@ManyToOne
+	private User user;
+	
+	private Integer entityId;
+	
+	private Integer value;
+	
+	private Integer realValue;
+	
+	@Enumerated(EnumType.STRING)
+	private ChargeType type;
+
+	private Date createTime;
+	
+	@ManyToOne
+	private User byUser;
+	
+	@Enumerated(EnumType.STRING)
+	private PaymentChannel channel;
+	
+	private Platform platform;
+	
+	
+	@Enumerated(EnumType.STRING)
+	private ChargeStatus status;
+	
+	private String tradeNo;
+	
+	
+	public void setChannel(PaymentChannel channel) {
+		this.channel = channel;
+	}
+
+	public Platform getPlatform() {
+		return platform;
+	}
+
+	public void setPlatform(Platform platform) {
+		this.platform = platform;
+	}
+
+	public String getTradeNo() {
+		return tradeNo;
+	}
+
+	public void setTradeNo(String tradeNo) {
+		this.tradeNo = tradeNo;
+	}
+
+	public Integer getRealValue() {
+		return realValue;
+	}
+
+	public void setRealValue(Integer realValue) {
+		this.realValue = realValue;
+	}
+
+	public ChargeStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(ChargeStatus status) {
+		this.status = status;
+	}
+
+	public Integer getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(Integer entityId) {
+		this.entityId = entityId;
+	}
+
+	public User getByUser() {
+		return byUser;
+	}
+
+	public void setByUser(User byUser) {
+		this.byUser = byUser;
+	}
+
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+	
+	public String getFormatCreateTime() {
+	return	new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createTime);
+	}
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public Integer getValue() {
+		return value;
+	}
+
+	public void setValue(Integer value) {
+		this.value = value;
+	}
+
+	public ChargeType getType() {
+		return type;
+	}
+
+	public void setType(ChargeType type) {
+		this.type = type;
+	}
+	
+	public enum ChargeType{
+		DEPOSIT,WITHDRAW,CONSUME
+	}
+	public enum ChargeStatus{
+		WAIT_BUYER_PAY,TRADE_CLOSED,TRADE_SUCCESS
+	}
+}

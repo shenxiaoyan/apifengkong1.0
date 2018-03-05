@@ -1,0 +1,25 @@
+package apifengkong.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import apifengkong.service.RechargeService;
+
+@Controller
+public class AccountRechargeController {
+
+	@Autowired
+	RechargeService rechargeService;
+
+	@RequestMapping(value = "/recharge", method = { RequestMethod.POST })
+	@ResponseBody
+	@PreAuthorize("hasRole('ADMIN') ")
+	public String recharge(Integer customerId, Integer integrate) {
+		rechargeService.recharge(integrate, customerId);
+		return "success";
+	}
+}

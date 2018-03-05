@@ -1,0 +1,68 @@
+<script>
+
+    "use strict";
+    app.controller("enterpriseAssetsCtrl", [
+        "$scope","$http","$rootScope",
+        function ( $scope,$http,$rootScope) {
+//            $scope.risksList = [
+//                {
+//                    id: "",
+//                    name: "商户银联流水画像",
+//                    sref: "enterpriseAssets.page({view_type:'business_flowing'})"
+//                },
+//                {
+//                    id: "",
+//                    name: "POS交易账动",
+//                    sref: "enterpriseAssets.page({view_type:'business_POS'})"
+//
+//                },
+//
+//            ]
+
+            $scope.apiId=[];
+
+            $http({
+                method: 'POST',
+                url: '/supplyAPI/getShowList?typeId='+7
+            }).then(function successCallback(response) {
+
+                $scope.RealLists=response.data;
+                angular.forEach($scope.RealLists,function (val,index) {
+                    $scope.apiId.push(val.id);
+
+                })
+
+            });
+
+            $scope.nameId=function (id) {
+                window.localStorage.setItem('apiNameId',id)
+            }
+
+        }
+    ]);
+</script>
+
+<div class="hbox hbox-auto-xs hbox-auto-sm" ng-controller="enterpriseAssetsCtrl">
+    <div class="col w-md bg-light dk b-r bg-auto hidden-sm hidden-xs">
+        <div class="wrapper-md b-b bg-light">
+            <div class="font-thin h4">
+                财务资产查询
+            </div>
+        </div>
+        <div class="wrapper-md">
+            <ul class="nav nav-pills nav-stacked nav-sm">
+                <li ui-sref-active="active" ng-repeat="(index,RealList) in RealLists">
+                    <a ng-click="nameId(RealList.id)" ui-sref="{{RealList.root}}">{{RealList.description}}</a>
+                    <!--<a href="RealList.path" ui-sref="personalReal.page({view_type:'{{index}}'})">{{RealList}}</a>-->
+                </li>
+                <!--<li ui-sref-active="active">-->
+                    <!--<a ui-sref="enterpriseAssets.page({view_type:'business_retrieval'})">银联注册信息检索 <sup class="supCol">dev</sup></a>-->
+                <!--</li>-->
+
+            </ul>
+        </div>
+    </div>
+    <div class="col">
+        <div class="hbox hbox-auto-xs bg-light" ui-view></div>
+    </div>
+</div>

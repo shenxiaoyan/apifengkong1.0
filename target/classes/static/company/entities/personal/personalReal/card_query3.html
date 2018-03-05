@@ -1,0 +1,424 @@
+<script>
+    "use strict";
+    /*
+     *创建人：沈小艳
+     *创建时间：2017/07/31
+     *利用假数据验证身份信息
+     * */
+    app.controller('cardQueryCheck', ['$scope','$http', function ($scope,$http) {
+        $scope.inquiryMode = {
+            realname: true,
+            mobile: false,
+            idcard: false,
+            bankcard: true
+        };
+
+        //没有接口 自己模拟的数据
+        $scope.mockData = {
+            realname: "",
+            mobile: "",
+            idcard: "",
+            bankcard: ""
+        };
+
+        // 当前选中的单选类型 默认为第一个
+        $scope.radioType = 1;
+
+
+        //数据初始化
+        $scope.info = {
+            realname: '',
+            mobile: '',
+            idcard: '',
+            bankcard: ''
+        };
+        //结果与样例的切换初始化
+        $scope.resultSwitch = false;
+
+        $scope.changeInputShow = function (type) {
+
+            $scope.inquiryMode = {
+                realname: false,
+                mobile: false,
+                idcard: false,
+                bankcard: false
+            };
+            // 改变当前的选中单选按钮
+            $scope.radioType = type;
+
+            // 切换按钮的时候，把样例表格切换回来
+            $scope.resultSwitch = false;
+
+            switch (type) {
+                case 1:
+                    $scope.inquiryMode.realname = true;
+                    $scope.inquiryMode.bankcard = true;
+                    $scope.info.mobile = '';
+                    $scope.info.idcard = '';
+                    break;
+                case 2:
+                    $scope.inquiryMode.realname = true;
+                    $scope.info.mobile = '';
+                    $scope.inquiryMode.idcard = true;
+                    $scope.inquiryMode.bankcard = true;
+                    break;
+                case 3:
+                    $scope.inquiryMode.realname = true;
+                    $scope.inquiryMode.mobile = true;
+                    $scope.inquiryMode.bankcard = true;
+                    $scope.inquiryMode.idcard = true;
+                    break;
+            }
+        };
+
+
+        //重置数据
+        $scope.resetInfo = function () {
+            $scope.info.realname = '';
+            $scope.info.mobile = '';
+            $scope.info.idcard = '';
+            $scope.info.bankcard = '';
+            $scope.resultSwitch = false;
+        };
+
+
+        //提交
+        $scope.submitInfo = function (myForm) {
+            //数据信息格式错误时阻止表单提交
+
+            if (myForm.realname) {
+                myForm.realname.$dirty = true
+            }
+            if (myForm.mobile) {
+                myForm.mobile.$dirty = true
+            }
+            if (myForm.idcard) {
+                myForm.idcard.$dirty = true
+            }
+            if (myForm.bankcard) {
+                myForm.bankcard.$dirty = true
+            }
+
+            if (!myForm.$valid) {
+                $scope.resultSwitch = false;
+                return
+            }
+
+            $scope.resultSwitch = true;
+
+            if ($scope.radioType === 1) {
+                $http({
+                    method: 'POST',
+                    url: '/persontrue/nameBankCard',
+                    data:$scope.info
+                }).then(function successCallback(response) {
+                    console.log(response)
+                    if(response.data.statusCode===822){
+                        $scope.sweetResult=response.data.msg;
+                        $scope.resultSwitch = false;
+                        sweetAlert("",$scope.sweetResult, "error");
+                        return;
+                    }
+                    if(response.data.statusCode===811){
+                        $scope.sweetResult=response.data.msg;
+                        $scope.resultSwitch = false;
+                        sweetAlert("",$scope.sweetResult, "error");
+                        return;
+                    }
+//
+                    if(response.data.status === '0'){
+                        $scope.dataMsg=true;//查询成功
+                        $scope.otherMsg=false;
+                        $scope.resultMsg = response.data.result.verifymsg;
+//                        $scope.resultSwitch = true;
+                    }
+                    else{
+                        $scope.dataMsg=false;
+                        $scope.otherMsg=true;//查询失败
+                        $scope.resultMsg = '本数据库中未查得';
+                    }
+                    $scope.resultSwitch = true;
+
+
+
+                });
+            }
+            if ($scope.radioType === 2) {
+                $http({
+                    method: 'POST',
+                    url: '/persontrue/nameBankcardIdcard',
+                    data:$scope.info
+                }).then(function successCallback(response) {
+                    console.log(response)
+                    if(response.data.statusCode===822){
+                        $scope.sweetResult=response.data.msg;
+                        $scope.resultSwitch = false;
+                        sweetAlert("",$scope.sweetResult, "error");
+                        return;
+                    }
+                    if(response.data.statusCode===811){
+                        $scope.sweetResult=response.data.resMsg;
+                        $scope.resultSwitch = false;
+                        sweetAlert("",$scope.sweetResult, "error");
+                        return;
+                    }
+                    if(response.data.status === '206'){
+                        $scope.dataMsg=false;//查询成功
+                        $scope.otherMsg=true;
+                        $scope.resultMsg = response.data.msg;
+                    }
+                    if(response.data.result.verifystatus === '0'){
+                        $scope.dataMsg=true;//查询成功
+                        $scope.otherMsg=false;
+                        $scope.resultMsg = response.data.result.verifymsg;
+                    }
+                    if(response.data.result.verifystatus === '1'){
+                    $scope.dataMsg=false;
+                    $scope.otherMsg=true;//查询失败
+                    $scope.resultMsg = response.data.result.verifymsg;
+                    }
+                    $scope.resultSwitch = true;
+
+                });
+            }
+            if ($scope.radioType === 3) {
+                $http({
+                    method: 'POST',
+                    url: '/persontrue/nameBankIdMobile',
+                    data:$scope.info
+                }).then(function successCallback(response) {
+                    console.log(response)
+                    if(response.data.statusCode===822){
+                        $scope.sweetResult=response.data.msg;
+                        $scope.resultSwitch = false;
+                        sweetAlert("",$scope.sweetResult, "error");
+                        return;
+                    }
+                    if(response.data.statusCode===811){
+                        $scope.sweetResult=response.data.resMsg;
+                        $scope.resultSwitch = false;
+                        sweetAlert("",$scope.sweetResult, "error");
+                        return;
+                    }
+                    if(response.data.status === '205'){
+                        $scope.dataMsg=false;//查询成功
+                        $scope.otherMsg=true;
+                        $scope.resultMsg = response.data.msg;
+                    }
+                    if(response.data.result.verifystatus === '0'){
+                    $scope.dataMsg=true;//查询成功
+                    $scope.otherMsg=false;
+                    $scope.resultMsg = response.data.result.verifymsg;
+                    }
+                    if(response.data.result.verifystatus === '1'){
+                        $scope.dataMsg=false;
+                        $scope.otherMsg=true;//查询失败
+                        $scope.resultMsg = response.data.result.verifymsg;
+                    }
+                        $scope.resultSwitch = true;
+
+                    });
+            }
+        };
+
+        //下载
+        $scope.createPdf=function () {
+            if($scope.resultSwitch ===true){
+                var html = $("#business_flowing_pdf").html();
+                var today = new Date();
+                var year = today.getFullYear();
+                var month = today.getMonth() + 1;
+                var day = today.getDay();
+                var hour = today.getHours();
+                var minute = today.getMinutes();
+
+                //使用form来生成下载所需的数据
+                var form = $("<form>");
+                form.attr("style", "display:none");
+                form.attr("target", "");
+                form.attr("method", "post");
+                form.attr("action", "/createpdf");
+
+                var input1 = $("<input>");
+                input1.attr("type", "hidden");
+                input1.attr("name", "html");
+                input1.attr("value", html);
+                form.append(input1);
+
+                var input2 = $("<input>");
+                input2.attr("type", "hidden");
+                input2.attr("name", "filename");
+                input2.attr("value", "【小金风控8027】银行卡核查 " + year + "." + month + "." + day + "_" + hour + "." + minute);
+                form.append(input2);
+
+                //将表单放置在web中
+                $("body").append(form);
+                form.submit();
+            }
+            else{
+                sweetAlert("", "请先查询再下载", "error");
+            }
+        }
+
+        //接口单价
+//        $http({
+//            url:"/getSupplyPrice?id=" + 8027,
+//            method:"POST"
+//        }).then(function successCallback(response) {
+//            $scope.priceResult=response.data.supply.price;
+//        })
+
+
+    }]);
+</script>
+<div class="vbox" ng-controller="cardQueryCheck">
+    <div class="wrapper b-b">
+        <div class="font-thin h4">个人信息查询</div>
+    </div>
+    <div class="row-row">
+        <div class="cell scrollable">
+            <div class="cell-inner">
+                <div class="wrapper-md">
+                    <div class="panel panel-info input-panel" style="margin-bottom: 0">
+                        <div class="panel-heading overflow" style="font-size: 16px">
+                            <span class="pull-left text-left">银行卡核查</span>
+                            <span class="pull-right text-right supCol">{{priceResult}}积分/次</span>
+                        </div>
+                        <div class="panel-body">
+                            <form name="myForm" class="form-horizontal">
+                                <div class="form-group validate" ng-if="inquiryMode.realname">
+                                    <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>姓名：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.realname" name="realname" class="form-control" ng-required="true" pattern="[\u4E00-\u9FA5]{2,5}(?:·[\u4E00-\u9FA5]{2,5})*">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.realname.$dirty&&myForm.realname.$invalid">
+                                        <span style="color: #ff0000" ng-show="myForm.realname.$error.required">姓名不能为空</span>
+                                        <span style="color: #ff0000" ng-show="myForm.realname.$error.pattern">姓名格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group validate" ng-if="inquiryMode.bankcard">
+                                    <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>银行卡：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.bankcard" name="bankcard" class="form-control" ng-required="true" pattern="^(\d{16}|\d{19})$">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.bankcard.$dirty && myForm.bankcard.$invalid">
+                                        <span style="color: #ff0000" ng-show="myForm.bankcard.$error.required">银行卡号不能为空</span>
+                                        <span style="color: #ff0000" ng-show="myForm.bankcard.$error.pattern">银行卡号格式错误</span>
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group validate" ng-if="inquiryMode.idcard">
+                                    <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>身份证：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.idcard" name="idcard" class="form-control" ng-required="true" pattern="(^\d{15}$)|(^\d{17}([0-9]|X)$)">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.idcard.$dirty && myForm.idcard.$invalid">
+                                        <span style="color: #ff0000" ng-show="myForm.idcard.$error.required">身份证号不能为空</span>
+                                        <span style="color: #ff0000" ng-show="myForm.idcard.$error.pattern">身份证号格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group validate" ng-if="inquiryMode.mobile">
+                                    <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>手机号：</label>
+                                    <div class="col-sm-8 col-md-4">
+                                        <input type="text" ng-model="info.mobile" name="mobile" class="form-control" ng-required="true" pattern="^1[3|4|5|7|8][0-9]{9}$">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.mobile.$dirty && myForm.mobile.$invalid">
+                                        <span style="color: #ff0000" ng-show="myForm.mobile.$error.required">手机号不能为空</span>
+                                        <span style="color: #ff0000" ng-show="myForm.mobile.$error.pattern">手机号格式错误</span>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 col-md-2 control-label"><span style="color: #ff0000">*</span>查询方式：</label>
+                                    <div class="col-sm-offset-4 col-md-offset-2 col-sm-8 col-md-10" style="height: 30px">
+                                        <label for="my-name" ng-click="changeInputShow(1)">
+                                            <input type="radio" id="my-name" name="my-radio" checked>
+                                            <span>姓名、银行卡</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="col-sm-offset-4 col-md-offset-2 col-sm-8 col-md-10" style="height: 30px">
+                                        <label for="my-mobile" ng-click="changeInputShow(2)">
+                                            <input type="radio" id="my-mobile" name="my-radio">
+                                            <span>姓名、银行卡、身份证</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-sm-offset-4 col-md-offset-2 col-sm-8 col-md-10" style="height: 30px">
+                                        <label for="my-bankcard" ng-click="changeInputShow(3)">
+                                            <input type="radio" id="my-bankcard" name="my-radio">
+                                            <span>姓名、手机号、银行卡、身份证</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-offset-4 col-md-offset-2 col-sm-8" style="padding-left: 20px">
+                                        <button type="button" class="btn btn-info" ng-click="submitInfo(myForm)">提交</button>
+                                        <button type="button" class="btn btn-info" ng-click="resetInfo()">重置</button>
+                                        <button type="button" class="btn btn-danger" ng-click="createPdf()"><i class="fa fa-file-pdf-o"></i> 生成PDF</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!--样例-->
+                <div class="wrapper-md" ng-show="!resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                            <span style="color: red;">样例</span>
+                        </div>
+                        <div>
+                            <table class="table-border-style">
+                                <tr>
+                                    <td width="50%">姓名、身份证</td>
+                                    <td width="50%">一致</td>
+                                </tr>
+                                <tr>
+                                    <td>姓名、手机号、身份证</td>
+                                    <td>一致</td>
+                                </tr>
+                                <tr>
+                                    <td>姓名、手机号、银行卡、身份证</td>
+                                    <td>一致</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!--结果-->
+                <div id="business_flowing_pdf" class="wrapper-md" ng-show="resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                        </div>
+                        <div>
+                            <table ng-if="otherMsg" class="table-border-style grid_table">
+                                <tr ><td width="80%">姓名身份证是否一致</td><td>{{resultMsg}}</td></tr>
+                            </table>
+                            <table ng-if="dataMsg" class="table-border-style grid_table">
+                                <tr ng-if="radioType==1">
+                                    <td width="40%">姓名、银行卡</td>
+                                    <td width="40%" ng-bind="resultMsg"></td>
+                                </tr>
+                                <tr ng-if="radioType==2">
+                                    <td width="40%">姓名、银行卡、身份证</td>
+                                    <td width="40%" ng-bind="resultMsg"></td>
+                                </tr>
+                                <tr ng-if="radioType==3">
+                                    <td width="40%">姓名、手机号、银行卡、身份证</td>
+                                    <td width="40%" ng-bind="resultMsg"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

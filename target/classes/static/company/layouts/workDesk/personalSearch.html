@@ -1,0 +1,201 @@
+<script>
+    'use strict';
+    /*
+     * 创建人：沈小艳
+     * 创建时间：2017/08/10
+     * 员工管理
+     * */
+
+    app.controller('reportDownload',['$scope','$http','utifyFunction',"$rootScope",
+        function ($scope,$http,utifyFunction,$rootScope) {
+
+
+        $scope.info={
+            name:'沈小艳',
+            cellphone:'18860469557',
+            idCard:'341623199405284820',
+            bankCard:'6212261314000935555',
+            brokenPublicNum:'1111',
+            companyName:'杭州因果科技有限公司',
+            registeredNum:'330196000083364',
+            uniformCreditCode:'91330106MA2803HP9X'
+
+        }
+        $scope.submitInfo = function (myForm) {
+
+
+            $http({
+                method: 'POST',
+                url: '/smartSearch?'+utifyFunction($scope.info)+'&signature='
+            }).then(function successCallback(response) {
+                console.log(response)
+
+        })
+        }
+
+
+
+
+    }])
+</script>
+<div class="hbox hbox-auto-xs bg-light" ng-controller="reportDownload">
+    <div class="col col-sm-9" style="padding: 0">
+        <div class="vbox">
+            <div class="wrapper b-b">
+                <div class="font-thin h4">个人搜索查询</div>
+            </div>
+
+            <div class="row-row">
+                <div class="cell">
+                    <div class="cell-inner">
+                        <div class="wrapper-md">
+                            <div class="panel panel-info input-panel" style="margin-bottom: 20px">
+                                <div class="panel-heading wrapper" style="font-size: 16px">查询</div>
+                                <div class="panel-body">
+                                    <div class="wrapper panel-body col-sm-12">
+                                        <div class="row">
+                                            <div>
+                                                <div class="font-thin">查询参数</div>
+                                                <div class="panel-body">
+                                                    <form name="myForm" class="form-horizontal">
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">姓名：</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" ng-model="info.name" name="name" class="form-control" ng-required="true">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.name.$dirty&&myForm.name.$invalid">
+                                                                <span class="supCol" ng-show="myForm.name.$error.required">姓名不能为空</span>
+                                                                <span class="supCol" ng-show="myForm.name.$error.pattern">姓名格式错误</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">手机号：</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" ng-model="info.cellphone" name="cellphone" class="form-control" ng-required="true">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.cellphone.$dirty && myForm.cellphone.$invalid">
+                                                                <span class="supCol" ng-show="myForm.cellphone.$error.required">手机号不能为空</span>
+                                                                <span class="supCol" ng-show="myForm.cellphone.$error.pattern">手机号格式错误</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">身份证：</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" ng-model="info.idCard" name="idCard" class="form-control" ng-required="true" pattern="(^\d{15}$)|(^\d{17}([0-9]|X)$)">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.idCard.$dirty && myForm.idCard.$invalid">
+                                                                <span class="supCol" ng-show="myForm.idCard.$error.required">身份证号不能为空</span>
+                                                                <span class="supCol" ng-show="myForm.idCard.$error.pattern">身份证号格式错误</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">银行卡：</label>
+                                                            <div class="col-sm-7">
+                                                            <input type="text" ng-model="info.bankCard" name="bankCard" class="form-control" ng-required="true" pattern="^(\d{16}|\d{19})$">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.bankCard.$dirty && myForm.bankCard.$invalid">
+                                                            <span class="supCol" ng-show="myForm.bankCard.$error.required">银行卡号不能为空</span>
+                                                            <span class="supCol" ng-show="myForm.bankCard.$error.pattern">银行卡号格式错误</span>
+    
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">失信公告编号：</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" ng-model="info.brokenPublicNum" name="brokenPublicNum" class="form-control" ng-required="true">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.brokenPublicNum.$dirty && myForm.brokenPublicNum.$invalid">
+                                                                <span class="supCol" ng-show="myForm.brokenPublicNum.$error.required">失信公告编号不能为空</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">企业名称：</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" ng-model="info.companyName" name="companyName" class="form-control" ng-required="true">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.companyName.$dirty&&myForm.companyName.$invalid">
+                                                                <span class="supCol" ng-show="myForm.companyName.$error.required">企业名称不能为空</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">企业工商注册号：</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" ng-model="info.registeredNum" name="registeredNum" class="form-control" ng-required="true">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.registeredNum.$dirty && myForm.registeredNum.$invalid">
+                                                                <span class="supCol" ng-show="myForm.registeredNum.$error.required">企业工商注册号不能为空</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-6">
+                                                            <label class="col-sm-3 control-label">统一社会信用代码：</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="text" ng-model="info.uniformCreditCode" name="uniformCreditCode" class="form-control" ng-required="true">
+                                                            </div>
+                                                            <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.uniformCreditCode.$dirty && myForm.uniformCreditCode.$invalid">
+                                                                <span class="supCol" ng-show="myForm.uniformCreditCode.$error.required">统一社会信用代码不能为空</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group col-sm-12">
+                                                            <div class="col-sm-offset-2 col-sm-8">
+                                                                <button type="button"  class="btn btn-info" ng-click="submitInfo(myForm)">提交</button>
+                                                                <button type="button"  class="btn btn-info" ng-click="resetInfo()">重置</button>
+                                                                <button type="button" class="btn btn-danger" ng-click="createPdf()"><i class="fa fa-file-pdf-o"></i> 生成PDF</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="wrapper-md" ng-show="resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                            <div class="panel panel-info input-panel">
+                                <div class="panel-heading">
+                                    <span style="color: #474747;">查询结果</span>
+                                </div>
+                                <div>
+                                    <table ng-if="otherMsg" class="table-border-style">
+                                        <tr><td>{{resultMsg}}</td></tr>
+                                    </table>
+                                    <table ng-if="dataMsg" class="table-border-style">
+                                        <tr><td>姓名或公司名称</td><td>{{ resultMsg.realname }}</td></tr>
+                                        <tbody  ng-repeat="(index,value) in resultMsg.list">
+                                        <tr><th colspan="2" style="background-color: #f6f8f8">信息{{ index + 1 }}</th></tr>
+                                        <tr><td>年龄</td><td>{{ value.age }}</td></tr>
+                                        <tr><td>性别</td><td>{{ value.sex }}</td></tr>
+                                        <tr><td>身份证号或组织机构代码</td><td>{{ value.idCard }}</td></tr>
+                                        <tr><td>立案时间</td><td>{{ value.filingdate }}</td></tr>
+                                        <tr><td>案号</td><td>{{ value.caseno }}</td></tr>
+                                        <tr><td>执行依据文号</td><td>{{ value.baseonno }}</td></tr>
+                                        <tr><td>做出执行依据单位</td><td>{{ value.baseonorg }}</td></tr>
+                                        <tr><td>执行法院</td><td>{{ value.court }}</td></tr>
+                                        <tr><td>省份</td><td>{{ value.province }}</td></tr>
+                                        <tr><td>生效法律文书确定的义务</td><td>{{ value.duty }}</td></tr>
+                                        <tr><td>被执行人的履行情况</td><td>{{ value.performance }}</td></tr>
+                                        <tr><td>失信被执行人行为具体情形</td><td>{{ value.description }}</td></tr>
+                                        <tr><td>发布时间</td><td>{{ value.pubdate }}</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+

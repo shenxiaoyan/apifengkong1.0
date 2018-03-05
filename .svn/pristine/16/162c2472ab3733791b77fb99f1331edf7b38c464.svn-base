@@ -1,0 +1,79 @@
+package apifengkong.controller;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import apifengkong.entity.Customer;
+import apifengkong.entity.SupplyAPI;
+import apifengkong.service.ParameterService;
+import apifengkong.service.SmartSearchService;
+import apifengkong.util.Common;
+import apifengkong.util.FailResponse;
+
+@Controller
+public class ApiSearchController {
+
+	private static Logger logger = Logger.getLogger(ApiSearchController.class);
+
+	@Autowired
+	ParameterService parameterService;
+	@Autowired
+	SmartSearchService smartSearchService;
+
+	@RequestMapping(value = "/smartSearch")
+	@ResponseBody
+	public Map smartSearch(HttpServletRequest request) {
+
+		Map<String, String> inputParameterConvert = parameterService.smartInputParameterProcess(request);
+		Map<String, String> parameters = parameterService.checkSignature(inputParameterConvert);
+		Customer customer = parameterService.getCustomer(inputParameterConvert);
+		if (customer.getRemainder().intValue() <= 0) {
+			throw new FailResponse(8652, "余额不足");
+		}
+		logger.info("customer:" + customer.getName());
+		HashMap<SupplyAPI, HashMap<String, String>> apis = parameterService.findSupplyAPIs(parameters);
+		Map<String, Map> results = smartSearchService.search(apis, customer);
+
+		return results;
+	}
+
+	@RequestMapping(value = "/normalSearch")
+	@ResponseBody
+	public Map normalSearch(HttpServletRequest request) {
+
+		HashMap<String, String> inputParameterConvert = parameterService.normalInputParameterProcess(request);
+		Customer customer = null;
+		if (inputParameterConvert.get("appCode") != null) {
+			customer = parameterService.getCustomer(inputParameterConvert);
+			inputParameterConvert.remove("appCode");
+		} else {
+			customer = Common.getPrincipal().getCustomer();
+		}
+		if (customer.getRemainder().intValue() <= 0) {
+			throw new FailResponse(8652, "余额不足");
+		}
+		logger.info("customer:" + customer.getName());
+		
+		if(inputParameterConvert.isEmpty()){
+			throw new FailResponse(7651, "参数不能为空");
+		}
+
+		HashMap<SupplyAPI, HashMap<String, String>> apis = parameterService.findSupplyAPI(inputParameterConvert);
+
+		logger.info(apis);
+
+		Map<String, Map> results = smartSearchService.search(apis, customer);
+
+		return results;
+	}
+}

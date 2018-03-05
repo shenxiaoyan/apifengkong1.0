@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>登录</title>
+   <link href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+
+        html{
+            height: 100%;
+        }
+        body {
+            padding: 0;
+            margin:0;
+            color: #fff3e0;
+            background:url('img/cc7.jpg') no-repeat center fixed;
+            overflow:hidden;
+            height: 100%;
+            position: relative;
+        }
+        .container{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 440px;
+            margin-left: -220px;
+            margin-top: -202px;
+            text-align: center;
+        }
+        .starter-template {
+            text-align: center;
+            margin-left:-250px;
+        }
+        .first-contain{
+            /*background-color: grey;*/
+            padding:15px 0;
+            /*opacity: 0.5;*/
+            background:rgba(120,120,120,0.6);
+            border-radius: 10px
+        }
+        .second-contain{
+            /*background-color: grey;*/
+            padding:0 15px;
+            /*opacity: 0.5;*/
+            background:rgba(120,120,120,0.6);
+
+            border-radius: 10px;
+            margin-top: 25px
+        }
+        .user-style{
+            padding-top: 13px !important;
+            color: #fff;
+        }
+        input{
+            border:1px #ccc solid;
+        }
+        .user-input{
+            height: 48px;
+            border: none;
+            box-shadow:none;
+            border-radius: 0;
+            border-left: 1px solid #ccc;
+            /*background-color: grey;*/
+            /*opacity: 0.5;*/
+            background:rgba(120,120,120,0);
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .padding-style{
+            padding:0 15px 0 0
+        }
+        .button-style{
+            /*background-color: grey;*/
+            padding:15px 15px;
+            /*opacity: 0.5;*/
+            background:rgba(120,120,120,0);
+            border-radius: 10px;
+            width: 410px;
+            font-size: 16px;
+            color: #fff;
+            outline-width: 0;
+            outline: none;
+        }
+        .button-style:hover{
+            color: #fff;
+        }
+
+        .fontSize{
+            font-size: 24px;
+        }
+
+        .form-control:focus{
+            border:none;
+            border-left:1px solid #ccc;
+            box-shadow:none;
+        }
+        .btn{
+            outline: none !important;
+        }
+        .supCol{
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" >
+        <div class="starter-template" style="float:left">
+
+            <h2 style="margin-bottom: 35px" >金融风控</h2>
+            <!--<form class="form-signin" role="form" name="form" th:action="@{/login}" action="/login" method="post">-->
+                <!--<div class="form-group">-->
+                    <!--<label for="username">账号</label>-->
+                    <!--<input type="text" class="form-control" name="username" value="" placeholder="账号"/>-->
+                <!--</div>-->
+                <!--<div class="form-group">-->
+                    <!--<label for="password">密码</label>-->
+                    <!--<input type="password" class="form-control" name="password" placeholder="密码"/>-->
+                <!--</div>-->
+                <!--<input type="submit" id="login" value="Login" class="btn btn-primary"/>-->
+            <!--</form>-->
+
+
+
+                <form class="form-horizontal" role="form" name="form" th:action="@{/company/deposit}" action="/company/deposit" method="post">
+                    <div class="first-contain">
+                        <div class="form-group">
+                            <label for="paymentCompany" class="col-sm-2 control-label user-style">
+                                <i class=" glyphicon glyphicon-user fontSize"></i>
+                            </label>
+
+                            <div class="col-sm-10 padding-style">
+                                <input type="text" name="platform" class="form-control user-input" placeholder="支付公司" value="ALIPAY">
+                            </div>
+                        </div>
+                        <hr style="opacity: 0.4">
+                        <div class="form-group" style="margin-bottom: 0">
+                            <label for="password" class="col-sm-2 control-label  user-style" style="">
+                                <i class="glyphicon glyphicon-eye-open fontSize"></i>
+                            </label>
+                            <div class="col-sm-10 padding-style">
+                                <input type="text" name="amount" class="form-control user-input" placeholder="金额">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="second-contain">
+                        <div class="form-group">
+                            <label for="password" class=" control-label user-style"></label>
+                            <div class="col-sm-10 padding-style">
+                                <button type="submit" style="" id="loginin" class="btn button-style">
+                                    登录
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <!--<label class="col-sm-2 control-label"></label>-->
+                        <div class="col-sm-12 error-user supCol" th:if="${param.error}">
+                            用户名或密码错误
+                        </div>
+                    </div>
+                    <div >
+                        <!--<label class="col-sm-2 control-label"></label>-->
+                        <div class="col-sm-12 error-user supCol" th:if="${param.logout}">
+                            已注销
+                        </div>
+                    </div>
+                </form>
+
+        </div>
+    </div>
+
+
+
+
+
+</body>
+</html>

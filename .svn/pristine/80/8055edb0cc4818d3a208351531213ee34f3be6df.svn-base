@@ -1,0 +1,14 @@
+package apifengkong.entity;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+public interface APISearchLogRepository extends JpaRepository<APISearchLog, Integer> {
+	APISearchLog findFirstByApiAndParametersOrderByCreateTimeDesc(SupplyAPI api,String parameters);
+	@Query(value="select l.user.name,l.price,l.create_time from api_search_log l where l.user.role.name='ROLE_USER'",nativeQuery=true)
+	List<APISearchLog> getStuffConsumReport();
+}
+
+

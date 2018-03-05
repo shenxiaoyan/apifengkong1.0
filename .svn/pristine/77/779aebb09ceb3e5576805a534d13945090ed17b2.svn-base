@@ -1,0 +1,223 @@
+<script>
+    "use strict";
+    app.controller("employeeCtrl", [
+            "$scope", "$http", "$rootScope", "$state",'$interval',
+            function ($scope, $http, $rootScope, $state,$interval) {
+
+            $scope.list = [];
+            $scope.number = 0;
+            $scope.deposit_value  = 100;
+            //初始化分页参数
+            $scope.pageList = {
+                size: 0,
+                total_elements: 0,
+                current_page: 0,
+                num_page: 1,
+                total_page: 1
+            };
+            $scope.getList = function(page){
+
+            //String name,String idCard,String mobile
+                    $http({
+                    method:'GET',
+                            url:'/company/user/list?sort=id,desc&size=10&page=' + page,
+                    })
+                    .then(function (resResult) {
+                        if (resResult.data.content){
+                                $scope.list = resResult.data.content;
+                                $scope.employee_number = resResult.data.totalElements;
+                                $scope.number = $scope.list.length;
+                                //设置分页参数
+                                $scope.pageList = {
+                                    size: resResult.data.size,
+                                    total_elements: resResult.data.numberOfElements,
+                                    current_page: resResult.data.number,
+                                    num_page: resResult.data.totalPages,
+                                    total_page: resResult.data.totalPages
+                                };
+                            //生成翻页插件
+                            if ($scope.list.length > 0) {
+                                $rootScope.setPaginator("#employee_list_paginator", $scope.pageList, $scope.getList);
+                            }
+                        }
+                    });
+            };
+            $scope.getList(0);
+            
+            
+                        
+                $scope.personPredata = {
+                    companyId:$rootScope.myinfo.company.id,
+                    nickname:'',
+                    username:'',
+                    sms:'',
+                    password1:'',
+                    password2:'',
+                }
+                $scope.personSeconds = 60;
+                $scope.personSendSMSText = '获取验证码';
+                $scope.personSendSMSPending = false;//验证码发送中的状态，60秒后可重发
+                
+                 $scope.personSms = function(){
+                     if($scope.personPredata.username.length !== 11){
+                         alert('请输入11位手机号，您输入'+ $scope.personPredata.username.length +'位');
+                        
+                     } else{
+                            $http({method: "get", url: '/user/registerSms?username=' + $scope.personPredata.username}).then(function (response) {
+                               var resResult = response.data;
+                               if (resResult.status == 'fail') {
+
+                               } else {
+
+                               }
+                           }, function(){
+
+                           });
+                           $scope.personSendSMSPending =true;
+                           $interval(function(){
+                                $scope.personSeconds --;
+                                $scope.personSendSMSText = $scope.personSeconds + '秒后可重新发送';
+                            },1000,60).then(function(){
+                                $scope.personSendSMSPending = false;
+                                $scope.personSendSMSText = '获取验证码';
+                                $scope.personSeconds = 60;
+                            });
+                    }
+                }
+                
+                $scope.personSubmit = function(){
+                     $http({method: "post", url: '/user/register', data:$scope.personPredata}).then(function (response) {
+                            console.log(response.data);
+                            var resResult = response.data;
+                            if (resResult.status == 'fail') {
+                                    alert(resResult.message);
+                            } else {
+                                alert("注册成功！");
+                                //$state.reload();
+                                 $scope.personPredata = {
+                                    companyId:$rootScope.myinfo.company.id,
+                                    nickname:'',
+                                    username:'',
+                                    sms:'',
+                                    password1:'',
+                                    password2:''
+                                }
+                            }
+                    }, function(){
+
+                    });
+                }
+            
+            
+            
+            }
+    ]);</script>
+<div class="body_wrap list_wrap" ng-controller="employeeCtrl">
+    <div class="title_wrap">
+        <div class="page_title">
+            <span class="pull-right">共有 {{employee_number?employee_number:0}} 位成员</span>
+            团队管理 
+        </div>
+    </div>
+    <div class="content_wrap">
+        <div class="pull-left" style="width: 40%">
+            <p>新增员工</p>
+            <br />
+           <form class="form-horizontal">
+                           <div class="form-group">
+                                    <label class="col-lg-2 control-label">员工姓名</label>
+                                    <div class="col-lg-5">
+                                        <input class="form-control" name="nickname" ng-model="personPredata.nickname" placeholder="张三" type="text">
+                                    </div>
+                                     <div class="col-lg-5" style="margin-left: -25px;">
+                                          <span class="text-danger" ng-show="personPredata.nickname.length <2 && personPredata.nickname.length > 0"><i class="fa fa-ban"></i> 姓名至少两个字以上</span>
+                                        <span class="text-success" ng-show="personPredata.nickname.length > 1"><i class="fa fa-check"></i> 格式正确</span>
+                                    </div>
+                                </div>
+               
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label">员工手机</label>
+                                    <div class="col-lg-5">
+                                        <input class="form-control" name="username" ng-model="personPredata.username" placeholder="11位手机号" type="text">
+                                    </div>
+                                     <div class="col-lg-5" style="margin-left: -25px;">
+                                        <span class="text-danger" ng-show="personPredata.username.length != 11 && personPredata.username.length > 0"><i class="fa fa-ban"></i> 11位手机号</span>
+                                        <span class="text-success" ng-show="personPredata.username.length == 11"><i class="fa fa-check"></i> 11位手机号</span>
+                                    </div>
+                                </div>
+               
+               
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label">验证码</label>
+                                    <div class="col-lg-5">
+                                        <input class="form-control" name="sms" ng-model="personPredata.sms"  placeholder="验证码" type="text">
+                                    </div>
+                                    <div class="col-lg-5" style="margin-left: -25px;">
+                                        <button  class="btn btn-default" ng-hide="personSendSMSPending"  ng-click="personSms()">获取验证码</button>
+                                        <button  class="btn btn-default disabled" ng-show="personSendSMSPending">{{personSendSMSText}}</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label">登录密码</label>
+                                    <div class="col-lg-5">
+                                        <input class="form-control" name="password1"  ng-model="personPredata.password1"  placeholder="密码" type="password">
+                                    </div>
+                                    <div class="col-lg-5" style="margin-left: -25px;">
+                                        <span class="text-danger" ng-show="personPredata.password1.length <6 && personPredata.password1.length > 0"><i class="fa fa-ban"></i> 密码需要6位以上</span>
+                                        <span class="text-success" ng-show="personPredata.password1.length >5"><i class="fa fa-check"></i> 正确</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label">确认密码</label>
+                                    <div class="col-lg-5">
+                                        <input class="form-control" name="password2"  placeholder="确认密码"ng-model="personPredata.password2"   type="password">
+                                    </div>
+                                     <div class="col-lg-5" style="margin-left: -25px;">
+                                        <span class="text-success " ng-show="personPredata.password1.length >5 && personPredata.password1 == personPredata.password2"><i class="fa fa-check"></i> 密码相同</span>
+                                        <span class="text-danger" ng-show="personPredata.password1.length >5 && personPredata.password1 != personPredata.password2"><i class="fa fa-check"></i> 密码不同</span>
+                                    </div>
+                                </div>
+                                  <div class="form-group">
+                                    <label class="col-lg-2 control-label"></label>
+                                    <div class="col-lg-6">
+                                        &nbsp;
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                      <div class="col-lg-offset-2 col-lg-10">
+                                          <button  class="btn btn-sm btn-info disabled" ng-if="personPredata.nickname.length < 2 || personPredata.username.length != 11 || personPredata.sms.length !=6 || personPredata.password1.length <6 ||  personPredata.password1 != personPredata.password2">注册个人</button>
+                                          <button  ng-click="personSubmit()" class="btn btn-sm btn-success" ng-if="personPredata.nickname.length > 1  && personPredata.username.length == 11 && personPredata.sms.length == 6 && personPredata.password1.length >5  &&  personPredata.password1 == personPredata.password2">注册个人</button>
+                                      </div>
+                                </div>
+                          </form>
+            
+            
+            
+            
+        </div>
+        <div class="pull-right" style="width:50%">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>手机号</th>
+                        <th>启用</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="(key, row) in list">
+                        <td>{{row.createTime| date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                        <td>{{row.username}}</td>
+                        <td>{{row.enabled ? '是':'禁用'}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="wrapper b-t b-light clearfix">
+                <ul id="employee_list_paginator" style="margin:2px 0;float: right;"></ul>
+                <small class="m-l-md pull-right text-muted inline m-t-sm m-b-sm m-r">本页共 {{ pageList.total_elements}} 条</small>
+            </div>
+            
+        </div>
+
+    </div>
+</div>

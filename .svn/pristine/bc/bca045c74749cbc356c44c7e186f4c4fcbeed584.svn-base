@@ -1,0 +1,36 @@
+<html>
+    <head>
+        <title>小金风控 beta</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="../libs/jquery/bootstrap/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/app.css">
+        <script src="../libs/jquery/jquery/dist/jquery.min.js"></script>
+        <script src="../libs/jquery/bootstrap/dist/js/bootstrap.min.js"></script>
+    </head>
+    <body class="page_graybg">
+
+        <div class="login_wrap">
+            <div class="login_box">
+                <div class="logo_wrap">
+                    <img src="images/logo_login.jpg" alt="小金风控" />
+                </div>
+
+                <div style="margin-top: 72px;">
+                    <form>
+                        <div class="form-group">
+                            <input type="text" class="form-control login_input" id="username" placeholder="用户名">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control login_input" id="password" placeholder="密码">
+                        </div>
+                        <button type="submit" class="btn btn-default btn-block login_submit btn-lg">登录</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+
+    </body>
+</html>

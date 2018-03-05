@@ -1,0 +1,12 @@
+package apifengkong.entity;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, Integer> {
+	User findByUsername(String username);
+	List<User> findByCustomer(Customer customer);
+//	@Query(value="SELECT u.* FROM USER u WHERE u.role_id=?")
+//	Map<String, Object> indexService(String roleId);
+}

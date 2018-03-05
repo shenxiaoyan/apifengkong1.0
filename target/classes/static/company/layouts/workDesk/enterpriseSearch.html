@@ -1,0 +1,316 @@
+<script>
+    'use strict';
+    /*
+     * 创建人：沈小艳
+     * 创建时间：2017/08/10
+     * 员工管理
+     * */
+
+    app.controller('reportDownload',['$scope','$http','pdfprint',function ($scope,$http,pdfprint) {
+
+        $scope.texts=[
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题4',
+                time:'2012-2-2'
+            },
+
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1f',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1dfdsf',
+                time:'2012-2-2'
+            },
+
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1dfdsf',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1fdfsf54545',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            },
+            {
+                number:'1',
+                name:'tom',
+                title:'标题1',
+                time:'2012-2-2'
+            }
+
+        ];
+
+
+
+        //下载
+        $scope.createPdf=function (apiId,res,apiname) {
+            var resultRes = JSON.parse(res);
+            pdfprint(apiId,resultRes,"【小金风控"+apiId+"】"+apiname)
+        }
+
+//        $scope.pdfprint = function(api_code,param){
+//                pdfprint.print(api_code,param);
+//        }
+
+
+
+        $scope.resultArr1 = [];
+        $scope.Page=function () {
+
+            $http.get("/getSupplyPriceAll").success(function(resSupply){
+//                console.log($scope.resSupply)
+                $http({
+                    method: 'get',
+                    url: '/workconsole/history'
+                }).then(function successCallback(response) {
+
+                    angular.forEach(resSupply.supplys,function (obj,index) {
+
+                        angular.forEach(response.data,function (value,key) {
+
+                            angular.forEach(value,function(v2,i2){
+
+                                if(obj.name === key){
+                                    v2.supplyId = obj.id;
+                                }
+
+                            });
+
+                        });
+
+                    });
+
+                    $scope.resultArr = response.data;
+                    var i =1;
+                    console.log($scope.resultArr);
+                    angular.forEach($scope.resultArr,function (resultArr,index) {
+
+                        angular.forEach(resultArr,function (resultArr,key) {
+                            $scope.resultArr1.push(resultArr)
+                            resultArr.index = i;
+                            i++;
+                        })
+                    })
+
+                    console.log($scope.resultArr1)
+
+                    $scope.maxSize=3;
+                    //显示第一页
+                    $scope.currentPage = 1;
+                    // 页面显示的数据
+                    $scope.datas = $scope.resultArr1.slice(($scope.currentPage-1)*10,$scope.currentPage*10);
+                    //总共多少条
+                    $scope.totalItems = $scope.resultArr1.length;
+                    //共多少页 每页显示10条
+                    $scope.totalPage = $scope.totalItems/10;
+
+                    //换页显示的数据
+                    $scope.pageChange = function(){
+                        var currentPage = $scope.currentPage;
+                        $scope.datas = $scope.resultArr1.slice((currentPage-1)*10,currentPage*10)
+
+
+                    }
+
+
+
+
+                });
+
+            });
+
+        };
+
+        $scope.Page();
+
+
+    }])
+</script>
+<div class="hbox hbox-auto-xs bg-light" ng-controller="reportDownload">
+    <div class="col col-sm-9" style="padding: 0">
+        <div class="vbox">
+            <div class="row-row">
+                <div class="cell">
+                    <div class="cell-inner">
+                        <div class="wrapper-md">
+                            <div class="panel panel-info input-panel" style="margin-bottom: 20px">
+                                <div class="panel-heading wrapper" style="font-size: 16px">报告下载</div>
+                                <table class="table-border-style" style="width: 100%;text-align: center;!important;">
+                                    <tr style="background-color: #f6f8f8;font-weight: bold">
+                                        <td>序号</td>
+                                        <td>用户名</td>
+                                        <td>查询参数</td>
+                                        <td>查询标题</td>
+                                        <td>时间</td>
+                                        <!--<td>下载结果</td>-->
+                                        <td>下载</td>
+                                    </tr>
+                                    <tr ng-repeat="n in datas">
+                                        <td>{{n.index}}</td>
+                                        <td>{{n.user.nickname}}</td>
+                                        <td>
+                                            <div>{{n.name}}</div>
+                                            <div>{{n.realname}}</div>
+                                            <div>{{n.cellphone}}</div>
+                                            <div>{{n.phone}}</div>
+                                            <div>{{n.mobile}}</div>
+                                            <div>{{n.shouji}}</div>
+                                            <div>{{n.idcard}}</div>
+                                            <div>{{n.bankcard}}</div>
+                                            <div>{{n.docId}}</div>
+                                            <div>{{n.vin}}</div>
+                                            <div>{{n.engineNo}}</div>
+                                            <div>{{n.licensePlateNo}}</div>
+                                            <div>{{n.licensePlateType}}</div>
+                                            <div>{{n.company}}</div>
+                                            <div>{{n.creditno}}</div>
+                                            <div>{{n.regno}}</div>
+                                            <div>{{n.entInfo}}</div>
+                                            <div>{{n.merchantNo}}</div>
+                                            <div>{{n.beginDate}}</div>
+                                            <div>{{n.endDate}}</div>
+                                            <div>{{n.legalName}}</div>
+                                            <div>{{n.regNo}}</div>
+                                        </td>
+                                        <td>{{n.apiname}}</td>
+                                        <td>{{n.searcheTime}}</td>
+                                        <!--<td>{{n.resp_result}}</td>-->
+                                        <td><button class="btn btn-danger btn-xs" ng-click="createPdf(n.supplyId,n.resp_result,n.apiname)">下载</button></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <!-- pagination -->
+                            <div class="pull-right">
+                                <pagination
+                                        ng-change="pageChange()"
+                                        total-items="totalItems"
+                                        ng-model="currentPage"
+                                        max-size="maxSize"
+                                        class="pagination-sm m-t-sm m-b"
+                                        boundary-links="true"
+                                        rotate="false"
+                                        num-pages="totalPage"
+                                        previous-text="上一页"
+                                        next-text="下一页"
+                                        first-text="首页"
+                                        last-text="尾页">
+                                </pagination>
+                                <h4 class="text-right"><span class="text-sm">(第 {{currentPage}}页 / 共{{totalPage}}页)</span></h4>
+
+                            </div>
+                            <!-- / pagination -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+

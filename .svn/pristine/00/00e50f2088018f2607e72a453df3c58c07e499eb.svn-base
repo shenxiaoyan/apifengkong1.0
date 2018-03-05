@@ -1,0 +1,42 @@
+package apifengkong.service;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import apifengkong.entity.APISearchLog;
+import apifengkong.entity.APISearchLogRepository;
+import apifengkong.util.DateUtils;
+@Service
+public class APISearchLogService {
+	@Autowired
+	APISearchLogRepository apiSearchLogRepository;
+    public Map<String, Object> getSelfConsum(Integer userId,Date startTime,Date endTime) {
+    	Map<String, Object> map=new HashMap<String,Object>();
+    	List<APISearchLog> selfList=apiSearchLogRepository.getSelfDaysConsum(userId, startTime, endTime);
+    	
+    	for (APISearchLog apiSearchLog : selfList) {
+    	   if(apiSearchLog.getCreateTime().getTime()==DateUtils.getDayOfMonth())
+    	   {
+    		
+    	   }
+		
+	}
+		return null;
+		
+	}
+  //将string类型转换为date类型
+	public Date stringToDate() {
+//		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");//小写的mm表示的是分钟  
+//		String dstr=;  
+//		java.util.Date date=sdf.parse(dstr);  
+		return null;
+		
+	}
+}
+

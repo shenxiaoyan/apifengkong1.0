@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-ng-app="app">
+    <head>
+        <meta charset="utf-8" />
+        <title>风控卫士</title>
+        <link rel="stylesheet" href="../libs/jquery/bootstrap/dist/css/bootstrap.css" type="text/css" />
+        <link rel="stylesheet" href="/fengkongweishi/css/app.css" type="text/css" />
+        <link rel="stylesheet" href="/fengkongweishi/css/style.css" type="text/css" />
+        <!-- endbuild -->
+    </head>
+    <body ng-controller="AppCtrl">
+        <div class="all_wrap">
+            <div class="header_wrap" style="-webkit-app-region: drag">
+                <div class="menu_wrap pull-left">
+                    <table class="menu_table" width="100%">
+                        <tr>
+                            <td>
+                                <a>
+                                    <img src="/fengkongweishi/images/menu_welcome.png" alt="person" width="45" /> 
+                                </a>
+                            </td>
+                               <td>
+                                <a>
+                                    <img src="/fengkongweishi/images/menu_2.png" alt="person" width="45" /> 
+                                </a>
+                            </td>
+                            <td>
+                                <a>
+                                    <img src="/fengkongweishi/images/menu_1.png" alt="person" width="45" /> 
+                                </a>
+                            </td>
+                         
+                            <td>
+                                <a>
+                                    <img src="/fengkongweishi/images/menu_3.png" alt="person" width="45" /> 
+                                </a>
+                            </td>
+                            <td>
+                                <a>
+                                    <img src="/fengkongweishi/images/menu_4.png" alt="person" width="45" /> 
+                                </a>
+                            </td>
+                            <td>
+                                <a>
+                                    <img src="/fengkongweishi/images/menu_5.png" alt="person" width="45" /> 
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a  href="/">
+                                    首页
+                                </a>
+                            </td>
+                           <td>
+                                <a  style="color:#999">
+                                    个信网络版
+                                </a>
+                            </td>
+                            <td>
+                                <a  style="color:#999">
+                                    个信通讯版
+                                </a>
+                            </td>
+                            <td>
+                                <a  style="color:#999">
+                                    个信人行版
+                                </a>
+                            </td>
+                            <td>
+                                <a  style="color:#999">
+                                    电商信用
+                                </a>
+                            </td>
+                        </tr>
+                    </table>              
+                </div>
+                <div class="pull-right" style="padding:70px 0 0 0;color:#eaeaea;">
+                    欢迎您，请 <a href="/register"><b>注册</b></a> 或 <a href="/login"><b>登录</b></a> 风控卫士
+                </div>
+            </div>
+             <div class="body_wrap">
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+
+                <table width="100%">
+                    <tr>
+                        <td width="30%" style="text-align: right;padding-right:60px; vertical-align: top">
+                            <img src="fengkongweishi/images/icon_full.png" width="180" alt="小金风控" />
+                        </td>
+                        <td style="vertical-align: top;">
+                            <div style="font-size: 18px;">登录小金</div>
+                            <br />
+                            <div>
+                                <!--<label class="col-sm-2 control-label"></label>-->
+                                <div class="error-user supCol" th:if="${param.error}">
+                                    手机号或密码错误
+                                </div>
+                                <!--<label class="col-sm-2 control-label"></label>-->
+                                <div class="error-user supCol" th:if="${param.logout}">
+                                    已注销
+                                </div>
+                            </div>
+                            <br />
+                            <form  role="form" name="form" th:action="@{/login}" action="/login" method="post">
+                                <div class="form-group">
+                                    <input type="text" class="form-control login_input" name="username" placeholder="手机号">
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" class="form-control login_input" name="password" placeholder="密码">
+                                </div>
+                                <div class="form-group">
+                                    <label for="remember-me">
+                                        <input type="checkbox" name="remember-me" id="rememberMe" />&nbsp;记住账户密码
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-success btn-block">登录</button>
+                                </div>
+                                <div class="form-group">
+                                    没有帐户？<a href="/register" style="color:#0075b0">注册</a>
+                                </div>
+                                <div class="form-group">
+                                    忘记密码？<a href="/password" style="color:#0075b0">找回密码</a>
+                                </div>
+                            </form>
+                        </td>
+                        <td width="30%" style="text-align: right;padding-right:60px;">
+
+                        </td>
+                    </tr>
+                </table>
+                <div class="footer_wrap">
+                    <div class="pull-right">
+                        杭州商道科技有限公司 &nbsp;
+                        0571-56932575
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>

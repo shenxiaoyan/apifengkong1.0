@@ -1,0 +1,72 @@
+
+      <!-- navbar header -->
+      <div class="navbar-header bg-info dker">
+        <button class="pull-right visible-xs dk" ui-toggle-class="show" data-target=".navbar-collapse">
+          <i class="glyphicon glyphicon-cog"></i>
+        </button>
+        <button class="pull-right visible-xs" ui-toggle-class="off-screen" data-target=".app-aside" ui-scroll-to="app">
+          <i class="glyphicon glyphicon-align-justify"></i>
+        </button>
+        <!-- brand -->
+        <a href="#/" class="navbar-brand text-lt">
+          <i class="icon icon-shield"></i>
+          <!--<img src="img/logo.png" alt="." class="hide">-->
+          <span class="hidden-folded m-l-xs">金融风控</span>
+        </a>
+        <!-- / brand -->
+      </div>
+      <!-- / navbar header -->
+
+      <!-- navbar collapse -->
+      <div class="collapse pos-rlt navbar-collapse box-shadow bg-info">
+          <div class="nav navbar-nav navbar-left">
+
+              <a href="javascript:history.go(-1);" class="btn no-shadow navbar-btn"><i class="fa fa-chevron-left"></i> 后退</a>
+              <a href="javascript:history.go(1);" class="btn no-shadow navbar-btn">前进 <i class="fa fa-chevron-right"></i></a>
+
+          </div>
+        <!-- nabar right -->
+        <ul class="nav navbar-nav navbar-right">
+
+
+            <li class="dropdown" dropdown>
+                <a href class="dropdown-toggle clear" dropdown-toggle>
+                    <span class="hidden-sm hidden-md">{{myinfo.customer.companyName}}</span>
+                </a>
+            </li>
+            <li class="dropdown" dropdown>
+                <a href class="dropdown-toggle clear" dropdown-toggle>
+                  <!--<span class="thumb-sm avatar pull-right m-t-n-sm m-b-n-sm m-l-sm">-->
+                    <!--<img src="{{myinfo.headimgurl}}" alt="...">-->
+                    <!--<i class="on md b-white bottom"></i>-->
+                  <!--</span>-->
+                    <span class="hidden-sm hidden-md">{{myinfo.username}}</span> <b class="caret"></b>
+                </a>
+                <!-- dropdown -->
+                <ul class="dropdown-menu animated fadeInRight">
+                    <li class="wrapper b-b m-b-sm bg-light m-t-n-xs text-center" style="width: 240px">
+
+                        <span class="wrapper-xs">余额</span>
+                        <span class="wrapper-xs">{{myinfo.customer.remainder}}积分</span>
+                    </li>
+
+                    <li class="text-center">
+                        <a ui-sref="recharge">
+                            <span>充值</span>
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+                    <li class="text-center">
+                        <a href="http://localhost/login" class=" pull-right-xs">退出登录</a>
+                    </li>
+                </ul>
+                <!-- / dropdown -->
+            </li>
+            <li class="dropdown" dropdown>
+                <a ui-toggle-class="active" target=".settings"><i class="icon  icon-grid"></i></a>
+            </li>
+        </ul>
+        <!-- / navbar right -->
+
+      </div>
+      <!-- / navbar collapse -->

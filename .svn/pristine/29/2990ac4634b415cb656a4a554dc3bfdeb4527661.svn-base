@@ -1,0 +1,37 @@
+package apifengkong.entity;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+public interface APISearchLogRepository extends JpaRepository<APISearchLog, Integer> {
+	APISearchLog findFirstByApiAndParametersOrderByCreateTimeDesc(SupplyAPI api,String parameters);
+	/**
+	 *员工消费记录
+	 * @return
+	 */
+	//员工消费积分总记录
+	@Query(value="select l.user.username,SUM(l.price) from #{#entityName} l where l.user.role.name!='ROLE_ADMIN' group by l.user")
+	List<?> getStuffConsumReport();
+	//员工不同时间段消费
+	@Query(value="select l.user.username,SUM(l.price) from #{#entityName} l where l.user.role.name!='ROLE_ADMIN' and createTime between ?1 and ?2")
+	List<?> getStuffDaysConsum(Date startTime,Date endTime);
+	//接口数量报表总记录
+	@Query(value="select l.api.name , count(l.api.id) from #{#entityName} l where l.customer.id=? group by l.api.id ")
+	List<?> getAPICount(Integer customerId);
+	//接口查询数量时间段记录
+	@Query(value="select l.api.name , count(l.api.id) from #{#entityName} l where l.customer.id=?1 and createTime between ?2 and ?3 group by l.api.id ")
+	List<?> getAPIDaysCount(Integer customerId,Date startTime,Date endTime);
+	//本人消费报表
+	@Query(value="select l from #{#entityName} l where l.user.id=?")
+	List<APISearchLog> getSelfConsum(Integer userId);
+	//本人消费记录时间段记录
+	@Query(value="select l from #{#entityName} l where l.user.id=?1 and createTime between ?2 and ?3")
+	List<APISearchLog> getSelfDaysConsum(Integer userId,Date startTime,Date endTime);
+	@Query(value="select l from #{#entityName} l where l.customer.id=?")
+	List<APISearchLog> getCustomerConsum(Integer customerId);
+}
+
+

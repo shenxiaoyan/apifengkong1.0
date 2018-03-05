@@ -1,0 +1,18 @@
+package apifengkong.entity;
+
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+public interface UserRepository extends JpaRepository<User, Integer> {
+	User findByUsername(String username);
+	Page<User> findByCompany(Company company, Pageable page);
+	//员工数量
+//	@Query(value="select count(*) from User u where u.role.name='ROLE_USER' ")
+//    Integer getAllStuffCount();
+	
+	
+}

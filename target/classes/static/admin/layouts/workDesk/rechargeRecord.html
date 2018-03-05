@@ -1,0 +1,116 @@
+<script>
+    "use strict";
+    /*
+     * 创建人：沈小艳
+     * 创建时间：2017/08/23
+     * 供应商
+     * */
+    app.controller('managementStaff', ['$scope', '$http', '$state', function ($scope, $http, $state) {
+
+        $scope.resultArr1 = [];
+        // 显示
+        $scope.addedData = function () {
+            $http({
+                method: 'POST',
+                url: '/getRechargeLog'
+
+            }).then(function successCallback(response) {
+                console.log(response.data)
+
+                $scope.resultArr = response.data;
+                    var i =1;
+                    angular.forEach($scope.resultArr,function (resultArr,index) {
+
+                        angular.forEach(resultArr,function (resultArr2,key) {
+                            $scope.resultArr1.push(resultArr2)
+                            resultArr.index = i;
+                            i++;
+                        })
+                    })
+                
+                
+
+
+                $scope.maxSize=2;
+                //显示第一页
+                $scope.currentPage = 1;
+                // 页面显示的数据
+                $scope.datas = $scope.resultArr.slice(($scope.currentPage-1)*15,$scope.currentPage*15);
+                //总共多少条
+                $scope.totalItems = $scope.resultArr.length;
+
+                //共多少页 每页显示10条
+                $scope.totalPage = ($scope.totalItems/15)-1;
+                console.log($scope.totalItems)
+                console.log($scope.totalPage)
+
+                //换页显示的数据
+                $scope.pageChange = function(){
+
+                    var currentPage = $scope.currentPage;
+                    $scope.datas = $scope.resultArr.slice((currentPage-1)*15,currentPage*15)
+                }
+
+
+
+
+            }, function errorCallback(response) {
+                // 请求失败执行代码
+                console.log(response.data)
+            });
+        };
+        $scope.addedData();
+
+
+    }])
+</script>
+<div class="hbox hbox-auto-xs bg-light" ng-controller="managementStaff">
+    <div class="bg-light lter b-b wrapper-md">
+        <span class="m-n font-thin h3">充值记录</span>
+    </div>
+
+    <div class="wrapper-md">
+        <table class="table table-hover table-condensed bg-white-only">
+            <tr style="font-weight: bold">
+                <td class="text-center v-middle">序号</td>
+                <td class="text-center v-middle">操作人</td>
+                <td class="text-center v-middle">公司</td>
+                <td class="text-center v-middle">充值金额</td>
+                <td class="text-center v-middle">充值时间</td>
+            </tr>
+            <tbody ng-repeat="(index,rechargeRcord) in datas" style="border: none;">
+            <tr>
+                <td class="text-center v-middle">{{rechargeRcord.index/5}}</td>
+                <td class="text-center v-middle">{{rechargeRcord.user.username}}</td>
+                <td class="text-center v-middle">{{rechargeRcord.customer.companyName}}</td>
+                <td class="text-center v-middle">{{rechargeRcord.integrate}}</td>
+                <td class="text-center v-middle">{{rechargeRcord.rechargeTime | date : 'yyyy-MM-dd HH:mm:ss'}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="wrapper-md">
+        <div class="pull-right">
+            <pagination
+                    ng-change="pageChange()"
+                    total-items="totalItems"
+                    ng-model="currentPage"
+                    max-size="maxSize"
+                    class="pagination-sm m-t-sm m-b"
+                    boundary-links="true"
+                    rotate="false"
+                    num-pages="totalPage"
+                    previous-text="上一页"
+                    next-text="下一页"
+                    first-text="首页"
+                    last-text="尾页">
+            </pagination>
+            <h4 class="text-right"><span class="text-sm">(第 {{currentPage}} 页 / 共 {{totalPage}} 页)</span></h4>
+
+        </div>
+    </div>
+</div>
+
+
+
+

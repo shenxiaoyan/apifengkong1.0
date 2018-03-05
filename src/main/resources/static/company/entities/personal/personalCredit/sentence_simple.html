@@ -1,0 +1,244 @@
+<script>
+    "use strict";
+    /*
+     *创建人：沈小艳
+     *创建时间：2017/08/03
+     *个人法院判决简项
+     * */
+    app.controller('sentenceSimpleCheck', ['$scope','$http','utifyFunction',"$rootScope",
+        function ($scope,$http,utifyFunction,$rootScope) {
+        //数据初始化
+        $scope.info = {
+            name: "",
+            idcard: "",
+            apiId:localStorage.getItem("apiNameId")
+
+        };
+
+        //结果与样例的切换初始化
+        $scope.resultSwitch = false;
+
+        //重置数据
+        $scope.resetInfo = function () {
+            $scope.info.name = '';
+            $scope.info.idcard = '';
+            $scope.resultSwitch = false;
+        };
+
+            $('#cache_model').modal("hide");
+        //提交
+        $scope.submitInfo = function (myForm) {
+
+
+            //数据信息格式错误时阻止表单提交
+            if (myForm.name) {
+                myForm.name.$dirty = true
+            }
+            if (myForm.idcard) {
+                myForm.idcard.$dirty = true
+            }
+
+            if (!myForm.$valid) {
+                $scope.resultSwitch = false;
+                return
+            }
+            $('#cache_model').modal("show");
+
+            $http({
+                method: 'POST',
+                url: '/normalSearch'+utifyFunction($scope.info)
+            }).then(function successCallback(response) {
+
+                $('#cache_model').modal("hide");
+
+                if(response.data.code === 8652){
+                    $scope.resultSwitch = false;
+                    sweetAlert("",response.data.message, "error");
+                    return;
+                }
+
+                if(response.data["youfen个人法院判决简项"].resCode === '0000'){
+                    if(response.data["youfen个人法院判决简项"].data.statusCode === '2012'){
+                        $scope.dataMsg=true;//查询成功
+                        $scope.otherMsg=false;
+                        $scope.resultMsg = response.data["youfen个人法院判决简项"].data.result;
+                    }
+                    if(response.data["youfen个人法院判决简项"].data.result.totalCount === '0'){
+                        $scope.dataMsg=false;//查询成功
+                        $scope.otherMsg=true;
+                        $scope.resultMsg = response.data["youfen个人法院判决简项"].data.result.docList[0];
+                    }
+                    else{
+                        $scope.dataMsg=false;//查询错误
+                        $scope.otherMsg=true;
+                        $scope.resultMsg = response.data["youfen个人法院判决简项"].data.statusMsg;
+                    }
+                    $scope.resultSwitch = true;
+                }
+                else{
+                    $scope.dataMsg=false;//查询错误
+                    $scope.otherMsg=true;
+                    $scope.resultMsg = response.data["youfen手机状态查询"].resMsg;
+                    $scope.resultSwitch = true;
+                }
+
+            });
+            //下载
+//            $scope.createPdf=function () {
+//                if($scope.resultSwitch ===true){
+//                    var html = $("#business_flowing_pdf").html();
+//                    var today = new Date();
+//                    var year = today.getFullYear();
+//                    var month = today.getMonth() + 1;
+//                    var day = today.getDay();
+//                    var hour = today.getHours();
+//                    var minute = today.getMinutes();
+//
+//                    //使用form来生成下载所需的数据
+//                    var form = $("<form>");
+//                    form.attr("style", "display:none");
+//                    form.attr("target", "");
+//                    form.attr("method", "post");
+//                    form.attr("action", "/createpdf");
+//
+//                    var input1 = $("<input>");
+//                    input1.attr("type", "hidden");
+//                    input1.attr("name", "html");
+//                    input1.attr("value", html);
+//                    form.append(input1);
+//
+//                    var input2 = $("<input>");
+//                    input2.attr("type", "hidden");
+//                    input2.attr("name", "filename");
+//                    input2.attr("value", "【小金风控8010】个人法院判决简项 " + year + "." + month + "." + day + "_" + hour + "." + minute);
+//                    form.append(input2);
+//
+//                    //将表单放置在web中
+//                    $("body").append(form);
+//                    form.submit();
+//                }
+//                else{
+//                    sweetAlert("", "请先查询再下载", "error");
+//                }
+//            }
+
+        };
+//接口单价
+        $scope.apiName=localStorage.getItem("apiNameId");
+        $http({
+            url:"/supplyAPI/showApiScore?apiId="+$scope.apiName,
+            method:"GET"
+        }).then(function successCallback(response) {
+            console.log(response)
+            $scope.priceResult=response.data[0];
+        })
+
+    }]);
+</script>
+
+
+<div class="vbox" ng-controller="sentenceSimpleCheck">
+    <div class="wrapper b-b">
+        <div class="font-thin h4">个人信息查询</div>
+    </div>
+    <div class="row-row">
+        <div class="cell scrollable">
+            <div class="cell-inner">
+                <div class="wrapper-md">
+                    <div class="panel panel-info input-panel" style="margin-bottom: 0">
+                        <div class="panel-heading overflow" style="font-size: 16px">
+                            <span class="pull-left text-left">个人法院判决简项</span>
+                            <span class="pull-right text-right supCol">{{priceResult}}积分/次</span>
+                        </div>
+                        <div class="panel-body">
+                            <form name="myForm" action="" method="post" class="form-horizontal newfenye">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label"><span style="color: #ff0000">*</span>姓名:</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" ng-model="info.name" name="name" class="form-control" ng-required="true" pattern="[\u4E00-\u9FA5]{2,5}(?:·[\u4E00-\u9FA5]{2,5})*">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align:left" ng-show="myForm.name.$dirty&&myForm.name.$invalid">
+                                        <span style="color: #ff0000" ng-show="myForm.name.$error.required">姓名不能为空</span>
+                                        <span style="color: #ff0000" ng-show="myForm.name.$error.pattern">姓名格式错误</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label"><span style="color: #ff0000">*</span>身份证号:</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" ng-model="info.idcard" name="idcard" class="form-control" ng-required="true" pattern="(^\d{15}$)|(^\d{17}([0-9]|X)$)">
+                                    </div>
+                                    <div class="col-sm-offset-4 col-sm-8 col-md-offset-0 col-md-3 control-label padder" style="text-align: left" ng-show="myForm.idcard.$dirty && myForm.idcard.$invalid">
+                                        <span style="color: #ff0000" ng-show="myForm.idcard.$error.required">身份证号不能为空</span>
+                                        <span style="color: #ff0000" ng-show="myForm.idcard.$error.pattern">身份证号格式错误</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-offset-3 col-md-offset-3 col-sm-8">
+                                        <button type="button"  class="btn btn-info" ng-click="submitInfo(myForm)">提交</button>
+                                        <button type="button"  class="btn btn-info" ng-click="resetInfo()">重置</button>
+                                        <button type="button" class="btn btn-danger" ng-click="createPdf()"><i class="fa fa-file-pdf-o"></i> 生成PDF</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="wrapper-md" ng-show="!resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                            <span style="color: red;">样例</span>
+                        </div>
+                        <div>
+                            <table class="table-border-style">
+                                <tr><td>裁判文书数据条数</td><td>50</td></tr>
+                                <tr>
+                                    <th colspan="2" style="background-color: #f6f8f8">信息1</th>
+                                </tr>
+                                <tr><td>裁判文书编号</td><td>c2016350702zhi1620</td></tr>
+                                <tr><td>审结时间</td><td>2017年03月17日</td></tr>
+                                <tr><td>标题</td><td>xxxx有限公司</td></tr>
+                                <tr><td>内容</td><td>...确定义务的 二、被告xxxx有限公 司...</td></tr>
+                                <tr><td>数据类型</td><td>裁判文书</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="business_flowing_pdf" class="wrapper-md" ng-show="resultSwitch" style="width:100%; padding:0 20px 0 20px;">
+                    <div class="panel panel-info input-panel">
+                        <div class="panel-heading">
+                            <span style="color: #474747;">查询结果</span>
+                        </div>
+                        <div>
+                            <table ng-if="otherMsg" class="table-border-style grid_table">
+                                <tr><td width="80%">{{resultMsg}}</td></tr>
+                            </table>
+                            <table ng-if="dataMsg" class="table-border-style grid_table">
+                                <tr width="40%"><td>裁判文书数据条数</td><td width="40%">{{resultMsg.totalCount}}</td></tr>
+                                <tbody ng-repeat="(index,value) in resultMsg.docList">
+                                <tr>
+                                    <th colspan="2" style="background-color: #f6f8f8">信息{{ index+1 }}</th>
+                                </tr>
+                                <tr><td>裁判文书编号</td><td>{{ value.docId }}</td></tr>
+                                <tr><td>审结时间</td><td>{{ value.concludeTimeString }}</td></tr>
+                                <tr><td>标题</td><td>{{ value.title }}</td></tr>
+                                <tr><td>内容</td><td>{{ value.content }}</td></tr>
+                                <tr><td>数据类型</td><td>{{ value.dataType }}</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="modal gifPosition" id="cache_model">
+        <img src="../../../../img/cache1.gif" alt="">
+    </div>
+</div>
+
+

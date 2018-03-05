@@ -1,0 +1,36 @@
+<script>
+
+    "use strict";
+    app.controller("enterpriseRealCtrl", [
+        "$scope",
+        function ( $scope) {
+            $scope.risksList = [
+                {
+                    id: "",
+                    name: "企业工商信息查询",
+                    sref: "enterpriseReal.page({view_type:'registration_info'})"
+                }
+            ]
+        }
+    ]);
+</script>
+
+<div class="hbox hbox-auto-xs hbox-auto-sm" ng-controller="enterpriseRealCtrl">
+    <div class="col w-md bg-light dk b-r bg-auto hidden-sm hidden-xs">
+        <div class="wrapper-md b-b bg-light">
+            <div class="font-thin h4">
+                企业信息查询
+            </div>
+        </div>
+        <div class="wrapper-md">
+            <ul class="nav nav-pills nav-stacked nav-sm">
+                <li ui-sref-active="active" ng-repeat="list in risksList">
+                    <a ui-sref="{{ list.sref }}">{{list.name}}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col">
+        <div class="hbox hbox-auto-xs bg-light" ui-view></div>
+    </div>
+</div>

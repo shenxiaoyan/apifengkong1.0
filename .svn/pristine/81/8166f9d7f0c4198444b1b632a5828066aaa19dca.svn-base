@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en" data-ng-app="app">
+    <head>
+        <meta charset="utf-8" />
+        <title>风控卫士</title>
+        <link rel="stylesheet" href="../libs/jquery/bootstrap/dist/css/bootstrap.css" type="text/css" />
+
+        <!-- build:css css/app.min.css -->
+        <link rel="stylesheet" href="/fengkongweishi/css/font.css" type="text/css" />
+        <link rel="stylesheet" href="/fengkongweishi/css/app.css" type="text/css" />
+        <link rel="stylesheet" href="/fengkongweishi/css/style.css" type="text/css" />
+        <!-- endbuild -->
+     
+    </head>
+    <body ng-controller="AppCtrl">
+        <div class="all_wrap">
+            <div class="header_wrap" style="-webkit-app-region: drag">
+                <div class="menu_wrap pull-left">
+                    <table class="menu_table" width="100%">
+                        <tr>
+                            <td>
+                                <a>
+                                    <img src="/fengkongweishi/images/menu_welcome.png" alt="person" width="45" /> 
+                                </a>
+                            </td>
+                            <td>
+                                <a>
+                                    <img src="/fengkongweishi/images/menu_1.png" alt="person" width="45" /> 
+                                </a>
+                            </td>
+                            <td>
+                                <a>
+                                    <img src="/fengkongweishi/images/menu_2.png" alt="person" width="45" /> 
+                                </a>
+                            </td>
+                            <td>
+                                <a>
+                                    <img src="/fengkongweishi/images/menu_3.png" alt="person" width="45" /> 
+                                </a>
+                            </td>
+                            <td>
+                                <a>
+                                    <img src="/fengkongweishi/images/menu_4.png" alt="person" width="45" /> 
+                                </a>
+                            </td>
+                            <td>
+                                <a>
+                                    <img src="/fengkongweishi/images/menu_5.png" alt="person" width="45" /> 
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a  href="/">
+                                    首页
+                                </a>
+                            </td>
+                            <td>
+                                <a  style="color:#999">
+                                    个信速查
+                                </a>
+                            </td>
+                            <td>
+                                <a  style="color:#999">
+                                    个信慢查
+                                </a>
+                            </td>
+                            <td>
+                                <a  style="color:#999">
+                                    企业信用
+                                </a>
+                            </td>
+                            <td>
+                                <a  style="color:#999">
+                                    电商信用
+                                </a>
+                            </td>
+                            <td>
+                                <a style="color:#999">
+                                    职前调查
+                                </a>
+                            </td>
+                        </tr>
+                    </table>              
+                </div>
+                <div class="pull-right" style="padding:70px 0 0 0;color:#eaeaea;">
+                    欢迎您，请 <a href="/register"><b>注册</b></a> 或 <a href="/login"><b>登录</b></a> 风控卫士
+                </div>
+            </div>
+            
+            
+            <div class="body_wrap" ng-controller="registerCtrl">
+                <br />
+                <br />
+                <br />
+                <br />
+
+                <table width="100%">
+                    <tr>
+                        <td width="10%">
+                            &nbsp;
+                        </td>
+                        <td width="45%" style="vertical-align: top;">
+                            <div style="font-size: 18px;">找回密码</div>
+                            <br />
+                                 
+                            <form class="form-horizontal">
+                            
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label">手机</label>
+                                    <div class="col-lg-5">
+                                        <input class="form-control" name="username" ng-model="personPredata.username" placeholder="11位手机号" type="text">
+                                    </div>
+                                     <div class="col-lg-5" style="margin-left: -25px;">
+                                        <span class="text-danger" ng-show="personPredata.username.length != 11 && personPredata.username.length > 0"><i class="fa fa-ban"></i> 11位手机号</span>
+                                        <span class="text-success" ng-show="personPredata.username.length == 11"><i class="fa fa-check"></i> 11位手机号</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label">验证码</label>
+                                    <div class="col-lg-5">
+                                        <input class="form-control" name="sms" ng-model="personPredata.sms"  placeholder="验证码" type="text">
+                                    </div>
+                                    <div class="col-lg-5" style="margin-left: -25px;">
+                                        <button  class="btn btn-default" ng-hide="personSendSMSPending"  ng-click="personSms()">获取验证码</button>
+                                        <button  class="btn btn-default disabled" ng-show="personSendSMSPending">{{personSendSMSText}}</button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label">登录密码</label>
+                                    <div class="col-lg-5">
+                                        <input class="form-control" name="password1"  ng-model="personPredata.password1"  placeholder="密码" type="password">
+                                    </div>
+                                    <div class="col-lg-5" style="margin-left: -25px;">
+                                        <span class="text-danger" ng-show="personPredata.password1.length <6 && personPredata.password1.length > 0"><i class="fa fa-ban"></i> 密码需要6位以上</span>
+                                        <span class="text-success" ng-show="personPredata.password1.length >5"><i class="fa fa-check"></i> 正确</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label">确认密码</label>
+                                    <div class="col-lg-5">
+                                        <input class="form-control" name="password2"  placeholder="确认密码"ng-model="personPredata.password2"   type="password">
+                                    </div>
+                                     <div class="col-lg-5" style="margin-left: -25px;">
+                                        <span class="text-success " ng-show="personPredata.password1.length >5 && personPredata.password1 == personPredata.password2"><i class="fa fa-check"></i> 密码相同</span>
+                                        <span class="text-danger" ng-show="personPredata.password1.length >5 && personPredata.password1 != personPredata.password2"><i class="fa fa-check"></i> 密码不同</span>
+                                    </div>
+                                </div>
+                                  <div class="form-group">
+                                    <label class="col-lg-2 control-label"></label>
+                                    <div class="col-lg-6">
+                                        &nbsp;
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                      <div class="col-lg-offset-2 col-lg-10">
+                                          <button  class="btn btn-sm btn-info disabled" ng-if="personPredata.username.length != 11 || personPredata.sms.length !=6 || personPredata.password1.length <6 ||  personPredata.password1 != personPredata.password2">注册个人</button>
+                                          <button  ng-click="personSubmit()" class="btn btn-sm btn-success" ng-if="personPredata.username.length == 11 && personPredata.sms.length == 6 && personPredata.password1.length >5  &&  personPredata.password1 == personPredata.password2">注册个人</button>
+                                      </div>
+                                </div>
+                          </form>
+                        </td>
+                        <td width="45%"  style="vertical-align:  top;">
+                              
+                        </td>
+                    </tr>
+                </table>
+                <div class="footer_wrap">
+                    <div class="pull-right">
+                        杭州商道科技有限公司 &nbsp;
+                        0571-56932575
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- build:js js/app.angular.js -->
+        <!-- jQuery -->
+        <script src="../libs/jquery/jquery/dist/jquery.js"></script>
+        <script>if (typeof module === 'object') {
+                                    window.jQuery = window.$ = module.exports;
+                                }
+                                ;</script>
+        <!-- Bootstrap -->
+        <script src="../libs/jquery/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="../libs/jquery/bootstrap-paginator/bootstrap-paginator.min.js"></script>
+
+        <!-- Angular -->
+        <script src="../libs/angular/angular/angular.js"></script>
+
+        <script src="../libs/angular/angular-animate/angular-animate.js"></script>
+        <script src="../libs/angular/angular-aria/angular-aria.js"></script>
+        <script src="../libs/angular/angular-cookies/angular-cookies.js"></script>
+        <script src="../libs/angular/angular-messages/angular-messages.js"></script>
+        <script src="../libs/angular/angular-resource/angular-resource.js"></script>
+        <script src="../libs/angular/angular-sanitize/angular-sanitize.js"></script>
+        <script src="../libs/angular/angular-touch/angular-touch.js"></script>
+
+        <script src="../libs/angular/angular-ui-router/release/angular-ui-router.js"></script> 
+        <script src="../libs/angular/ngstorage/ngStorage.js"></script>
+        <script src="../libs/angular/angular-ui-utils/ui-utils.js"></script>
+
+        <!-- bootstrap -->
+        <script src="../libs/angular/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+        <!-- lazyload -->
+        <script src="../libs/angular/oclazyload/dist/ocLazyLoad.js"></script>
+        <!-- translate -->
+        <script src="../libs/angular/angular-translate/angular-translate.js"></script>
+        <script src="../libs/angular/angular-translate-loader-static-files/angular-translate-loader-static-files.js"></script>
+        <script src="../libs/angular/angular-translate-storage-cookie/angular-translate-storage-cookie.js"></script>
+        <script src="../libs/angular/angular-translate-storage-local/angular-translate-storage-local.js"></script>
+
+        <!-- App -->
+        <script src="/fengkongweishi/js/app.js"></script>
+        <script src="/fengkongweishi/js/config.js"></script>
+        <script src="/fengkongweishi/js/config.lazyload.js"></script>
+        <script src="/fengkongweishi/js/config.router.js"></script>
+        <script src="/fengkongweishi/js/main.js"></script>
+        <script src="/fengkongweishi/js/services/ui-load.js"></script>
+        <script src="/fengkongweishi/js/filters/fromNow.js"></script>
+        <script src="/fengkongweishi/js/directives/setnganimate.js"></script>
+        <script src="/fengkongweishi/js/directives/ui-butterbar.js"></script>
+        <script src="/fengkongweishi/js/directives/ui-focus.js"></script>
+        <script src="/fengkongweishi/js/directives/ui-fullscreen.js"></script>
+        <script src="/fengkongweishi/js/directives/ui-jq.js"></script>
+        <script src="/fengkongweishi/js/directives/ui-module.js"></script>
+        <script src="/fengkongweishi/js/directives/ui-nav.js"></script>
+        <script src="/fengkongweishi/js/directives/ui-scroll.js"></script>
+        <script src="/fengkongweishi/js/directives/ui-shift.js"></script>
+        <script src="/fengkongweishi/js/directives/ui-toggleclass.js"></script>
+        <script src="/fengkongweishi/js/controllers/bootstrap.js"></script>
+        <!-- endbuild -->
+        <!-- Lazy loading -->
+   <script>
+
+    "use strict";
+    app.controller("registerCtrl", [
+            "$scope", "$http", "$rootScope", '$state', '$interval', '$timeout', "$stateParams",
+            function ($scope, $http, $rootScope, $state, $interval, $timeout, $stateParams) {
+                
+                $scope.personPredata = {
+                    username:'',
+                    sms:'',
+                    password1:'',
+                    password2:'',
+                }
+                $scope.personSeconds = 60;
+                $scope.personSendSMSText = '获取验证码';
+                $scope.personSendSMSPending = false;//验证码发送中的状态，60秒后可重发
+                
+                 $scope.personSms = function(){
+                     if($scope.personPredata.username.length !== 11){
+                         alert('请输入11位手机号，您输入'+ $scope.personPredata.username.length +'位');
+                        
+                     } else{
+                            $http({method: "get", url: '/user/rePasswordSms?username=' + $scope.personPredata.username}).then(function (response) {
+                               var resResult = response.data;
+                               if (resResult.status == 'fail') {
+
+                               } else {
+
+                               }
+                           }, function(){
+
+                           });
+                           $scope.personSendSMSPending =true;
+                           $interval(function(){
+                                $scope.personSeconds --;
+                                $scope.personSendSMSText = $scope.personSeconds + '秒后可重新发送';
+                            },1000,60).then(function(){
+                                $scope.personSendSMSPending = false;
+                                $scope.personSendSMSText = '获取验证码';
+                                $scope.personSeconds = 60;
+                            });
+                    }
+                }
+                
+                $scope.personSubmit = function(){
+                     $http({method: "post", url: '/user/rePassword', data:$scope.personPredata}).then(function (response) {
+                        console.log(response.data);
+                        var resResult = response.data;
+                        if (resResult.status == 'fail') {
+                                alert(resResult.message);
+                        } else {
+                            alert("密码修改成功，请登录！")
+                             window.location.href= '/login';
+                        }
+
+                    }, function(){
+
+                    });
+                }
+            }
+    ]);</script>
+     
+    </body>
+</html>

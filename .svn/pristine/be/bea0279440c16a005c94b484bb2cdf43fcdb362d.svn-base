@@ -1,0 +1,20 @@
+package apifengkong.entity;
+
+import java.util.Date;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+public interface PersonLoanRepository extends JpaRepository<PersonLoan, Integer>,JpaSpecificationExecutor {
+	
+	PersonLoan findFirstByMojieTaskOrderByIdDesc(String mojieTaskId);
+	
+	Page<PersonLoan> findByCompany(Company company,Pageable page);
+	Page<PersonLoan> findByUser(User user,Pageable page);
+	PersonLoan findFirstByNameAndMobileAndIdCardAndCacheAndStatusOrderByIdDesc(String name,String mobile,String idCard,boolean cache,String status);
+	Long countByIdCardAndCreateAtGreaterThan(String idCard, Date date);
+	
+
+}

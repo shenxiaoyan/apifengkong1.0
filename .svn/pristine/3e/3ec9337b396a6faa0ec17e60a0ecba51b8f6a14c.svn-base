@@ -1,0 +1,29 @@
+package apifengkong.util;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import apifengkong.entity.User;
+
+
+public class Common {
+	
+	public static User getPrincipal() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()) {
+			return null;
+		}
+		if (authentication.getPrincipal() instanceof User) {
+			return (User) authentication.getPrincipal();
+		} else {
+			return null;
+		}
+	}
+}

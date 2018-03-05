@@ -1,0 +1,38 @@
+package apifengkong.service;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.annotation.PostConstruct;
+
+import org.jboss.logging.Logger;
+import org.springframework.stereotype.Service;
+
+import apifengkong.entity.PersonCreditSubmit;
+
+@Service
+public class PersonCreditSearchService {
+
+	private static Logger logger = Logger.getLogger(PersonCreditSearchService.class);
+
+	private ExecutorService executor;
+//	@Autowired
+//	private APISearchLogRepository apiSearchLogRepository;
+//	@Autowired
+//	private CustomerRepository customerRepository;
+//
+//	@Autowired
+//	private ParameterService parameterService;
+
+	@PostConstruct
+	public void init() {
+		this.executor = Executors.newCachedThreadPool();
+		logger.info("personCreditSearch线程池启动");
+	}
+
+	public void personCreditSearch(PersonCreditSubmit save){
+		
+	}
+	
+	
+}

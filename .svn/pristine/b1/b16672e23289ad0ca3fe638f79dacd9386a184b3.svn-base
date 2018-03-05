@@ -1,0 +1,185 @@
+<script>
+    "use strict";
+    app.controller("personloan_listCtrl", [
+            "$scope", "$http", "$rootScope", "$state","$stateParams",
+            function ($scope, $http, $rootScope, $state,$stateParams) {
+
+            $scope.list = [];
+            $scope.number = 0;
+            //初始化分页参数
+            $scope.pageList = {
+                    size: 0,
+                    total_elements: 0,
+                    current_page: 0,
+                    num_page: 1,
+                    total_page: 1
+            };
+            
+            $scope.searchParams = {
+                name:'',
+                idCard:'',
+                mobile:''
+            };
+            
+            $scope.getHistory = function(page){
+                $http({
+                    method:'GET',
+                    url:window.role_dir + '/personLoan/history?sort=id,desc&size=10&page=' + page,
+                    params:$scope.searchParams
+                    })
+                    .then(function (resResult) {
+                        if (resResult.data.content){
+                            $scope.list = resResult.data.content;
+                            $scope.number = $scope.list.length;
+                        //设置分页参数
+                            $scope.pageList = {
+                                    size: resResult.data.size,
+                                    total_elements: resResult.data.numberOfElements,
+                                    current_page: resResult.data.number,
+                                    num_page: resResult.data.totalPages,
+                                    total_page: resResult.data.totalPages
+                            };
+                        //生成翻页插件
+                            if ($scope.list.length > 0) {
+                                $scope.veiwNotes($scope.list[0]);
+                                $rootScope.setPaginator("#personloan_list_paginator", $scope.pageList, $scope.getHistory);
+                            }
+                        } else {
+                            $scope.list = [];
+                        }
+                });
+            };
+
+            $scope.getHistory(0);
+            
+            
+            $scope.clearFilter = function(){
+                $scope.searchParams = {
+                    name:'',
+                    idCard:'',
+                    mobile:''
+                };
+                $scope.getHistory(0);
+            }
+            
+            $scope.goDetail = function (row) {
+                $state.go('personloan_detail', row);
+            }
+
+            $scope.goForm = function (row) {
+                $state.go('personloan_form', {data:row});
+             }
+             
+             $scope.veiwNotes = function(row){
+                angular.forEach($scope.list,function(data,index,array){
+                        if(data.id === row.id){
+                            data.bgclass = 'alert-warning';
+                            $scope.list[index] = data;
+                        } else{
+                            $scope.list[index].bgclass = '';
+                        }
+                 })
+
+                 $state.go('personloan_list.notes', {id: row.id});
+             }
+         }
+    ]);</script>
+<div class="body_wrap list_wrap" ng-controller="personloan_listCtrl">
+    <div class="title_wrap">
+        <div class="page_title">
+            
+            <a ui-sref="personloan_form" class="btn btn-primary pull-right">新的查询</a>
+            <div class="form-inline">
+                    <form class="form-inline ng-pristine ng-valid" role="form">
+                        <div class="form-group">
+                        </div>
+                        <div class="form-group">
+                          <label class="sr-only" for="name">name</label>
+                          <input class="form-control" id="name" placeholder="姓名" ng-model="searchParams.name" type="text" style="width:90px;">
+                        </div>
+                        <div class="form-group">
+                          <label class="sr-only" for="mobile">mobile</label>
+                          <input class="form-control" id="mobile" placeholder="11位手机号"  ng-model="searchParams.mobile" type="text"  style="width:120px;">
+                        </div>
+                        <div class="form-group">
+                          <label class="sr-only" for="idCard">idCard</label>
+                          <input class="form-control" id="mobile" placeholder="18位身份证号"  ng-model="searchParams.idCard" type="text" style="width:180px;">
+                        </div>
+                        <div class="form-group">
+                          <button  ng-click="getHistory(0)" class="btn btn-default">筛选</button>
+                        </div>
+                        <div class="form-group">
+                            <span ng-click='clearFilter()' ng-if="searchParams.name || searchParams.idCard || searchParams.mobile " class='label bg-success'> {{searchParams.name}} {{searchParams.idCard}} {{searchParams.mobile}} <i class='fa fa-close'></i></span>
+                        </div>
+                        
+                  </form>
+            </div>
+        </div>
+    </div>
+    <div class="content_wrap">
+        
+        <div class="app-content-body detail_content">
+            <div class="hbox hbox-auto-xs bg-white">
+                <div class="col" style="width:70%">
+                    <div class="vbox" style="padding-right: 0;">
+                        <div class="row-row">
+                            <div class="cell scrollable hover">
+                                <div class="cell-inner">
+                                  <table class="table table-condensed" style="margin-bottom: 0;" ng-if='list.length >0 '>
+                                    <thead>
+                                        <tr>
+                                            <th>姓名</th>
+                                            <th>手机号</th>
+                                            <th>身份证号</th>
+                                            <th>查询提交时间</th>
+                                            <th>是否缓存</th>
+                                            <th>处理状态</th>
+                                            <th class="text-center">备注</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="(key, row) in list" class="{{row.bgclass}}">
+                                            <td><a ng-click="goDetail(row)" class="btn btn-default btn-xs">{{row.name}}</a></td>
+                                            <td  ng-click="veiwNotes(row)">{{row.mobile}}</td>
+                                            <td  ng-click="veiwNotes(row)">{{row.idCard}}</td>
+                                            <td ng-click="veiwNotes(row)">{{row.createAt| date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                                            <td ng-click="veiwNotes(row)">{{row.cache ? '是':'否'}}</td>
+                                            <td ng-click="veiwNotes(row)">{{row.status}}</td>
+                                            <td  class="text-center"  ng-click="veiwNotes(row)">
+                                                <span  ng-if="row.noteCount > 0"><b>{{row.noteCount}}条</b></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                    <div ng-if='list.length  == 0 '>
+                                        暂无记录，<a ui-sref="personloan_form" style='color:red;'>去查查</a>！
+                                    </div>
+                                    <div class="b-t b-light clearfix" style="padding-top:8px;">
+                                        <ul id="personloan_list_paginator" class="pagination-sm" style="margin:2px 0;"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col" ng-if='list.length >0 '>
+                    <div class="vbox  alert-warning ">
+                        <div class="row-row">
+                            <div class="cell scrollable hover">
+                                <div class="cell-inner" style="padding:15px;">
+                                    <div ui-view=""></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+        
+                               
+    </div>
+</div>

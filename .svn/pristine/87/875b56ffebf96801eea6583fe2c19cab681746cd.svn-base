@@ -1,0 +1,40 @@
+
+<div class="welcome_wrap">
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+
+    <table width="100%">
+        <tr>
+            <td width="40%" style="text-align: right;padding-right:60px;">
+                <img src="/fengkongweishi/images/icon_full.png" width="180" alt="风控卫士" />
+            </td>
+            <td style="vertical-align: top;">
+                <br />
+                <img src="fengkongweishi/images/welcome_slogan.png" alt="风控卫士" />
+                <br />
+                <a  ui-sref="personweb_form" class="btn btn-success  btn-rounded">个信网络版</a> &nbsp; &nbsp;
+                <a  ui-sref="personloan_form" class="btn btn-success  btn-rounded">个信通讯版</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+            <td style="vertical-align: top;">
+                <a  href="/downloads/person_quick_report_demo.pdf" download="个人征信报告（通讯版）样例.PDF" class="text-success" target="_blank"><i class="fa fa-file-pdf-o"></i> 个人征信报告（通讯版）样例.PDF</a>
+            </td>
+        </tr>
+    </table>
+    <div class="footer_wrap">
+        <div class="pull-right">
+            杭州商道科技有限公司 &nbsp;
+            0571-56932575
+        </div>
+    </div>
+</div>
